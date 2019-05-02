@@ -1,19 +1,19 @@
 *
-!*c/
-!*ds/obj/
-!*ds/lib/
-!*ds/include/
-!*ds/test/
-!*system_programming/
-!*cpp\\fs/obj/
-!*cpp\\fs/lib/
-!*cpp\\fs/include/
-!*cpp\\fs/test/
-!*projects
-!*quizzes
+!c/
+!ds/obj/
+!ds/lib/
+!ds/include/
+!ds/test/
+!system_programming/
+!cpp\\fs/obj/
+!cpp\\fs/lib/
+!cpp\\fs/include/
+!cpp\\fs/test/
+!projects
+!quizzes
 
 
-!*
+
 !*.h
 !*.c
 !*.make
