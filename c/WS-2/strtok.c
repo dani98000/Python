@@ -1,6 +1,16 @@
 #include <string.h>
 #include <stdio.h>
 
+#define RUN_TEST(test)\
+if(!test())\
+{\
+printf(#test " - failed!\n");\
+}\
+else\
+{\
+printf(#test " - ok!\n");\
+}
+
 char *strtok1(char *str, const char *delim)
 {
 	static char *current_start = NULL;
@@ -8,7 +18,7 @@ char *strtok1(char *str, const char *delim)
     char *cleaner = runner;
     static char *original_end = NULL;
     
-	if(str != NULL)
+	if(NULL != str)
 	{
 		current_start = str;
 		original_end=str+strlen(str);
@@ -16,7 +26,7 @@ char *strtok1(char *str, const char *delim)
 		cleaner=runner;
 	}
 	 
-	if(str == NULL && current_start == NULL)
+	if(NULL == str && NULL == current_start)
 	{
 		return(NULL);
 	}
@@ -47,20 +57,21 @@ char *strtok1(char *str, const char *delim)
 	return(runner);
 }
 
+int test_strtok()
+{
+	char str[] = "||db:c";
+	char str2[]="||";
+	const char s[] = "|:;";
+	char *token,*token2;
+   
+    token = strtok1(str, s);
+    token2 = strtok1(str2, s);
+   
+	return(str[2] == *token && NULL == token2);
+}
+
 int main()
 {
-	char str[] = {'|','|','d','b',':','c'};
-	const char s[] = {'|',';',':'};
-	char *token;
-   
-   /* get the first token */
-   token = strtok1(str, s);
-   
-   /* walk through other tokens */
-   while( token != NULL ) {
-      printf( "%s\n", token );
-    
-      token = strtok1(NULL, s);
-   }
-   return 0;
+	RUN_TEST(test_strtok);
+	return 0;
 }
