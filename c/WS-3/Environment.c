@@ -1,87 +1,95 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
+#include <string.h>
 
 #define UNUSED(x) (void)(x)
 
-void copy(char *envp[]);
-void PrintEnv(char *envp[]);
+void CreateBuffer(char **envp, char **buffer);
+void CopyToLower(char *buffer, const char *envp);
+void PrintBuffer(char *buffer[]);
+void FreePointers(char **buffer);
 
 int main(int argc, char *argv[],char *envp[])
 {
+	int count = 0;
+	char **runner = envp;
+	char **buffer = NULL;
 	UNUSED(argc);
 	UNUSED(argv);
-	copy(envp);
+	
+	while(NULL != *runner)
+	{
+		++count;
+		++runner;
+	}
+	buffer = (char**)malloc(sizeof(char *) * count + 1);
+	
+	if(NULL != buffer)
+	{
+		CreateBuffer(envp, buffer);
+		PrintBuffer(buffer);
+	}
+	
+	FreePointers(buffer);
 	
 	return 0;
 }
 
-void PrintEnv(char *envp[])
+void CreateBuffer(char **envp, char **buffer)
 {
-	while(*envp != NULL)
+	int current_size = 0;
+	char **env_runner = envp;
+	char **buffer_runner = buffer;
+	
+	while(NULL != *env_runner)
+	{
+		current_size = strlen(*env_runner);
+		*buffer_runner = (char *)malloc(sizeof(char) * current_size);
+		
+		if(*buffer_runner == NULL)
+		{
+			FreePointers(buffer);
+			return;
+		}
+		
+		CopyToLower(*buffer_runner, *env_runner);
+		buffer_runner++;
+		env_runner++;
+	}
+	
+	buffer_runner = NULL;
+}
+
+void PrintBuffer(char *buffer[])
+{
+	while(*buffer != NULL)
 	{	
-			printf("%s\n",*envp);
-			++envp;
+			printf("%s\n",*buffer);
+			++buffer;
 	}
 
 }
 
-void copy(char *envp[])
+void CopyToLower(char *buffer, const char *envp)
 {
-	char **buffer;
-	char **runner = envp;
-	int charcounter = 0;
-	int stringcounter = 0;
-	
-	while(NULL != *(runner + stringcounter))
+	while('\0' != *envp)
 	{
-		++stringcounter;
-	}
-	
-	buffer=(char**)malloc((stringcounter+1)*sizeof(char*));
-	
-	if(NULL == buffer)
-	{
-		free(buffer);
-	}
-	stringcounter=0;
-	
-	while(NULL != *(runner+stringcounter))
-	{
-		while('\0' != *(*(runner+stringcounter)+ charcounter))
-		{
-					++charcounter;
-		}
-		
-		*(buffer+stringcounter)=(char*)malloc((charcounter+1)*sizeof(char));
-		charcounter=0;
-		++stringcounter;
-	}
-	stringcounter=0;
-	
-	/*runs on string array*/
-	while(NULL != *(runner+stringcounter))
-	{
-		/*runs in char array*/
-		while('\0' != *(*(runner+stringcounter)+charcounter))
-		{
-			(*(*(buffer+stringcounter)+charcounter)) = tolower((*(*(runner+stringcounter)+charcounter)));
-			++charcounter;
-		}
-		
-		*(*(buffer+stringcounter)+charcounter) = '\0';
-		charcounter=0;
-		++stringcounter;
-	}
-	
-	*(buffer+stringcounter)=NULL;
-	PrintEnv(buffer);
-	stringcounter=0;
-	while(NULL != *(buffer+stringcounter))
-	{
-		free(*(buffer+stringcounter));
-		++stringcounter;
-	}
+		*buffer = tolower(*envp);
+		envp++;
+		buffer++;
+	} 
+}
 
+void FreePointers(char **buffer)
+{
+	char **buffer_runner = buffer;
+	
+	while(NULL != *buffer_runner)
+	{
+		free(*buffer_runner);
+		++buffer_runner;
+	}
+	
 	free(buffer);
 }

@@ -1,35 +1,49 @@
-#include <stdio.h> /*printf*/
+#include <stdio.h>
+#include <stdlib.h> /*printf*/
 
-int nextalive(int soldiers[], int arr_length, int index);
+int lastsoldier(int *soldiers_array, int number_of_soldiers);
+int nextalive(int *soldiers_array, int number_of_soldiers, int index);
+
 int main()
 {
-	int soldiers[8] = {1,1,1,1,1,1,1,1};
-	int size = (sizeof(soldiers)/sizeof(soldiers[0]));
+	int number_of_soldiers=100;
+	int i;
+	int *arr = (int *)malloc(sizeof(int) * number_of_soldiers); 
+	for(i = 0; i < number_of_soldiers; i++)
+	{
+		*(arr + i) = 1;
+	}
+	printf("the last standing soldier is in the %d place",lastsoldier(arr, number_of_soldiers));
+	free(arr);
+	
+	return 0;
+}
+
+int nextalive(int *soldiers_array, int number_of_soldiers, int index)
+{
+	index += 1;
+	index = index % number_of_soldiers;
+	
+	while(0 == soldiers_array[index])
+	{
+		++index;
+		index = index % number_of_soldiers;	
+	}
+	
+	return index;
+}
+
+int lastsoldier(int *soldiers_array, int number_of_soldiers)
+{
 	int current_soldier = 0;
 	int nextkill = 1;
 	
 	while(nextkill != current_soldier)
 	{
-		soldiers[nextkill] = 0;
-		current_soldier = nextalive(soldiers, size, current_soldier);
-		nextkill = nextalive(soldiers, size ,current_soldier);
+		soldiers_array[nextkill] = 0;
+		current_soldier = nextalive(soldiers_array, number_of_soldiers, current_soldier);
+		nextkill = nextalive(soldiers_array, number_of_soldiers ,current_soldier);
 	}
 	
-	printf("the last standing soldier is in the %d place",current_soldier+1);
-	
-	return 0;
-}
-
-int nextalive(int soldiers[], int arr_length, int index)
-{
-	index += 1;
-	index = index % arr_length;
-	
-	while(0 == soldiers[index])
-	{
-		++index;
-		index = index % arr_length;	
-	}
-	
-	return index;
+	return (current_soldier+1);
 }
