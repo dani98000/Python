@@ -1,47 +1,21 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-void Switch(void);
-void If(void);
-void Apressed(void);
+#define Esc 27
+
+void Switch();
+void If();
+void Apressed(); 
 void Tpressed();
-void EmptyFunction(void);
+void EmptyFunction();
+void PrintLUT();
 
 int main()
 {
 	/*Switch();
 	If();*/
-	void (*pointer_arr[256])(void);
-	unsigned char x = 0;
-	int i=0;
-	
-	
-	for(; i<256; i++)
-	{
-		if(i == 'A' || i == 'a')
-		{
-			pointer_arr[i]=Apressed;
-		}
-		else if(i == 'T' || i == 't')
-		{
-			pointer_arr[i]=Tpressed;
-		}
-		else
-		{
-			pointer_arr[i]=EmptyFunction;
-		}
-	}
-		system("stty -icanon -echo");
-		x=getchar();
+	PrintLUT();
 
-
-
-	while(x != 27)
-	{
-		x=getchar();
-		pointer_arr[(unsigned int)x]();
-	}
-	system("stty icanon echo");
 	return 0;
 }
 
@@ -49,34 +23,34 @@ void Switch(void)
 {
 	char c;
 	system("stty -icanon -echo");
-	c=getchar();
+	c = getchar();
 	
 	switch(c)
 	{
 		case 'A':
-		printf("A pressed\n");
-		Switch();
+			printf("A pressed\n");
+			Switch();
 		break;
 		
 		case 'T':
-		printf("T pressed\n");
-		Switch();
+			printf("T pressed\n");
+			Switch();
 		break;
 		
-		case 27:
-		printf("Byeeeeeeeeeeee\n");
+		case Esc:
+			printf("Byeeeeeeeeeeee\n");
 		break;
 		
 		default:
-		printf("Error! Invalid key entered.\n");
-		Switch();
+			printf("Error! Invalid key entered.\n");
+			Switch();
 		break;
 	}
 
 	system("stty icanon echo");
 }
 
-void If(void)
+void If()
 {
 	char c;
 	system("stty -icanon -echo");
@@ -92,7 +66,7 @@ void If(void)
 		printf("T pressed\n");
 		If();
 	}	
-	else if(27 == c)
+	else if(Esc == c)
 	{
 		printf("Byeeeeeeeeeeee\n");
 	}	
@@ -105,14 +79,48 @@ void If(void)
 	system("stty icanon echo");
 }
 
+void PrintLUT()
+{
+	void (*pointer_arr[256])(void);
+	unsigned char x = 0;
+	int i = 0;
+	
+	for(; i < 256; i++)
+	{
+		if(i == 'A' || i == 'a')
+		{
+			pointer_arr[i]=Apressed;
+		}
+		else if(i == 'T' || i == 't')
+		{
+			pointer_arr[i] = Tpressed;
+		}
+		else
+		{
+			pointer_arr[i] = EmptyFunction;
+		}
+	}
+	
+	system("stty -icanon -echo");
+	x = getchar();
+
+	while(x != Esc)
+	{
+		x = getchar();
+		pointer_arr[(unsigned int)x]();
+	}
+	
+	system("stty icanon echo");
+}
+
 void Apressed()
 {
-	printf("A pressed");
+	printf("A pressed\n");
 }
 
 void Tpressed()
 {
-	printf("T pressed");
+	printf("T pressed\n");
 }
 
 void EmptyFunction()
