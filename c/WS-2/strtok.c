@@ -31,6 +31,7 @@ char *strtok1(char *str, const char *delim)
 		return(NULL);
 	}
 
+
 	runner += strspn(current_start, delim);
 	if(runner < original_end)
 	{
