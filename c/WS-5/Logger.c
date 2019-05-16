@@ -20,7 +20,7 @@ int BeginningOfFile(char *UserInput, char *FileName);
 int IsFirst(char UserInput[], char condition[]);
 const struct item *ChainInit();
 	
-enum ERROR_LIST {OK = 1 , ERROR, EXIT}; 
+enum ERROR_LIST {OK , ERROR, EXIT}; 
 
 struct item
 {
@@ -67,7 +67,7 @@ int main(int argc, char *argv[])
 		i = 0;
 	}
 	
-	return 0;
+	return OK;
 }
 	
 
@@ -89,7 +89,7 @@ int AlwaysTrue(char UserInput[], char condition[])
 	UNUSED(UserInput);
 	UNUSED(condition);
 	
-	return OK;
+	return 1;
 }
 
 int Count(char *UserInput, char *FileName)
@@ -116,7 +116,7 @@ int Count(char *UserInput, char *FileName)
     fprintf(fPtr, "%d\n", lines);
     fclose(fPtr);
     
-    return 0;
+    return OK;
 }
 
 int Exit()
@@ -138,7 +138,7 @@ int Delete(char UserInput[], char *FileName)
     	return EXIT;
     }
     
-	return 0;
+	return OK;
 }
 
 int DefaultAppend(char *UserInput, char *FileName)
