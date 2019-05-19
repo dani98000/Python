@@ -1,9 +1,15 @@
+/*   Author: Daniel Maizel	*	
+*	 Date: 19/05/2019		*		
+*	 Reviewer: 				*				
+*							*
+*****************************/
 #include <stdio.h>
 
 
 double pow2(unsigned int x, int y)
 {
 	double res = x << y;
+	
 	return res;
 }
 
@@ -40,9 +46,6 @@ int Plusone(unsigned int n)
 		n = n | (1 << 0);
 	}
 	
-
-	printf("%d\n", n);
-	
 	return n;
 }
 
@@ -76,6 +79,7 @@ unsigned int ThreeSet(unsigned int arr[], int arr_length)
 		}
 		count = 0;
 	}
+	
 	return 0;
 }
 	
@@ -92,10 +96,16 @@ unsigned int byte_mirror(unsigned int num)
 	return mirror;
 }
 
-/*unsigned int byte_mirror(unsigned int num)
+unsigned int byte_mirror2(unsigned int num)
 {
+	num = ((num & 0xffff0000) >> 16) | ((num & 0x0000ffff) << 16);
+	num = ((num & 0xff00ff00) >> 8) | ((num & 0x00ff00ff) << 8);
+	num = ((num & 0xf0f0f0f0) >> 4) | ((num & 0x0f0f0f0f) << 4);
+	num = ((num & 0xcccccccc) >> 2) | ((num & 0x33333333) << 2);
+	num = ((num & 0xaaaaaaaa) >> 1) | ((num & 0x55555555) << 1);
 	
-}*/
+	return num;
+}
 
 unsigned int Div16(unsigned int a)
 {
@@ -104,6 +114,7 @@ unsigned int Div16(unsigned int a)
 
 		a = a & 0xF0;
 	}
+	
 	return a;
 }
 
@@ -120,6 +131,7 @@ unsigned int CountSet(unsigned int num)
 		}
 		num = num >> 1;
 	}
+	
 	return count;
 }
 
@@ -133,12 +145,14 @@ int TwoOrSix(unsigned char a)
 	return(((a & 0x02) == 0x02) || ((a & 0x20) == 0x20));
 }
 
-void swap(unsigned int x,unsigned int y)
+int swap(unsigned int x,unsigned int y)
 {
 	x = x ^ y; 
     y = x ^ y; 
     x = x ^ y;
     printf("x = %d\ny = %d\n",x,y);
+    
+    return 1;
 }
 
 int SwapBits(unsigned int num) 
@@ -149,42 +163,43 @@ int SwapBits(unsigned int num)
     unsigned int result;
     /* Put the xor bit back to their original positions */
     x = (x << 2) | (x << 4); 
-	result = num ^ x; 
+	result = num ^ x;
+	 
     return result;
 } 
 
-int CountSetRec(unsigned int num)
+int CountSetV2(unsigned int num)
 {
-	if(num == 0)
-	{
-		
-		return 0;
-	}
-	else
-	{
-		return((num&1)+CountSet(num>>1));
-	}
+    int bits[] = {1, 2, 4, 8, 16};
+    int masks[] = {0x55555555,0x33333333,0x0F0F0F0F,0x00FF00FF,0x0000FFFF};
+ 
+    int count = num - ((num >> 1) & masks[0]);
+    count = ((count >> bits[1]) & masks[1]) + (count & masks[1]);
+    count = ((count >> bits[2]) + count) & masks[2];
+    count = ((count >> bits[3]) + count) & masks[3];
+    count = ((count >> bits[4]) + count) & masks[4];
+    return count;
 }
 
-int main()
+
+	
+void Printfloat(float num)
 {
-	unsigned int a[] = {8, 5, 10, 12, 7, 14};
-	printf("%f\n", pow2(5, 2));
-	printf("%d\n", IsPow2(2));
-	printf("%d\n", IsPow2L(2));
-	Plusone(30);
-	ThreeSet(a, 6);
-	printf("%d\n", Div16(49));
-	printf("%d\n", CountSet(32));
-	printf("%d\n", TwoAndSix(32));
-	printf("%d\n", TwoOrSix(32));
-	swap(10, 20);
-	printf("%d\n", SwapBits(14));
-	printf("%d\n", CountSetRec(13));
-	printf("%d\n",byte_mirror(1));
-	
-	
-	return 0;
+	int *ptr = (int *)&num;
+	int k;
+    for (k = 31; k >= 0; k--) 
+    { 
+ 
+        if ((*ptr >> k) & 1)
+        { 
+            printf("1");
+        } 
+        else
+        {
+            printf("0");
+        } 
+	}
+	printf("\n");
 }
 
 
