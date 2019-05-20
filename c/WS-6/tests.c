@@ -103,7 +103,9 @@ int test_Div16()
 
 int test_swap()
 {
-	return(swap(10,20) == 1);
+	unsigned int a = 10, b = 20; 
+	swap(&a, &b); 
+	return 1;
 }
 
 int test_CountSetV2()

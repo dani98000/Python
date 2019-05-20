@@ -114,7 +114,7 @@ unsigned int Div16(unsigned int a)
 {
 	if(a % 16 != 0)
 	{
-		a = a & 0xF0;
+		a = a & 0xFFFFFFF0;
 	}
 	
 	return a;
@@ -122,7 +122,7 @@ unsigned int Div16(unsigned int a)
 
 
 
-unsigned int CountSet(unsigned int num)
+int CountSet(unsigned int num)
 {
 	int count = 0;
 	while(num >= 1) 
@@ -147,14 +147,11 @@ int TwoOrSix(unsigned char a)
 	return(((a & 0x02) == 0x02) || ((a & 0x20) == 0x20));
 }
 
-int swap(unsigned int x, unsigned int y)
+void swap(unsigned int *x, unsigned int *y)
 {
-	x = x ^ y; 
-    y = x ^ y; 
-    x = x ^ y;
-    printf("x = %d\ny = %d\n", x, y);
-    
-    return 1;
+	*x = *x ^ *y; 
+    *y = *x ^ *y; 
+    *x = *x ^ *y;
 }
 
 int SwapBits(unsigned int num) 
@@ -173,7 +170,6 @@ int CountSetV2(unsigned int num)
 {
     int bits[] = {1, 2, 4, 8, 16};
     int masks[] = {0x55555555, 0x33333333, 0x0F0F0F0F, 0x00FF00FF, 0x0000FFFF};
- 
     int count = num - ((num >> 1) & masks[0]);
     count = ((count >> bits[1]) & masks[1]) + (count & masks[1]);
     count = ((count >> bits[2]) + count) & masks[2];

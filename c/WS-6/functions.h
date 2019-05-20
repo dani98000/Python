@@ -6,10 +6,10 @@ int IsPow2(unsigned int n);
 int Plusone(unsigned int n);
 unsigned int ThreeSet(unsigned int arr[], int arr_length);
 unsigned int byte_mirror(unsigned int num);
-
+unsigned int byte_mirror2(unsigned int num);
 int TwoAndSix(unsigned char a);
 int TwoOrSix(unsigned char a);
 int SwapBits(unsigned int num);
 unsigned int Div16(unsigned int a);
-int swap(unsigned int x,unsigned int y);
+void swap(unsigned int *x, unsigned int *y);
 int CountSetV2(unsigned int num);
