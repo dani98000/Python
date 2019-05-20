@@ -19,7 +19,7 @@ int IsPow2L(unsigned int n)
 {
 	unsigned int count = 0, temp = n;
 	
-	while((temp >= 1 ) && (count <= 1) )
+	while((temp >= 1 ))
 	{
 		if((temp & 1) == 1)
 		{
@@ -27,7 +27,7 @@ int IsPow2L(unsigned int n)
 		}
 		temp = temp >> 1;
 	}
-	if(count == 1 && n > 1)
+	if(count == 1)
 	{
 		return 1;
 	}
@@ -54,7 +54,7 @@ int Plusone(unsigned int n)
 
 int IsPow2(unsigned int n)
 {
-	if (!(n & (n - 1)) && n > 1)
+	if (!(n & (n - 1)) && n >= 1)
 	{
 		return 1;
 	} 

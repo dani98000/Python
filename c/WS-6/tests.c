@@ -57,12 +57,12 @@ int test_pow2()
 
 int test_IsPow2L()
 {
-	return(IsPow2L(1) == 0 && IsPow2L(16) == 1 && IsPow2L(24) == 0);
+	return(IsPow2L(1) == 1 && IsPow2L(16) == 1 && IsPow2L(24) == 0);
 }
 
 int test_IsPow2()
 {
-	return(IsPow2(1) == 0 && IsPow2(16) == 1 && IsPow2(24) == 0);
+	return(IsPow2(1) == 1 && IsPow2(16) == 1 && IsPow2(24) == 0);
 }
 
 int test_Plusone()
