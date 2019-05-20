@@ -4,11 +4,15 @@
 #define RUN_TEST(test)\
 if(!test())\
 {\
+printf("\033[1;31m");\
 printf(#test " - failed!\n");\
+printf("\033[0m");\
 }\
 else\
 {\
+printf("\033[1;32m");\
 printf(#test " - ok!\n");\
+printf("\033[0m");\
 }
 
 int test_pow2();
@@ -74,7 +78,7 @@ int test_ThreeSet()
 
 int test_byte_mirror()
 {
-	return(byte_mirror(93) == 186);
+	return(byte_mirror(1) == 2147483648);
 }
 
 int test_TwoAndSix()
@@ -115,6 +119,6 @@ int test_Printfloat()
 
 int test_byte_mirror2()
 {
-	return (byte_mirror2(93) == 186);
+	return (byte_mirror2(1) == 2147483648);
 }
 
