@@ -12,4 +12,5 @@ int TwoOrSix(unsigned char a);
 int SwapBits(unsigned int num);
 unsigned int Div16(unsigned int a);
 void swap(unsigned int *x, unsigned int *y);
+int CountSet(unsigned int num);
 int CountSetV2(unsigned int num);

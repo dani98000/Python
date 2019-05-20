@@ -29,6 +29,7 @@ int test_swap();
 int test_CountSetV2();
 int test_Printfloat();
 int test_byte_mirror2();
+int test_CountSet();
 
 int main()
 {
@@ -46,6 +47,7 @@ int main()
 	RUN_TEST(test_CountSetV2);
 	RUN_TEST(test_Printfloat);
 	RUN_TEST(test_byte_mirror2);
+	RUN_TEST(test_CountSet);	
 	
 	return 0;
 }
@@ -111,6 +113,11 @@ int test_swap()
 int test_CountSetV2()
 {
 	return(CountSetV2(7) == 3 && CountSetV2(15) == 4 && CountSetV2(0) == 0);
+}
+
+int test_CountSet()
+{
+	return(CountSet(7) == 3 && CountSet(15) == 4 && CountSet(0) == 0);
 }
 
 int test_Printfloat()
