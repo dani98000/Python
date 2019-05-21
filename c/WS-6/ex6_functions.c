@@ -10,7 +10,13 @@
 
 double pow2(unsigned int x, int y)
 {
-	double res = x << y;
+	double res = 0;
+	
+	if (y < 0)
+	{
+		res = x >> -y;
+	}
+	res = x << y;
 	
 	return res;
 }
@@ -19,7 +25,7 @@ int IsPow2L(unsigned int n)
 {
 	unsigned int count = 0, temp = n;
 	
-	while((temp >= 1 ))
+	while((temp >= 1))
 	{
 		if((temp & 1) == 1)
 		{
@@ -35,7 +41,6 @@ int IsPow2L(unsigned int n)
 	{
 		return 0;
 	}
-
 }
 
 int Plusone(unsigned int n)
@@ -65,10 +70,12 @@ int IsPow2(unsigned int n)
 unsigned int ThreeSet(unsigned int arr[], int arr_length)
 {
 	int i, temp, count = 0;
+	
 	for(i = 0; i < arr_length; ++i)
 	{
 		temp = arr[i];
-		while(temp >= 1 ) 
+		
+		while(temp >= 1) 
 		{	
 			if((temp & 1) == 1)
 			{
@@ -76,16 +83,17 @@ unsigned int ThreeSet(unsigned int arr[], int arr_length)
 			}
 			temp = temp >> 1;
 		}
+		
 		if(count == 3)
 		{
 			printf("%d\n", arr[i]);
 		}
+		
 		count = 0;
 	}
 	
 	return 0;
 }
-	
 	
 unsigned int byte_mirror(unsigned int num)
 {
@@ -120,11 +128,10 @@ unsigned int Div16(unsigned int a)
 	return a;
 }
 
-
-
 int CountSet(unsigned int num)
 {
 	int count = 0;
+	
 	while(num >= 1) 
 	{	
 		if((num & 1) == 1)
@@ -160,6 +167,7 @@ int SwapBits(unsigned int num)
     unsigned int bit2 =  (num >> 4) & 1; 
     unsigned int x = (bit1 ^ bit2); 
     unsigned int result;
+    
     x = (x << 2) | (x << 4); 
 	result = num ^ x;
 	 
@@ -186,8 +194,7 @@ void Printfloat(float num)
 	int *ptr = (int *)&num;
 	int k;
     for (k = 31; k >= 0; --k) 
-    { 
- 
+    {  
         if ((*ptr >> k) & 1)
         { 
             printf("1");
@@ -199,4 +206,3 @@ void Printfloat(float num)
 	}
 	printf("\n");
 }
-
