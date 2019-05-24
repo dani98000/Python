@@ -1,7 +1,6 @@
 #include <stdio.h> /* printf */
 #include <stdlib.h>/* malloc */
 
-void *memsetV2	(void *str, int c, size_t n);
 int main()
 {
 	void *str = (void *)malloc(28*sizeof(size_t));
