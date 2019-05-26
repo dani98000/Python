@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <assert.h>
-#include "functions.h"
+#include "functionsdec.h"
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
@@ -28,6 +28,8 @@ int test_strstr1();
 int test_strspn();
 int test_RmSpaces();
 int test_BigAdd();
+int test_strtok();
+
 
 int main()
 {
@@ -44,6 +46,7 @@ int main()
 	RUN_TEST(test_strspn);
 	RUN_TEST(test_RmSpaces);
 	RUN_TEST(test_BigAdd);
+	RUN_TEST(test_strtok);
 	
 	return 0;
 }
@@ -152,11 +155,24 @@ int test_RmSpaces()
 
 int test_BigAdd()
 {
-	char num1[] = {'0','9','9','9','9','\0'};
-	char num2[] = {'0','0','9','9','9','\0'};
-	char str[] = {'0','0','0','0','0','\0'};
+	char num1[] = "09999";
+	char num2[] = "00999";
+	char str[] = "10998";
 	printf("%s\n",BigAdd(num1,num2,str));
 	printf("%s\n",num2);
 	printf("%s\n",num1);
 	return(0) ;
+}
+
+int test_strtok()
+{
+	char str[] = "||db:c";
+	char str2[]="||";
+	const char s[] = "|:;";
+	char *token,*token2;
+   
+    token = strtok1(str, s);
+    token2 = strtok1(str2, s);
+   
+	return(str[2] == *token && NULL == token2);
 }

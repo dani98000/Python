@@ -1,16 +1,6 @@
 #include <string.h>
 #include <stdio.h>
 
-#define RUN_TEST(test)\
-if(!test())\
-{\
-printf(#test " - failed!\n");\
-}\
-else\
-{\
-printf(#test " - ok!\n");\
-}
-
 char *strtok1(char *str, const char *delim)
 {
 	static char *current_start = NULL;
@@ -58,21 +48,4 @@ char *strtok1(char *str, const char *delim)
 	return(runner);
 }
 
-int test_strtok()
-{
-	char str[] = "||db:c";
-	char str2[]="||";
-	const char s[] = "|:;";
-	char *token,*token2;
-   
-    token = strtok1(str, s);
-    token2 = strtok1(str2, s);
-   
-	return(str[2] == *token && NULL == token2);
-}
 
-int main()
-{
-	RUN_TEST(test_strtok);
-	return 0;
-}

@@ -1,6 +1,17 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+/************************************
+*									*
+*		Author: Daniel Maizel		*
+*		Reviewer: 					*
+*		Date: 26/05/2019			*
+*									*					
+*									*
+************************************/
+
+
+
+#include <stdio.h>	/* printf */
+#include <stdlib.h>	/* malloc */
+#include <string.h>	/* strcpy */
 #include "functions.h"
 
 #define RUN_TEST(test)\
@@ -27,6 +38,11 @@ int main()
 	RUN_TEST(test_memset);
 	RUN_TEST(test_memcpy);
 	RUN_TEST(test_memmove);
+	printf("\n");
+	if(test_memset() && test_memcpy() && test_memmove())
+	{
+		printf("\033[1;32m|All Tests were Passed Successfuly| \033[0m\n");
+	}
 	
 	return 0;
 }
@@ -39,7 +55,7 @@ int test_memset(void)
 	s = calloc(50, sizeof(char));
 	if(NULL == s)
 	{
-		perror("memory allocation error");
+		printf("memory allocation error");
 		return 0;
 	}
 
@@ -75,14 +91,14 @@ int test_memcpy(void)
 	dest = calloc(50, sizeof(char));
 	if(NULL == dest)
 	{
-		perror("memory allocation error");
+		printf("memory allocation error");
 		return 0;
 	}
 
 	src = calloc(50, sizeof(char));
 	if(NULL == src)
 	{
-		perror("memory allocation error");
+		printf("memory allocation error");
 		return 0;
 	}
 
@@ -94,11 +110,12 @@ int test_memcpy(void)
 	memcpyV2(dest, src, 9);
 	result *= (0 == strcmp(dest, "My Name I"));
 
+	memcpyV2(dest + 17, src + 1, 0);
+	result *= (0 == strcmp(dest + 17, ""));
+	
 	memcpyV2(dest + 4, src + 1, 13);
 	result *= (0 == strcmp(dest + 4, "y Name Is Dan"));
 
-	memcpyV2(dest + 17, src + 1, 0);
-	result *= (0 == strcmp(dest + 17, ""));
 
 	free(dest);
 	free(src);
@@ -118,15 +135,16 @@ int test_memmove(void)
 		return 0;
 	}
 
-	strcpy(src, "123456789");
+	strcpy(src, "abcdefg");
+	
+	memmoveV2(src+5, src, 2);
+	result *= (0 == strcmp(src, "abcdeab"));
 
-	/*memmoveV2(src+2, src, 3);
-	printf("%s\n",src);
-	result *= (0 == strcmp(src, "12123"));*/
-
-	memmoveV2(src+1, src, 5);
-	printf("%s\n",src);
-	result *= (0 == strcmp(src, "12345"));
+	memmoveV2(src+2, src, 5);
+	result *= (0 == strcmp(src, "ababcde"));
+	
+	memmoveV2(src, src, strlen(src));
+	result *= (0 == strcmp(src, "ababcde"));
 
 	free(src);
 	

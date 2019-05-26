@@ -14,10 +14,10 @@ void *memsetV2(void *str, int c, size_t n)
 	while( ((size_t)((char*)str + i) % 8 != 0 ) && (n > 0))
 	{
 		*((char*)(str) + i) = c;
-		/*printf("c was added to this address: %p\n",(char*)str+i);*/
 		++i;
 		--n;
 	}
+	
 	p = (size_t *)((char *)str + i);
 	temp = n - n % 8;
 
@@ -28,22 +28,24 @@ void *memsetV2(void *str, int c, size_t n)
 	}
 	block ^= c;
 	i = 0;
+	
 	while(i < temp/8)
 	{ 
 		*(p + i) = block;
-		/*printf("c2 was added to this address: %p\n",&p[i]);*/
 		++i;
 		n -= sizeof(size_t);
     }
+    
     end = (char*)(p + i);
     i = 0;
+    
 	while(n > 0)
     {
 		*(end + i) = c;
-		/*printf("c3 was added to this address: %p\n",end+i);*/
 		--n;
 		++i;
 	}
+	
 	return 0;
 }		  
 
@@ -59,7 +61,6 @@ void *memcpyV2(void *str1, const void *str2, size_t n)
 	while( ((size_t)(dest) % 8 != 0 ) && (n > 0))
 	{
 		*dest = *src;
-		/*printf("%c c was added to this address: %p\n",*src,dest);*/
 		++dest;
 		++src;
 		--n;
@@ -72,7 +73,6 @@ void *memcpyV2(void *str1, const void *str2, size_t n)
 	while(i < temp/8)
 	{ 
 		*runner_d = *runner_s;
-		/*printf("%c c2 was added to this address: %p\n", *src, dest);*/
 		++runner_d;
 		++runner_s;
 		++i;
@@ -85,31 +85,36 @@ void *memcpyV2(void *str1, const void *str2, size_t n)
 	while(n > 0 )
     {
 		*dest = *src;
-		/*printf("%c c3 was added to this address: %p\n", *src, dest);*/
 		++dest;
 		++src;
 		--n;
 	}
-	*(dest)='\0';
+	*(dest) = '\0';
+	
 	return 0;
 }
 
 void *memmoveV2(void *dest, void *src, size_t n)
 {
-	char *dest_r = (char *)dest+n-1;
-	char *dest_o = (char * )dest;
-	char *dest2 = (char *)dest;
-	char *src_r = (char *)src;
-	while(n > 0 && dest_r>dest_o)
+	char *dest_r = (char *)dest + n - 1;
+	char *dest_p = (char * )dest;
+	char *src_r = (char *)src + n - 1;
+	char *end = (char *)(dest) + n;
+	
+	if(dest < src)
 	{
-		*dest_r= *dest2;
-		printf("%c c was added to this address: %p\n",*src_r,dest_r);
-		--dest2;
+		memcpyV2(dest, src, n);
+	}
+	
+	while(n > 0 && dest_r > dest_p)
+	{
+		*dest_r = *src_r;
+		--src_r;
 		--dest_r;
 		--n;
-	}
-	*dest_o = *src_r;
-	*(dest_r+n+2)='\0';
+	}	
+	*dest_p = *src_r;
+	*(end) = '\0';
 	
 	return 0;
 }

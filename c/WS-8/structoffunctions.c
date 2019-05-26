@@ -21,14 +21,16 @@ struct functions
 	void (*Free_memory)(void *data);
 };
 
-int main()
-{
-	struct functions array[3]= 
+struct functions array[3]= 
 	{  
 	   	{(void *)0, AddInt, PrintInt, DoNothing},
 	   	{(void *)0, AddFloat, PrintFloat, DoNothing},
    		{(void *)NULL, AddString, PrintString, FreeMemory},
 	};
+
+int main()
+{
+	
 	
 	int a1 = 5;
 	int a2 = 6;
