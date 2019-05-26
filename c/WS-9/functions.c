@@ -94,3 +94,22 @@ void *memcpyV2(void *str1, const void *str2, size_t n)
 	return 0;
 }
 
+void *memmoveV2(void *dest, void *src, size_t n)
+{
+	char *dest_r = (char *)dest+n-1;
+	char *dest_o = (char * )dest;
+	char *dest2 = (char *)dest;
+	char *src_r = (char *)src;
+	while(n > 0 && dest_r>dest_o)
+	{
+		*dest_r= *dest2;
+		printf("%c c was added to this address: %p\n",*src_r,dest_r);
+		--dest2;
+		--dest_r;
+		--n;
+	}
+	*dest_o = *src_r;
+	*(dest_r+n+2)='\0';
+	
+	return 0;
+}

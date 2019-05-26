@@ -19,12 +19,15 @@ printf("\033[0m");\
 
 int test_memset(void);
 int test_memcpy(void);
+int test_memmove(void);
 
 int main() 
 {
 	printf("Test Results:\n");
 	RUN_TEST(test_memset);
 	RUN_TEST(test_memcpy);
+	RUN_TEST(test_memmove);
+	
 	return 0;
 }
 
@@ -103,4 +106,29 @@ int test_memcpy(void)
 	return result;
 }
 
+int test_memmove(void)
+{
+	char *src = NULL;
+	int result = 1;
 
+	src = calloc(100, sizeof(char));
+	if(NULL == src)
+	{
+		perror("memory allocation error");
+		return 0;
+	}
+
+	strcpy(src, "123456789");
+
+	/*memmoveV2(src+2, src, 3);
+	printf("%s\n",src);
+	result *= (0 == strcmp(src, "12123"));*/
+
+	memmoveV2(src+1, src, 5);
+	printf("%s\n",src);
+	result *= (0 == strcmp(src, "12345"));
+
+	free(src);
+	
+	return result;
+}

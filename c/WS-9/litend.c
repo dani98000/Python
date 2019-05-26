@@ -1,6 +1,6 @@
 #include <stdio.h>
 
-#define ISL (char *
+#define ISL *(char *) "\x01\x00" == (char) 1
 
 int IsLittleEndian()
 {
@@ -19,4 +19,6 @@ int main()
 	{
 		printf("Is big endian\n");
 	}
+	printf("%d\n",ISL);
+	return 0;
 }
