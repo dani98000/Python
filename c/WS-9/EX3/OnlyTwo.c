@@ -1,4 +1,5 @@
-#include <stdio.h>
+#include <stdio.h>  /* printf */
+#include <stdlib.h> /* calloc */
 
 void OnlyTwo(char arr1[],char arr2[], char arr3[],int size1, int size2, int size3);
 
@@ -14,7 +15,7 @@ int main()
 
 void OnlyTwo(char arr1[],char arr2[], char arr3[],int size1, int size2, int size3)
 {
-	int LUT[256] = {0};
+	char *LUT = calloc(256, sizeof(char));
 	int i = 0;
 	for(i = 0;i < size1;i++)
 	{

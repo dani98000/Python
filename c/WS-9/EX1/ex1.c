@@ -11,7 +11,7 @@ void *memsetV2(void *str, int c, size_t n)
 	size_t block = 0;
 	char *end = NULL;
 	
-	while( ((size_t)((char*)str + i) % 8 != 0 ) && (n > 0))
+	while(((size_t)((char*)str + i) % 8 != 0 ) && (n > 0))
 	{
 		*((char*)(str) + i) = c;
 		++i;
@@ -29,7 +29,7 @@ void *memsetV2(void *str, int c, size_t n)
 	block ^= c;
 	i = 0;
 	
-	while(i < temp/8)
+	while(i < temp / 8)
 	{ 
 		*(p + i) = block;
 		++i;
@@ -58,7 +58,7 @@ void *memcpyV2(void *str1, const void *str2, size_t n)
 	size_t *runner_s = NULL;
 	int temp = 0, i = 0;
 	
-	while( ((size_t)(dest) % 8 != 0 ) && (n > 0))
+	while(((size_t)(dest) % 8 != 0 ) && (n > 0))
 	{
 		*dest = *src;
 		++dest;
@@ -70,7 +70,7 @@ void *memcpyV2(void *str1, const void *str2, size_t n)
 	runner_d = (size_t *)dest;
 	runner_s = (size_t *)src;
 	
-	while(i < temp/8)
+	while(i < temp / 8)
 	{ 
 		*runner_d = *runner_s;
 		++runner_d;
