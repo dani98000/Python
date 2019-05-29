@@ -28,6 +28,7 @@ int test_BARRFlip();
 int test_BARRRotateL();
 int test_BARRRotateR();
 int test_BARRMirrorLut();
+int test_BARRCountOnLut();
 
 
 int main()
@@ -44,6 +45,7 @@ int main()
 	RUN_TEST(test_BARRRotateL);
 	RUN_TEST(test_BARRRotateR);
 	RUN_TEST(test_BARRMirrorLut);
+	RUN_TEST(test_BARRCountOnLut);		
 	
 	printf("\n");
 	
@@ -199,5 +201,18 @@ int test_BARRMirrorLut()
 	result *= (BARRMirrorLut(4503599627370496) == 2048);
 	result *= (BARRMirrorLut(9007199254740992) == 1024);		
 		
+	return result;
+}
+
+int test_BARRCountOnLut()
+{
+	int result = 1;
+	
+	result *= (BARRCountOnLut(7) == 3);
+	result *= (BARRCountOnLut(15) == 4); 
+	result *= (BARRCountOnLut(0) == 0);
+	result *= (BARRCountOnLut(32) == 1);
+	result *= (BARRCountOnLut(8) == 1);
+	
 	return result;
 }

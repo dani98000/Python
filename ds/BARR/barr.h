@@ -10,3 +10,4 @@ size_t BARRRotateR  (size_t arr, size_t amount);
 size_t BARRCountOn  (size_t arr);
 size_t BARRCountOff (size_t arr);
 size_t BARRMirrorLut(size_t arr);
+size_t BARRCountOnLut(size_t arr);

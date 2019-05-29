@@ -58,7 +58,7 @@ size_t BARRMirror(size_t arr)
 	return mirror;
 }
 
-unsigned char *LutInit()
+unsigned char *LutInit1()
 {
 	int i = 0, temp = 0;
 	static unsigned char *LUT = NULL;
@@ -84,7 +84,7 @@ size_t BARRMirrorLut(size_t arr)
 	int i = 0;
 	unsigned char current_byte = 0;
 	size_t mirror = 0; 
-	unsigned char *p_LUT = LutInit();
+	unsigned char *p_LUT = LutInit1();
 	
 	for(; i<8; i++)
 	{
@@ -134,6 +134,53 @@ size_t BARRCountOn(size_t arr)
 		arr = arr >> 1;
 	}
 	
+	return count;
+}
+
+unsigned char *LutInit2()
+{
+	int i = 0, temp = 0, count = 0;
+	static unsigned char *LUT2 = NULL;
+	if(LUT2 == NULL)
+	{
+		LUT2 = (unsigned char *)malloc(sizeof(unsigned char)*256);
+	}
+	for(; i < 256; ++i)
+	{
+		temp = i;
+		count = 0;
+	
+		while(1 <= temp) 
+		{	
+			if((temp & 1) == 1)
+			{
+				++count;
+			}
+			temp = temp >> 1;
+		}
+		LUT2[i] = count; 
+	}
+	/*for(i=0; i < 256; ++i)
+	printf("%d",LUT2[i]);
+*/	
+	return LUT2;		
+}
+
+size_t BARRCountOnLut(size_t arr)
+{
+	int i = 0;
+	
+	unsigned char current_byte = 0;
+	size_t count = 0; 
+	unsigned char *p1_LUT = LutInit2();
+	
+	for(; i<8; i++)
+	{
+		current_byte = (arr & 0xFF);
+		arr >>= 8;
+		count += p1_LUT[(unsigned char)current_byte];
+	}
+
 	return count;
 }
 
