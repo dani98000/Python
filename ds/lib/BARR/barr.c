@@ -1,19 +1,20 @@
 /********************************
 * 	 Author  : Daniel Maizel	*
 *	 Date    : 27/05/2019		*
-*	 Reviewer:					*
+*	 Reviewer: Sasha Limarev	*
 *								*
 *********************************/
 
-#include <stdio.h> /* size_t */
-#include <assert.h>/* assert */
-#include <stdlib.h>/* malloc */
+#include <stdio.h>  /* size_t */
+#include <assert.h> /* assert */
+#include <stdlib.h> /* malloc */
 
 #include "barr.h"
 
 size_t BARRSetBit(size_t arr, int index, int value)
 {
-	assert(1 >= value && 0 <= value);
+	assert(1 == value || 0 == value);
+	
 	if(1 == value)
 	{
 		return(BARRSetOn(arr, index));
@@ -26,16 +27,22 @@ size_t BARRSetBit(size_t arr, int index, int value)
 
 size_t BARRSetOn(size_t arr, int index)
 {
-	return((1 << index) | arr);
+	assert(index <= 63 && index >=0);
+
+	return((1lu << index) | arr);
 }
 
 size_t BARRSetOff(size_t arr, int index)
 {
-	return((~(1 << index)) & arr);
+	assert(index <= 63 && index >=0);
+
+	return((~(1lu << index)) & arr);
 }
 
 size_t BARRFlip(size_t arr, int index)
 { 
+	assert(index <= 63 && index >=0);
+
 	if(BARRIsOn(arr, index))
 	{
 		return(BARRSetOff(arr, index));
@@ -49,16 +56,17 @@ size_t BARRFlip(size_t arr, int index)
 size_t BARRMirror(size_t arr)
 {
 	size_t mirror = 0;
-	int i;
+	size_t i = 0;
+	
 	for(i = 0; i < (sizeof(size_t) * 8); ++i)
 	{
-		mirror = mirror | ((arr >> i) & 1) << ((sizeof(size_t) * 8 -1) - i); 
+		mirror = mirror | ((arr >> i) & 1) << ((sizeof(size_t) * 8 - 1) - i); 
 	}
 	
 	return mirror;
 }
 
-unsigned char *LutInit1()
+static unsigned char *LutInit1()
 {
 	int i = 0, temp = 0;
 	static unsigned char *LUT = NULL;
@@ -79,7 +87,7 @@ unsigned char *LutInit1()
 		return LUT;
 }
 
-size_t BARRMirrorLut(size_t arr)
+size_t BARRMirrorLUT(size_t arr)
 {
 	int i = 0;
 	unsigned char current_byte = 0;
@@ -99,26 +107,30 @@ size_t BARRMirrorLut(size_t arr)
 
 int BARRIsOn(size_t arr, int index)
 {
+	assert(index <= 63 && index >=0);
+
 	return(1 == ((arr >> index) & 1) );
 }
 
 int BARRIsOff(size_t arr, int index)
 {
+	assert(index <= 63 && index >=0);
+
 	return(0 == ((arr >> index) & 1));
 }
 
-size_t BARRRotateL(size_t arr, size_t amount)
+size_t BARRRotateLeft(size_t arr, size_t amount)
 {
 	amount = amount % (sizeof(size_t) * 8);
 	
 	return(arr << amount | arr>>(sizeof(size_t) * 8 - amount));
 }
 
-size_t BARRRotateR(size_t arr, size_t amount)
+size_t BARRRotateRight(size_t arr, size_t amount)
 {
 	amount = amount % (sizeof(size_t) * 8);
 	
-	return(arr >> amount | arr << (sizeof(size_t) * 8 - 1));
+	return(arr >> amount | arr << (sizeof(size_t) * 8 - amount));
 }
 
 size_t BARRCountOn(size_t arr)
@@ -137,10 +149,11 @@ size_t BARRCountOn(size_t arr)
 	return count;
 }
 
-unsigned char *LutInit2()
+static unsigned char *LutInit2()
 {
 	int i = 0, temp = 0, count = 0;
 	static unsigned char *LUT2 = NULL;
+	
 	if(LUT2 == NULL)
 	{
 		LUT2 = (unsigned char *)malloc(sizeof(unsigned char)*256);
@@ -160,16 +173,13 @@ unsigned char *LutInit2()
 		}
 		LUT2[i] = count; 
 	}
-	/*for(i=0; i < 256; ++i)
-	printf("%d",LUT2[i]);
-*/	
+	
 	return LUT2;		
 }
 
-size_t BARRCountOnLut(size_t arr)
+size_t BARRCountOnLUT(size_t arr)
 {
 	int i = 0;
-	
 	unsigned char current_byte = 0;
 	size_t count = 0; 
 	unsigned char *p1_LUT = LutInit2();

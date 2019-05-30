@@ -25,10 +25,10 @@ int test_BARRSetOff();
 int test_BARRIsOn();
 int test_BARRIsOff();
 int test_BARRFlip();
-int test_BARRRotateL();
-int test_BARRRotateR();
-int test_BARRMirrorLut();
-int test_BARRCountOnLut();
+int test_BARRRotateLeft();
+int test_BARRRotateRight();
+int test_BARRMirrorLUT();
+int test_BARRCountOnLUT();
 
 
 int main()
@@ -42,17 +42,17 @@ int main()
 	RUN_TEST(test_BARRIsOn);
 	RUN_TEST(test_BARRIsOff);
 	RUN_TEST(test_BARRFlip);
-	RUN_TEST(test_BARRRotateL);
-	RUN_TEST(test_BARRRotateR);
-	RUN_TEST(test_BARRMirrorLut);
-	RUN_TEST(test_BARRCountOnLut);		
+	RUN_TEST(test_BARRRotateLeft);
+	RUN_TEST(test_BARRRotateRight);
+	RUN_TEST(test_BARRMirrorLUT);
+	RUN_TEST(test_BARRCountOnLUT);		
 	
 	printf("\n");
 	
 	if(test_BARRCountOn() && test_BARRCountOff() && test_BARRSetBit() && 
 	   test_BARRMirror()  && test_BARRSetOn()    && test_BARRSetOff() && 
 	   test_BARRIsOn()    && test_BARRIsOff() 	 && test_BARRFlip()   && 
-	   test_BARRRotateL() && test_BARRRotateR())
+	   test_BARRRotateLeft() && test_BARRRotateRight() && test_BARRMirrorLUT() && 			     	 	    test_BARRCountOnLUT())
 	{
 		printf("\033[1;32m|All Tests were Passed Successfuly| \033[0m\n");
 	}
@@ -88,7 +88,7 @@ int test_BARRMirror()
 {
 	int result = 1;
 	
-	result *= (BARRMirror(1) == 9223372036854775808);
+	result *= (BARRMirror(1) == 9223372036854775808lu);
 	result *= (BARRMirror(4294967296) == 2147483648);
 	result *= (BARRMirror(4503599627370496) == 2048);
 	result *= (BARRMirror(9007199254740992) == 1024);		
@@ -104,6 +104,7 @@ int test_BARRSetOn()
 	result *= (BARRSetOn(2,0) == 3);
 	result *= (BARRSetOn(0,0) == 1);
 	result *= (BARRSetOn(15,4) == 31);
+	result *= (BARRSetOn(0,33) == 8589934592);
 	
 	return result;
 }
@@ -168,51 +169,52 @@ int test_BARRFlip()
 	return result;
 }
 
-int test_BARRRotateL()
+int test_BARRRotateLeft()
 {
 	int result = 1;
 	
-	result *= (BARRRotateL(1,64) == 1);
-	result *= (BARRRotateL(8,66) == 32);
-	result *= (BARRRotateL(1,66) == 4);
-	result *= (BARRRotateL(0,67) == 0);		
+	result *= (BARRRotateLeft(1,64) == 1);
+	result *= (BARRRotateLeft(8,66) == 32);
+	result *= (BARRRotateLeft(1,66) == 4);
+	result *= (BARRRotateLeft(0,67) == 0);		
 	
 	return result;
 }
 
-int test_BARRRotateR()
+int test_BARRRotateRight()
 {
 	int result = 1;
 	
-	result *= (BARRRotateR(4,1) == 2);
-	result *= (BARRRotateR(0,5) == 0);
-	result *= (BARRRotateR(8,2) == 2);
-	result *= (BARRRotateR(32,64) == 32);
-	result *= (BARRRotateR(16,65) == 8);	
+	result *= (BARRRotateRight(4,1) == 2);
+	result *= (BARRRotateRight(0,5) == 0);
+	result *= (BARRRotateRight(8,2) == 2);
+	result *= (BARRRotateRight(32,64) == 32);
+	result *= (BARRRotateRight(16,65) == 8);
+	/*result *= (BARRRotateRight(0XBCDABCDFFFFFFFFA, 4) == 0XABCDABCDFFFFFFFF);*/
 		
 	return result;
 }
 
-int test_BARRMirrorLut()
+int test_BARRMirrorLUT()
 {
 	int result = 1;
 	
-	result *= (BARRMirrorLut(9223372036854775808) == 1);
-	result *= (BARRMirrorLut(4503599627370496) == 2048);
-	result *= (BARRMirrorLut(9007199254740992) == 1024);		
+	result *= (BARRMirrorLUT(9223372036854775808lu) == 1);
+	result *= (BARRMirrorLUT(4503599627370496) == 2048);
+	result *= (BARRMirrorLUT(9007199254740992) == 1024);		
 		
 	return result;
 }
 
-int test_BARRCountOnLut()
+int test_BARRCountOnLUT()
 {
 	int result = 1;
 	
-	result *= (BARRCountOnLut(7) == 3);
-	result *= (BARRCountOnLut(15) == 4); 
-	result *= (BARRCountOnLut(0) == 0);
-	result *= (BARRCountOnLut(32) == 1);
-	result *= (BARRCountOnLut(8) == 1);
+	result *= (BARRCountOnLUT(7) == 3);
+	result *= (BARRCountOnLUT(15) == 4); 
+	result *= (BARRCountOnLUT(0) == 0);
+	result *= (BARRCountOnLUT(32) == 1);
+	result *= (BARRCountOnLUT(8) == 1);
 	
 	return result;
 }
