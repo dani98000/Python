@@ -1,7 +1,7 @@
 /********************************
 * 	 Author  : Daniel Maizel	*
 *	 Date    : 27/05/2019		*
-*	 Reviewer:     	*
+*	 Reviewer: Alex            	*
 *								*
 *********************************/
 
@@ -12,8 +12,8 @@
 
 #include "../../include/DVEC/dvec.h"
 
-int DVECSizeUp(dvec_t *dvec);
-int DVECSizeDown(dvec_t *dvec);
+static int DVECSizeUp(dvec_t *dvec);
+static int DVECSizeDown(dvec_t *dvec);
 
 struct Dvec
 {
@@ -34,8 +34,7 @@ dvec_t *DVECCreate(size_t size_of_element,size_t num_elements)
 	{
 		return NULL;
 	}
-	
-	dvec->arr = (void *)malloc(dvec->size_of_element * dvec->num_elements);
+	dvec->arr = (void *)malloc(size_of_element * num_elements);
 	if (NULL == dvec->arr)
 	{
 		return NULL;
@@ -43,9 +42,7 @@ dvec_t *DVECCreate(size_t size_of_element,size_t num_elements)
 	
 	dvec->size_of_element = size_of_element;
 	dvec->num_elements = 0;
-
 	dvec->capacity = num_elements;
-	
 	
 	return (dvec);
 }
@@ -58,7 +55,7 @@ void DVECDestroy(dvec_t *dvec)
 
 void *DVECGetItemAddress(dvec_t *dvec, size_t index)
 {
-	if(index > dvec->capacity)
+	if(index > (size_t)dvec->capacity)
 	{
 		return NULL;
 	}
@@ -68,17 +65,16 @@ void *DVECGetItemAddress(dvec_t *dvec, size_t index)
 
 int DVECPushBack(dvec_t *dvec, const void *element)
 {
-	size_t dest = 0;
+	void *dest = 0;
 	assert(NULL != dvec);
 	
-	if(dvec->capacity <= dvec->num_elements) 
+	if(dvec->capacity-1 <= dvec->num_elements) 
 	{
 		DVECSizeUp(dvec);
 	}
 	
-	dest = (size_t)dvec->arr + dvec->num_elements * dvec->size_of_element;
-	memcpy((void*)dest, element, dvec->size_of_element);
-
+	dest = (char *)(dvec->arr) + dvec->num_elements * dvec->size_of_element;
+	memcpy(dest, element, dvec->size_of_element);
 	++(dvec->num_elements);
 	
 	return 0;
@@ -87,7 +83,7 @@ int DVECPushBack(dvec_t *dvec, const void *element)
 void DVECPopBack(dvec_t *dvec)
 {
 	assert(NULL != dvec);
-	if(dvec->capacity * 0.25 >= dvec->num_elements)
+	if(dvec->capacity * 0.25 >= dvec->num_elements - 1)
 	{
 		DVECSizeDown(dvec);
 	} 
@@ -108,11 +104,12 @@ size_t DVECCapacity(const dvec_t *dvec)
 	return(dvec->capacity);
 }
 
-int DVECSizeUp(dvec_t *dvec)
+static int DVECSizeUp(dvec_t *dvec)
 {
 		void *temp = NULL;
 		size_t new_size = dvec->capacity * 2;
 		temp = realloc(dvec->arr, new_size * dvec->size_of_element);
+		
         if(NULL == temp)
         {
             return 1;
@@ -120,14 +117,16 @@ int DVECSizeUp(dvec_t *dvec)
 
         dvec->capacity = new_size;
         dvec->arr = temp;
+        
         return 0;
-
 }
-int DVECSizeDown(dvec_t *dvec)
+
+static int DVECSizeDown(dvec_t *dvec)
 {
 		void *temp = NULL;
-		size_t new_size = dvec->capacity * 0.5;
+		size_t new_size = dvec->capacity / 2;
 		temp = realloc(dvec->arr, new_size * dvec->size_of_element);
+		
         if(NULL == temp)
         {
             return 1;
@@ -135,6 +134,28 @@ int DVECSizeDown(dvec_t *dvec)
 
         dvec->capacity = new_size;
         dvec->arr = temp;
+        
         return 0;
 }
-/* int DVECReserve(dvec_t *dvec, size_t new_capacity);*/
+
+int DVECReserve(dvec_t *dvec, size_t new_capacity)
+{
+	void *temp = NULL;
+	
+	if(dvec->num_elements+1 > new_capacity)
+	{
+		new_capacity = dvec->num_elements + 1;
+	}
+	
+	temp = realloc(dvec->arr, new_capacity * dvec->size_of_element);
+		
+	if(NULL == temp)
+	{
+		return 1;
+    }
+
+    dvec->capacity = new_capacity;
+    dvec->arr = temp;
+        
+    return 0;
+}
