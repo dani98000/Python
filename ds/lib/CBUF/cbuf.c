@@ -38,41 +38,36 @@ void CBUFDestroy(cbuf_t *cbuf)
 	free(cbuf);
 }
 
-/*size_t CBUFRead(cbuf_t *cbuf, void *data, size_t nbytes)
+size_t CBUFRead(cbuf_t *cbuf, void *data, size_t nbytes)
 {
 	size_t count = 0;
-	while(size+1 != read_offset)
+	while((char *)(void*)cbuf->size > (char*)cbuf->read_offset)
 	{
+		*(char *)data=*((char*)cbuf->buff + (char)cbuf->read_offset);
+		++(cbuf->read_offset);
 		++count;
 	}
-}*/
+	return count;
+}
 
 size_t CBUFWrite(cbuf_t *cbuf, const void *data, size_t nbytes)
 {
-	int next;
 	size_t count = 0;
 	void *dest = NULL;
-    next = cbuf->size + 1;  // next is where head will point to after this write.
-    
-    if (next >= cbuf->capacity)
-    {
-        next = 0;
+
+    if (cbuf->size + 1 == cbuf->read_offset)
+    { 											
+        return 1;
 	}
 	
-    if (next == cbuf->read_offset)
-    { 											 // if the size + 1 == off_set, circular buffer is full
-        return NULL;
-	}
-	
-    c->head = next;             // head to next data offset.
 	dest = (char *)(cbuf->buff) + cbuf->size;
-	memcpy(dest, data, nbytes);
-	while(cbuf->size+1 < cbuf->read_offset)
+	if(nbytes > cbuf->capacity - cbuf->size)
 	{
-		++count;
-	}
-	cbuf->size = next;
-	return count;
+		nbytes = cbuf->capacity - cbuf->size;
+	}	
+	memcpy(dest, data, nbytes);
+	cbuf->size +=nbytes;
+	return nbytes;
 }
 /*
 int CBUFIsEmpty(const cbuf_t *cbuf);
