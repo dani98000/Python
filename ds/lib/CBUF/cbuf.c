@@ -21,7 +21,7 @@ cbuf_t *CBUFCreate(size_t nbytes)
 	{
 		return NULL;
 	}
-	cbuf->buff = (void *)malloc(nbytes);
+	cbuf->buff = (void *)calloc(nbytes,sizeof(char));
 	if (NULL == cbuf->buff)
 	{
 		return NULL;
@@ -41,12 +41,21 @@ void CBUFDestroy(cbuf_t *cbuf)
 size_t CBUFRead(cbuf_t *cbuf, void *data, size_t nbytes)
 {
 	size_t count = 0;
-	while((char *)(void*)cbuf->size > (char*)cbuf->read_offset)
+
+	if((nbytes + cbuf->size) % cbuf->capacity > cbuf->read_offset)
 	{
-		*(char *)data=*((char*)cbuf->buff + (char)cbuf->read_offset);
+		nbytes = (nbytes + cbuf->size) % cbuf->capacity;
+	}	 
+	while(cbuf->size % cbuf->capacity > cbuf->read_offset % cbuf->capacity)
+	{
+		cbuf->size %= cbuf->capacity; 
+		cbuf->read_offset %= cbuf->capacity;
+		((char *)data)[count]=*((char*)cbuf->buff + cbuf->read_offset);
 		++(cbuf->read_offset);
+		--(cbuf->size);
 		++count;
 	}
+		printf("read bytes :%d\n",nbytes);
 	return count;
 }
 
@@ -54,22 +63,33 @@ size_t CBUFWrite(cbuf_t *cbuf, const void *data, size_t nbytes)
 {
 	size_t count = 0;
 	void *dest = NULL;
-
+	cbuf->size %= cbuf->capacity; 
+	cbuf->read_offset %= cbuf->capacity;
+	
     if (cbuf->size + 1 == cbuf->read_offset)
     { 											
         return 1;
 	}
 	
 	dest = (char *)(cbuf->buff) + cbuf->size;
-	if(nbytes > cbuf->capacity - cbuf->size)
+	if((nbytes + cbuf->size) % cbuf->capacity > cbuf->read_offset)
 	{
-		nbytes = cbuf->capacity - cbuf->size;
+		nbytes = (nbytes + cbuf->size) % cbuf->capacity;
 	}	
+		printf("write bytes :%d\n",nbytes);
 	memcpy(dest, data, nbytes);
 	cbuf->size +=nbytes;
 	return nbytes;
 }
-/*
-int CBUFIsEmpty(const cbuf_t *cbuf);
-size_t CBufFreeSpace(cbuf_t *cbuf);
+
+int CBUFIsEmpty(const cbuf_t *cbuf)
+{
+	if(cbuf->size < cbuf->capacity)
+	{
+		return 1;	
+	}
+	return 0;
+}
+
+/*size_t CBufFreeSpace(cbuf_t *cbuf);
 size_t CBufCapacity(cbuf_t *cbuf);*/
