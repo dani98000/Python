@@ -42,6 +42,11 @@ void CBUFDestroy(cbuf_t *cbuf)
 size_t CBUFRead(cbuf_t *cbuf, void *data, size_t nbytes)
 {
 	size_t count = 0;
+
+	if(CBUFIsEmpty(cbuf))
+	{
+		errno = ENODATA;
+	}
     while (cbuf->size > 0  && nbytes > 0)
 	{
   		((char *)data)[count] = ((char*)cbuf->buff)[cbuf->read_offset];
@@ -60,10 +65,10 @@ size_t CBUFRead(cbuf_t *cbuf, void *data, size_t nbytes)
 size_t CBUFWrite(cbuf_t *cbuf, const void *data, size_t nbytes)
 {
 	size_t count = 0;
-
+	
 	while(CBUFFreeSpace(cbuf) > 0 && nbytes > 0)
 	{
-    	((char*)cbuf->buff)[cbuf->size+cbuf->read_offset] = *(char *)data;
+    	((char*)cbuf->buff)[cbuf->size+cbuf->read_offset] = ((char *)data)[count];
     	++cbuf->size;
     	--nbytes;
     	++count;
@@ -74,7 +79,7 @@ size_t CBUFWrite(cbuf_t *cbuf, const void *data, size_t nbytes)
 	}
 	if(CBUFFreeSpace(cbuf) == 0)
     {
-		printf("ERROR: %s\n", strerror(EOVERFLOW));
+		errno = EOVERFLOW;
     }
     return count;
 }
