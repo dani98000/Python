@@ -43,10 +43,7 @@ size_t CBUFRead(cbuf_t *cbuf, void *data, size_t nbytes)
 {
 	size_t count = 0;
 
-	if(CBUFIsEmpty(cbuf))
-	{
-		errno = ENODATA;
-	}
+	
     while (cbuf->size > 0  && nbytes > 0)
 	{
   		((char *)data)[count] = ((char*)cbuf->buff)[cbuf->read_offset];
@@ -59,6 +56,12 @@ size_t CBUFRead(cbuf_t *cbuf, void *data, size_t nbytes)
 	        cbuf->read_offset = 0;
 		}
 	}
+
+	if(CBUFIsEmpty(cbuf))
+	{
+		errno = ENODATA;
+	}
+
     return count;
 }
 
@@ -68,19 +71,17 @@ size_t CBUFWrite(cbuf_t *cbuf, const void *data, size_t nbytes)
 	
 	while(CBUFFreeSpace(cbuf) > 0 && nbytes > 0)
 	{
-    	((char*)cbuf->buff)[cbuf->size+cbuf->read_offset] = ((char *)data)[count];
+    	((char*)cbuf->buff)[(cbuf->size + cbuf->read_offset) % cbuf->capacity] 
+			= ((char *)data)[count];
     	++cbuf->size;
     	--nbytes;
     	++count;
-    	if (cbuf->size == cbuf->capacity && (cbuf->size+1) % cbuf->capacity < cbuf->read_offset)
-    	{
-       		cbuf->size = 0;
-		}
 	}
 	if(CBUFFreeSpace(cbuf) == 0)
     {
 		errno = EOVERFLOW;
     }
+
     return count;
 }
 
@@ -89,12 +90,12 @@ int CBUFIsEmpty(const cbuf_t *cbuf)
 	return(cbuf->size == 0);
 }
 
-size_t CBUFFreeSpace(cbuf_t *cbuf)
+size_t CBUFFreeSpace(const cbuf_t *cbuf)
 {
 	return(cbuf->capacity - cbuf->size);
 }
 
-size_t CBUFCapacity(cbuf_t *cbuf)
+size_t CBUFCapacity(const cbuf_t *cbuf)
 {
 	return (cbuf->capacity);
 }
