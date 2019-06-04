@@ -1,7 +1,5 @@
-#include <string.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <assert.h>
+#include <stdlib.h> /* malloc */
+#include <assert.h> /* assert */
 #include <errno.h>  /* perror */
 
 #include "../../include/CBUF/cbuf.h"
@@ -16,20 +14,25 @@ struct CBUF
 
 cbuf_t *CBUFCreate(size_t nbytes)
 {
-    cbuf_t *cbuf = malloc(sizeof(cbuf_t));
-    assert(nbytes>0);
+    cbuf_t *cbuf = (cbuf_t *)malloc(sizeof(cbuf_t));
+    
+    assert(nbytes > 0);
+    
 	if(NULL == cbuf)
 	{
 		return NULL;
 	}
+	
 	cbuf->buff = (void *)calloc(nbytes,sizeof(char));
 	if (NULL == cbuf->buff)
 	{
 		return NULL;
 	}
+	
 	cbuf->capacity = nbytes;
 	cbuf->size = 0;
 	cbuf->read_offset = 0;
+	
     return cbuf;
 }
 
@@ -42,7 +45,8 @@ void CBUFDestroy(cbuf_t *cbuf)
 size_t CBUFRead(cbuf_t *cbuf, void *data, size_t nbytes)
 {
 	size_t count = 0;
-
+	
+	assert(NULL != cbuf);
 	
     while (cbuf->size > 0  && nbytes > 0)
 	{
@@ -51,6 +55,7 @@ size_t CBUFRead(cbuf_t *cbuf, void *data, size_t nbytes)
    		 --cbuf->size;
    		 ++count;
    		 --nbytes;
+   		 
     	if (cbuf->read_offset == cbuf->capacity)
 		{
 	        cbuf->read_offset = 0;
@@ -69,6 +74,10 @@ size_t CBUFWrite(cbuf_t *cbuf, const void *data, size_t nbytes)
 {
 	size_t count = 0;
 	
+	assert(NULL != cbuf);
+	assert(NULL != data);
+	
+	
 	while(CBUFFreeSpace(cbuf) > 0 && nbytes > 0)
 	{
     	((char*)cbuf->buff)[(cbuf->size + cbuf->read_offset) % cbuf->capacity] 
@@ -77,7 +86,7 @@ size_t CBUFWrite(cbuf_t *cbuf, const void *data, size_t nbytes)
     	--nbytes;
     	++count;
 	}
-	if(CBUFFreeSpace(cbuf) == 0)
+	if(0 == CBUFFreeSpace(cbuf))
     {
 		errno = EOVERFLOW;
     }
@@ -87,15 +96,21 @@ size_t CBUFWrite(cbuf_t *cbuf, const void *data, size_t nbytes)
 
 int CBUFIsEmpty(const cbuf_t *cbuf)
 {
-	return(cbuf->size == 0);
+	assert(NULL != cbuf);	
+
+	return(0 == cbuf->size);
 }
 
 size_t CBUFFreeSpace(const cbuf_t *cbuf)
 {
+	assert(NULL != cbuf);
+
 	return(cbuf->capacity - cbuf->size);
 }
 
 size_t CBUFCapacity(const cbuf_t *cbuf)
 {
+	assert(NULL != cbuf);
+
 	return (cbuf->capacity);
 }
