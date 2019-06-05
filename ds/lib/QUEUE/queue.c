@@ -45,7 +45,6 @@ void QueueDequeue(queue_t *queue)
 
 int QueueEnqueue(queue_t *queue, const void *data)
 {
-	SLLPushBack(queue->list,data);
 	if(SLLPushBack(queue->list,data) == SLLEnd(queue->list))
 	{
 		return 1;
