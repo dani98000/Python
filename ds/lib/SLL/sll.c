@@ -1,9 +1,14 @@
-#include <stdlib.h>
-#include <stdio.h>
-#include <stddef.h>
-#include <assert.h>
-#include "../../include/SLL/sll.h"
+/********************************
+* 	 Author  : Daniel Maizel	*
+*	 Date    : 27/05/2019		*
+*	 Reviewer: Sandra         	*
+*								*
+*********************************/
 
+#include <stdlib.h> /* malloc */
+#include <assert.h> /* assert */
+
+#include "../../include/SLL/sll.h" /* My Header */
 
 struct node
 {
@@ -20,6 +25,7 @@ struct sll
 static it_t SLLCreateNode(const void *data,it_t next)
 {
 	it_t node = (it_t)malloc(sizeof(struct node));
+	
 	if(NULL == node)
 	{
 		free(node);
@@ -28,12 +34,14 @@ static it_t SLLCreateNode(const void *data,it_t next)
 	
 	node->data = (void *)data;
 	node->next = next;
+	
 	return node;
 }
 
 sll_t *SLLCreate()
 {
 	sll_t *sll = (sll_t *)malloc(sizeof(sll_t));
+	
 	if(NULL == sll)
 	{
 		free(sll);
@@ -58,19 +66,15 @@ void SLLDestroy(sll_t *sll)
 		free(current);
 		current = temp;
 	}
+	
 	free(sll);
 }
 
 it_t SLLInsertAfter(sll_t *sll, it_t iter, const void *data)
 {
-	it_t current = sll->head;
 	it_t new_node = NULL;
 	assert(NULL != sll);
 	
-	while (current->next != iter)
-	{
-		current = current->next;
-  	}
 	new_node = SLLCreateNode(data,iter->next);
 	iter->next = new_node;
 	
@@ -82,10 +86,6 @@ void SLLPopBack(sll_t *sll)
 	it_t current = sll->head;  
 	assert(NULL != sll);
 	
-	/*if(SLLSize(sll) == 0)
-	{
-
-	}*/
 	while(current->next != sll->tail)
 	{
 		current = current->next;
@@ -134,6 +134,7 @@ void *SLLGetData(it_t iter)
 {
 	return(iter->data); 
 }
+
 it_t SLLBegin(const sll_t *sll)
 {
 	assert(NULL != sll);
@@ -153,8 +154,39 @@ it_t SLLNext(it_t iter)
 	return(iter->next);
 }
 
-/*int SLLForEach(it_t from, it_t to, const void *param, act_f action);
-it_t SLLFind(it_t from, it_t to, void *key, cmp_f compare);*/
+int SLLForEach(it_t from, it_t to, const void *param, act_f action)
+{
+	it_t current = NULL;
+	int res = 0;
+	
+	for(current = from; current != to ; current = current->next)
+	{
+		res = (action)(current->data, param);
+		if(res != 0)
+		{
+			return res;
+		} 
+	}
+	
+	return 0;
+}
+
+it_t SLLFind(it_t from, it_t to, void *key, cmp_f compare)
+{
+	it_t current = NULL;
+	int res = 1;
+
+	for(current = from; current != to ; current = current->next)
+	{
+		res = (compare)(current->data, key);
+		if(res != 0)
+		{
+			return current;
+		}
+	}
+	
+	return to;
+}
 
 int SLLIsEmpty(const sll_t *sll)
 {
@@ -178,12 +210,29 @@ size_t SLLSize(const sll_t *sll)
 	return count;
 }
 
-/*sll_t *SLLFLip(sll_t *sll);*/
-void SLLErase(sll_t *sll, it_t where) /* erases given iterator from list*/
+sll_t *SLLFLip(sll_t *sll)
+{
+	it_t prev   = NULL; 
+    it_t current = sll->head; 
+    it_t next = NULL;
+    sll->tail = sll->head; 
+    
+    while (current != NULL) 
+    { 
+        next  = current->next;   
+        current->next = prev;    
+        prev = current; 
+        current = next; 
+    } 
+    sll->head = prev; 
+	
+	return(sll);
+}
+
+void SLLErase(sll_t *sll, it_t where) 
 {
 	it_t p_to_where = sll->head;
 	assert(NULL != sll);
-	
      
 	while(p_to_where->next != where)
     {
@@ -194,7 +243,26 @@ void SLLErase(sll_t *sll, it_t where) /* erases given iterator from list*/
     free(where);
 } 
 
-/*int SLLHasLoop(const sll_t *sll);
-it_t SLLFindIntersection(const sll_t *sll1, const sll_t *sll2);*/
-
-
+/*it_t SLLFindIntersection(const sll_t *sll1, const sll_t *sll2)
+{
+	it_t runner1 = sll1->head;
+	it_t runner2 = sll2->head;
+	size_t size1 = SLLSize(sll1);
+	size_t size2 = SLLSize(sll2);
+	size_t length = 0;
+	
+	while(SLLSize(sll1) != SLLSize(sll2))
+	{
+		if(size1 > size2)
+		{
+		
+		}
+	
+	while(runner1->next != runner2->next)
+	{
+		runner1 = runner1->next;
+		runner2 = runner2->next;
+	}
+	
+	return(runner1->next);
+}*/

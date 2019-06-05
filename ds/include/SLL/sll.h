@@ -2,9 +2,11 @@
 
 typedef struct node *it_t; 
 typedef struct sll sll_t;
-typedef int (*cmp_f)(void *data, void *key);
+typedef int (*cmp_f)(const void *data, const void *key);
 /* arg (pointer to an argument) is optional, could be NULL */
-typedef void (*act_f)(void *data, void *arg);
+typedef int (*act_f)(void *data, const void *arg);  
+
+
 
 /*struct node
 {
