@@ -1,7 +1,7 @@
 /********************************
 * 	 Author  : Daniel Maizel	*
 *	 Date    : 27/05/2019		*
-*	 Reviewer:              	*
+*	 Reviewer: Inbar Madar     	*
 *								*
 *********************************/
 
@@ -9,10 +9,10 @@
 #include <stdlib.h> /* malloc */
 #include <stdio.h>  /* size_t */
 #include <assert.h> /* assert */
-
-#include "../../include/QUEUE/queue.h"
-#include "../../include/SLL/sll.h"
-
+									   /*************/
+#include "../../include/QUEUE/queue.h" /* My Header */
+#include "../../include/SLL/sll.h"	   /*   Files   */
+									   /*************/
 struct queue
 {
 	sll_t *list;
@@ -34,46 +34,60 @@ queue_t *QueueCreate()
 
 void QueueDestroy(queue_t *queue)
 {
+	assert(queue != NULL);	
+	
 	SLLDestroy(queue->list);
 	free(queue);
 }
 
 void QueueDequeue(queue_t *queue)
 {
-	SLLPopFront((queue->list));
+	assert(queue != NULL);
+	assert(QueueSize(queue) > 0);
+	
+	SLLPopFront(queue->list);
 }
 
 int QueueEnqueue(queue_t *queue, const void *data)
 {
-	if(SLLPushBack(queue->list,data) == SLLEnd(queue->list))
-	{
-		return 1;
-	}
-	return 0;
+	assert(queue != NULL);
+
+	return!(SLLPushBack(queue->list,data) == SLLEnd(queue->list));
 }
 
 void *QueuePeek(const queue_t *queue)
 {
-	SLLGetData(SLLBegin(queue->list));
+	assert(queue != NULL);
+	assert(QueueSize(queue)>=0);
+	
+	return (SLLGetData(SLLBegin(queue->list)));
 }
 
 int QueueIsEmpty(const queue_t *queue)
 {
-	return(SLLIsEmpty(queue->list));
+	assert(queue != NULL);
 
+	return(SLLIsEmpty(queue->list));
 }
 
 size_t QueueSize(const queue_t *queue)
 {
+	assert(queue != NULL);
+
 	return(SLLSize(queue->list));
 }
 
 queue_t *QueueAppend(queue_t *dest, queue_t *src)
 {
-	while(QueueIsEmpty(src))
+	it_t current = SLLBegin(src->list);
+	assert(dest != NULL);
+	assert(src != NULL);
+	
+	while(SLLNext(current) !=NULL)
 	{
-		QueueEnqueue(dest, QueuePeek(src));
-		QueueDequeue(src);
+		QueueEnqueue(dest, SLLGetData(current));
+		current = SLLNext(current);
 	}
+	
 	return(dest);
 }

@@ -66,7 +66,7 @@ int Test_SLLPopBack(void);
 int Test_SLLForEach(void);
 int Test_SLLFind(void);
 int Test_SLLFlip(void);
-int Test_SLLFindIntersection();
+/*int Test_SLLFindIntersection();*/
 
 int main()
 {
@@ -79,7 +79,7 @@ int main()
 	RUN_TEST(Test_SLLFind);
 	RUN_TEST(Test_SLLForEach);
 	RUN_TEST(Test_SLLFlip);
-	RUN_TEST(Test_SLLFindIntersection);
+	/*RUN_TEST(Test_SLLFindIntersection);*/
 	
 	
 	
@@ -733,7 +733,7 @@ int Test_SLLFlip(void)
 	return result;
 }
 
-int Test_SLLFindIntersection()
+/*int Test_SLLFindIntersection()
 {
 	sll_t *sll1 = SLLCreate();
 	sll_t *sll2 = SLLCreate();
@@ -763,4 +763,4 @@ int Test_SLLFindIntersection()
 	SLLPushBack(sll2, (void*)&e);
 	SLLPushBack(sll2, (void*)&f);
 	return 1;
-}
+}*/
