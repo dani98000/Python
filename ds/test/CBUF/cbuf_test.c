@@ -29,11 +29,14 @@ void test_create()
 	cbuf_t *cbuf = NULL;
 	size_t expected = 5;
 	char *field = NULL;
-	char dest[5] = "hello";
+	char a = '5';
+	char dest[] = {'\0','\0'};
 	
 	cbuf = CBUFCreate(50);
-	printf("%d",CBUFWrite(cbuf,dest,1));
+	CBUFWrite(cbuf,&a,1);
 	
+	CBUFRead(cbuf,dest,1);
+		printf("%s",dest);
 	CBUFDestroy(cbuf);
 }
 
