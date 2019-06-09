@@ -733,34 +733,46 @@ int Test_SLLFlip(void)
 	return result;
 }
 
-/*int Test_SLLFindIntersection()
+int Test_SLLFindIntersection()
 {
+	typedef struct robot	
+	{
+		char *name;
+		char *color;
+		int age;
+	}robot_t;
+	
 	sll_t *sll1 = SLLCreate();
 	sll_t *sll2 = SLLCreate();
+
+
 		
 	int result = 1;
 	char res = 0;
 	char expect = 0;
 	size_t test_no = 0;
-	char a = 'a';
-	char b = 'b';
-	char c = 'c';
-	char d = 'd';
-	char e = 'e';
-	char f = 'f';
-	char x = 'x';
-	char n = 0;
+	it_t iter1 = NULL
+	it_t iter2 = NULL
+	
+	static robot_t robots[4] = {{NULL, NULL, 0}, {NULL, NULL, 1},
+							   {NULL, NULL, 2}, {NULL, NULL, 4}};
+	
 
-	SLLPushBack(sll1, (void*)&a);
-	SLLPushBack(sll1, (void*)&b);
-	SLLPushBack(sll1, (void*)&c);
+	
+	SLLPushBack(sll1, (void*)&robots[0].age);
+	SLLPushBack(sll1, (void*)&robots[1].age);
+	iter1 = SLLPushBack(sll1, (void*)&robots[2].age);
 	printf("\t");
 	SLLForEach(SLLBegin(sll1), SLLEnd(sll1), sll1, print_list);
 	printf("NULL");
 	printf("\n");
 
-	SLLPushBack(sll2, (void*)&d);
-	SLLPushBack(sll2, (void*)&e);
-	SLLPushBack(sll2, (void*)&f);
+	iter2 = SLLPushBack(sll2, (void*)&robots[3].age);
+	SLLPushBack(sll2, (void*)&robots[2].age);
+	printf("\t");
+	SLLForEach(SLLBegin(sll2), SLLEnd(sll2), sll2, print_list);
+	printf("NULL");
+	printf("\n");
+	
 	return 1;
-}*/
+}
