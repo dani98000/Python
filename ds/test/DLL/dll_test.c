@@ -169,7 +169,7 @@ int Test_DLLPushFront(void)
 	
 	/* test5 */
 	res = n;
-	expect = 3;
+	expect = 1;
 	++test_no;
 	printf("\ttest %lu: expected: %d, got: %d\n", test_no, expect, res);
 	result *= (expect == res);
@@ -452,7 +452,7 @@ int Test_DLLFind(void)
 	
 
 	/* test7 */
-	res2 = DLLFind(DLLBegin(dll), DLLEnd(dll), charcmp, (void *)&s2, NULL);
+	res2 = DLLFind(DLLBegin(dll), DLLEnd(dll), charcmp, NULL, (void *)&s2);
 	n = *((char *)DLLGetData(res2));
 	expect2 = *((char *)DLLGetData(DLLNext(iter1)));
 	++test_no;
@@ -562,7 +562,7 @@ int Test_SpliceBefore()
 	printf("\ttest %lu: expected: %d, got: %d\n", test_no, expect, res);
 	result *= (expect == res);
 
-	res = *((int *)DLLGetData(SpliceBefore(where,from,to)));
+	res = *((int *)DLLGetData(DLLSpliceBefore(where,from,to)));
 	printf("\t");
 	DLLForEach(DLLBegin(dll2), DLLEnd(dll2), print_list, dll2);
 	printf("NULL\n");

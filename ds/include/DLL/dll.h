@@ -34,6 +34,6 @@ int DLLForEach(it_t from, it_t to, act_f action, void* params);
 it_t DLLFind(it_t from, it_t to, cmp_f compare, void* params, void* data);
 /* returns to if not found */
 
-it_t SpliceBefore(it_t where, it_t from, it_t to);
+it_t DLLSpliceBefore(it_t where, it_t from, it_t to);
 /*err return val of a func which returns an iter should be the end_iter*/
 

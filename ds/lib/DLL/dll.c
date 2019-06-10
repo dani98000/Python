@@ -42,7 +42,6 @@ static it_t DLLCreateNode(const void *data, it_t next, it_t prev)
 	return node;
 }
 
-
 dll_t *DLLCreate()
 {
 	dll_t *dll = (dll_t *)malloc(sizeof(dll_t));
@@ -62,9 +61,11 @@ dll_t *DLLCreate()
 
 void DLLDestroy(dll_t *dll)
 {
-	it_t current = dll->head;  
 	it_t temp = NULL;
+	it_t current = NULL;
+	
 	assert(NULL != dll);
+	current = dll->head;  
 	
 	while(NULL != current)
 	{
@@ -93,11 +94,12 @@ size_t DLLSize(const dll_t *dll)
 
 it_t DLLPushFront(dll_t *dll, const void *data)
 {
+	it_t begin = DLLBegin(dll);
 	it_t new_node = DLLCreateNode(data ,dll->head->next,dll->head);
 	assert(NULL != dll);
 	
 	dll->head->next = new_node;
-	dll->tail->prev = new_node;
+	begin->prev = new_node;
 	
 	return new_node;
 }
@@ -198,11 +200,11 @@ it_t DLLFind(it_t from, it_t to, cmp_f compare, void* params, void* data)
 {
 	it_t current = NULL;
 	int res = 1;
-	UNUSED(data);
+	UNUSED(params);
 
 	for(current = from; current != to ; current = current->next)
 	{
-		res = (compare)(current->data, params);
+		res = (compare)(current->data, data);
 		if(res != 0)
 		{
 			return current;
@@ -229,18 +231,17 @@ int DLLForEach(it_t from, it_t to, act_f action, void* params)
 	return 0;
 }
 
-it_t SpliceBefore(it_t where, it_t from, it_t to)
+it_t DLLSpliceBefore(it_t where, it_t from, it_t to)
 {
-	it_t here = where->prev;
-	it_t after_to = to->next;
+	it_t before_where = where->prev;
+	it_t before_to = to->prev;
 	it_t before_from = from->prev;
 	
 	from->prev = where->prev;
-	here->next = from;
-	to->next = where;
-	here->prev = to;
-	before_from->next = after_to;
-	after_to->prev = before_from;
-	
+	before_where->next = from;
+	where->prev = before_to;
+	before_to->next = where;
+	before_from->next = to;
+
 	return from;
 }
