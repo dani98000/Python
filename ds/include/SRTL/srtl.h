@@ -5,7 +5,7 @@
 #include <stddef.h> /* size_t */
 #include "../../include/DLL/dll.h" /* it_t */
 
-typedef int (*scmp_f)(const void *data, const void *key, const void *params);
+/*typedef int (*scmp_f)(const void *data, const void *key, const void *params);*/
 typedef int (*sact_f)(void *data, const void *arg);
 
 typedef struct srtl srtl_t;
@@ -19,7 +19,7 @@ typedef it_t sit_t;
 }
 */
 
-srtl_t *SrtLCreate(scmp_f is_before, const void *params);
+srtl_t *SrtLCreate(cmp_f is_before, const void *params);
 void SrtLDestroy(srtl_t *srtl);
 size_t SrtLSize(const srtl_t *srtl);
 int SrtLIsEmpty(const srtl_t *srtl); /* 1 For Empty */
@@ -27,7 +27,7 @@ sit_t SrtLInsert(srtl_t *srtl, const void *data);
 sit_t SrtLErase(sit_t where); /*returns the node after the one removed*/ 
 void SrtLPopFront(srtl_t *srtl);
 void SrtLPopBack(srtl_t *srtl);
-sit_t SrtLFind(sit_t from, sit_t to, scmp_f compare, void *params, void *key); /* returns to if not found */
+sit_t SrtLFind(sit_t from, sit_t to, cmp_f compare, const void *params, const void *key); /* returns to if not found */
 int SrtLForEach(sit_t from, sit_t to, sact_f action, void *params); /* returns 0 on success, Don't change the sorting field */
 sit_t SrtLBegin(const srtl_t *srtl);
 sit_t SrtLEnd(const srtl_t *srtl);

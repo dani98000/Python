@@ -1,3 +1,4 @@
+#include <stdio.h> 
 /*struct queue
 {
 	sll_t *list;
