@@ -7,11 +7,11 @@
 struct srtl
 {
 	dll_t *list;
-	scmp_f is_before;
+	cmp_f is_before;
 	void *params;
 };
 
-srtl_t *SrtLCreate(scmp_f is_before, const void *params)
+srtl_t *SrtLCreate(cmp_f is_before, const void *params)
 {
 	srtl_t *srtl = (srtl_t *)malloc(sizeof(srtl_t));
 	if(NULL == srtl)
@@ -42,7 +42,7 @@ size_t SrtLSize(const srtl_t *srtl)
 	return DLLSize(srtl->list);
 }
 
-/*int SrtLIsEmpty(const srtl_t *srtl)
+int SrtLIsEmpty(const srtl_t *srtl)
 {
 	assert(NULL != srtl);
 
@@ -51,13 +51,14 @@ size_t SrtLSize(const srtl_t *srtl)
 
 sit_t SrtLInsert(srtl_t *srtl, const void *data)
 {
-	sit_t where = DLLFind(DLLBegin(srtl->list), 
-	DLLEnd(srtl->list), srtl->is_before, strl->params, data);
+	sit_t where = SrtLFind(DLLBegin(srtl->list), 
+	DLLEnd(srtl->list), srtl->is_before, srtl->params, (void *)data);
 
-	return DLLInsert(srtl->list, where, data);
+	return DLLInsert(srtl->list, where, (void *)data);
 }
 
-sit_t SrtLErase(sit_t where)
+
+/*sit_t SrtLErase(sit_t where)
 {
 	return(DLLErase);
 }
@@ -75,3 +76,19 @@ void SrtLPopBack(srtl_t *srtl)
 
 	DLLErase(DLLPrev(DLLEnd(srtl->list)));
 }*/
+
+sit_t SrtLFind(sit_t from, sit_t to, cmp_f compare, const void *params, const void *key)
+{
+	return DLLFind(from, to,compare, (void *)params, (void *)key);
+}
+
+sit_t SrtLBegin(const srtl_t *srtl)
+{
+	return DLLBegin(srtl->list);
+}
+
+sit_t SrtLEnd(const srtl_t *srtl)
+{
+	return DLLEnd(srtl->list);
+}
+
