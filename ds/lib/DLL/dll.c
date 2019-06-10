@@ -9,6 +9,7 @@
 #include <assert.h> /* assert */
 
 #include "../../include/DLL/dll.h" /* My header file */
+#include "../../include/SRTL/srtl.h" /* My header file */
 
 #define UNUSED(X) (void) (X)
 
@@ -231,7 +232,7 @@ int DLLForEach(it_t from, it_t to, act_f action, void* params)
 	return 0;
 }
 
-it_t DLLSpliceBefore(it_t where, it_t from, it_t to)
+void DLLSpliceBefore(it_t where, it_t from, it_t to)
 {
 	it_t before_where = where->prev;
 	it_t before_to = to->prev;
@@ -242,6 +243,4 @@ it_t DLLSpliceBefore(it_t where, it_t from, it_t to)
 	where->prev = before_to;
 	before_to->next = where;
 	before_from->next = to;
-
-	return from;
 }

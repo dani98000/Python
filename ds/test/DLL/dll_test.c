@@ -562,7 +562,7 @@ int Test_SpliceBefore()
 	printf("\ttest %lu: expected: %d, got: %d\n", test_no, expect, res);
 	result *= (expect == res);
 
-	res = *((int *)DLLGetData(DLLSpliceBefore(where,from,to)));
+	DLLSpliceBefore(where,from,to);
 	printf("\t");
 	DLLForEach(DLLBegin(dll2), DLLEnd(dll2), print_list, dll2);
 	printf("NULL\n");
@@ -571,10 +571,6 @@ int Test_SpliceBefore()
 	DLLForEach(DLLBegin(dll1), DLLEnd(dll1), print_list, dll1);
 	printf("NULL\n");
 	
-	expect = 5;
-	++test_no;
-	printf("\ttest %lu: expected: %d, got: %d\n", test_no, expect, res);
-	result *= (expect == res);
 	
 	DLLDestroy(dll1);
 	DLLDestroy(dll2);

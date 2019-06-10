@@ -1,3 +1,6 @@
+#ifndef _DLL_H
+#define _DLL_H
+
 typedef struct DLL dll_t ; 
 typedef struct DLLnode *it_t;
 
@@ -34,6 +37,7 @@ int DLLForEach(it_t from, it_t to, act_f action, void* params);
 it_t DLLFind(it_t from, it_t to, cmp_f compare, void* params, void* data);
 /* returns to if not found */
 
-it_t DLLSpliceBefore(it_t where, it_t from, it_t to);
+void DLLSpliceBefore(it_t where, it_t from, it_t to);
 /*err return val of a func which returns an iter should be the end_iter*/
 
+#endif
