@@ -5,7 +5,7 @@
 #include <stddef.h> /* size_t */
 #include "../../include/DLL/dll.h" /* it_t */
 
-/*typedef int (*scmp_f)(const void *data, const void *key, const void *params);*/
+typedef int (*scmp_f)(const void *data, const void *key, const void *params);
 typedef int (*sact_f)(void *data, const void *arg);
 
 typedef struct srtl srtl_t;

@@ -1,3 +1,9 @@
+/********************************
+* 	 Author  : Daniel Maizel	*
+*	 Date    : 27/05/2019		*
+*	 Reviewer: Alex         	*
+*								*
+*********************************/
 #include <stdlib.h> /* malloc */
 #include <assert.h> /* assert */
 
@@ -21,6 +27,11 @@ srtl_t *SrtLCreate(cmp_f is_before, const void *params)
 	}
 	
 	srtl->list = DLLCreate();
+	if (NULL == srtl->list)
+	{
+		free(srtl->list);
+		return NULL;
+	}
 	srtl->is_before = is_before;
 	srtl->params = (void *)params;
 	
@@ -51,16 +62,23 @@ int SrtLIsEmpty(const srtl_t *srtl)
 
 sit_t SrtLInsert(srtl_t *srtl, const void *data)
 {
-	sit_t where = SrtLFind(DLLBegin(srtl->list), 
-	DLLEnd(srtl->list), srtl->is_before, srtl->params, (void *)data);
+	sit_t where = NULL;
+	assert(NULL != srtl);
 
-	return DLLInsert(srtl->list, where, (void *)data);
+	if(SrtLIsEmpty(srtl))
+	{  
+		return DLLPushFront(srtl->list, data);
+	}	
+	
+	where = DLLFind((DLLBegin(srtl->list)), (DLLEnd(srtl->list)), srtl->is_before, srtl->params, (void *)data);
+	
+	return DLLInsert(srtl->list, DLLPrev(where), (void *)data);
 }
 
 
-/*sit_t SrtLErase(sit_t where)
+sit_t SrtLErase(sit_t where)
 {
-	return(DLLErase);
+	return(DLLErase(where));
 }
 
 void SrtLPopFront(srtl_t *srtl)
@@ -75,20 +93,85 @@ void SrtLPopBack(srtl_t *srtl)
 	assert(NULL != srtl);
 
 	DLLErase(DLLPrev(DLLEnd(srtl->list)));
-}*/
+}
 
-sit_t SrtLFind(sit_t from, sit_t to, cmp_f compare, const void *params, const void *key)
+sit_t SrtLFind(sit_t from, sit_t to, scmp_f compare, const void *params, const void *key)
 {
-	return DLLFind(from, to,compare, (void *)params, (void *)key);
+	return DLLFind(from, to, compare, (void *)params, (void *)key);
+}
+
+int SrtLForEach(sit_t from, sit_t to, sact_f action, void *params)
+{
+	return DLLForEach(from, to, action, params);
 }
 
 sit_t SrtLBegin(const srtl_t *srtl)
 {
+	assert(NULL != srtl);
+
 	return DLLBegin(srtl->list);
 }
 
 sit_t SrtLEnd(const srtl_t *srtl)
 {
+	assert(NULL != srtl);
+
 	return DLLEnd(srtl->list);
 }
 
+sit_t SrtLNext(const sit_t iter)
+{
+	assert(NULL != srtl);
+
+	return DLLNext(iter);
+}
+
+sit_t SrtLPrev(const sit_t iter)
+{
+	return DLLPrev(iter);
+}
+
+void *SrtLGetData(const sit_t iter)
+{
+	return DLLGetData(iter);
+}
+
+int SrtLIsSame(const sit_t iter1, const sit_t iter2)
+{
+	return(IsSameIter(iter1, iter2));	
+}
+
+void SrtLMerge(srtl_t *dest, srtl_t *src)
+{
+	assert(NULL != dest);
+	assert(NULL != src);
+
+	sit_t where = SrtLBegin(dest);
+	sit_t from = SrtLBegin(src);
+	sit_t to = from;
+	sit_t end = SrtLEnd(src); 
+	
+	while(to != end)
+	{
+		if(dest->is_before(SrtLGetData(where), SrtLGetData(from), NULL))
+		{
+			while(to != end && dest->is_before(SrtLGetData(where), SrtLGetData(to), NULL))
+			{
+				to = SrtLNext(to);
+			}
+			
+			DLLSpliceBefore(where, from, to);
+			from = to;
+		}
+		else
+		{
+			where = SrtLNext(where);
+		}
+		
+		if(where == SrtLEnd(dest))
+		{
+			to = end;
+			DLLSpliceBefore(where, from, to);
+		}	
+	}
+}

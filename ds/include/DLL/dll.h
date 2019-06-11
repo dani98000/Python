@@ -11,7 +11,7 @@ typedef struct DLLnode *it_t;
 	sturct node *prev;
 };*/
 
-typedef int (*cmp_f)(const void *data, const void *key); 
+typedef int (*cmp_f)(const void *data, const void *key, const void *params); 
 /* arg (pointer to an argument) is optional, could be NULL */
 typedef int (*act_f)(void *data, const void *arg);  
 /*0 FOR SUCCES */

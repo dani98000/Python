@@ -183,11 +183,12 @@ int DLLIsEmpty(const dll_t *dll)
 it_t DLLInsert(dll_t *dll, it_t iter, const void *data)
 {
 	it_t new_node = NULL;
+	it_t temp = DLLNext(iter);
 	assert(NULL != dll);
 	
 	new_node = DLLCreateNode(data,iter->next,iter);
 	iter->next = new_node;
-	new_node->prev = iter;
+	temp->prev = new_node;
 	
 	return new_node;
 }
@@ -205,7 +206,7 @@ it_t DLLFind(it_t from, it_t to, cmp_f compare, void* params, void* data)
 
 	for(current = from; current != to ; current = current->next)
 	{
-		res = (compare)(current->data, data);
+		res = (compare)(current->data, data, params);
 		if(res != 0)
 		{
 			return current;
@@ -239,6 +240,7 @@ void DLLSpliceBefore(it_t where, it_t from, it_t to)
 	it_t before_from = from->prev;
 	
 	from->prev = where->prev;
+	to->prev = before_from;
 	before_where->next = from;
 	where->prev = before_to;
 	before_to->next = where;
