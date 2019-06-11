@@ -1,7 +1,7 @@
 #ifndef _PQ_H
 #define _PQ_H
 
-#include "srtl.h"
+#include "../../include/SRTL/srtl.h" /* it_t */
 
 /*struct pq
 {

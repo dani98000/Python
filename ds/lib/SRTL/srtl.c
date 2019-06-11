@@ -121,7 +121,7 @@ sit_t SrtLEnd(const srtl_t *srtl)
 
 sit_t SrtLNext(const sit_t iter)
 {
-	assert(NULL != srtl);
+	assert(NULL != iter);
 
 	return DLLNext(iter);
 }
@@ -143,13 +143,18 @@ int SrtLIsSame(const sit_t iter1, const sit_t iter2)
 
 void SrtLMerge(srtl_t *dest, srtl_t *src)
 {
+	sit_t where = NULL;
+	sit_t from = NULL;
+	sit_t to = NULL;
+	sit_t end = NULL;
+	
 	assert(NULL != dest);
 	assert(NULL != src);
 
-	sit_t where = SrtLBegin(dest);
-	sit_t from = SrtLBegin(src);
-	sit_t to = from;
-	sit_t end = SrtLEnd(src); 
+	where = SrtLBegin(dest);
+	from = SrtLBegin(src);
+	to = from;
+	end = SrtLEnd(src); 
 	
 	while(to != end)
 	{
