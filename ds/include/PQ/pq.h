@@ -9,8 +9,10 @@
 };*/
 
 typedef struct pq pq_t;
+typedef int(*pqpriority_f)(const void *data, const void *new_data, const void *params);
 typedef int(*pqcmp_f)(const void *data, const void *key, const void *params);
-pq_t *PQCreate(pqcmp_f PriorityFunction);
+
+pq_t *PQCreate(pqpriority_f PriorityFunction);
 void PQDestroy(pq_t *pq);
 int PQEnqueue(pq_t *pq, void *data);
 void *PQPeek(const pq_t *pq);

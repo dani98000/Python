@@ -13,22 +13,22 @@
 
 #define UNUSED(X) (void) (X)
 
-struct DLLnode               
+struct dll_node               
 {
 	void *data;
-	struct DLLnode *next;
-	struct DLLnode *prev;
+	struct dll_node *next;
+	struct dll_node *prev;
 };
 
-struct DLL
+struct dll
 {
-    struct DLLnode *head;
-    struct DLLnode *tail;
+    struct dll_node *head;
+    struct dll_node *tail;
 };
 
 static it_t DLLCreateNode(const void *data, it_t next, it_t prev)
 {
-	it_t node = (it_t)malloc(sizeof(struct DLLnode));
+	it_t node = (it_t)malloc(sizeof(struct dll_node));
 	
 	if(NULL == node)
 	{
@@ -93,7 +93,7 @@ size_t DLLSize(const dll_t *dll)
 	return count;
 }
 
-it_t DLLPushFront(dll_t *dll, const void *data)
+it_t DLLPushFront(dll_t *dll, void *data)
 {
 	it_t begin = DLLBegin(dll);
 	it_t new_node = DLLCreateNode(data ,dll->head->next,dll->head);
@@ -105,7 +105,7 @@ it_t DLLPushFront(dll_t *dll, const void *data)
 	return new_node;
 }
 
-it_t DLLPushBack(dll_t *dll, const void *data)
+it_t DLLPushBack(dll_t *dll, void *data)
 {
 	it_t new_node = NULL;
 	it_t temp = NULL;
@@ -180,7 +180,7 @@ int DLLIsEmpty(const dll_t *dll)
 	return (DLLBegin(dll) == DLLEnd(dll));
 }
 
-it_t DLLInsert(dll_t *dll, it_t iter, const void *data)
+it_t DLLInsert(dll_t *dll, it_t iter, void *data)
 {
 	it_t new_node = NULL;
 	it_t temp = DLLNext(iter);
@@ -193,12 +193,12 @@ it_t DLLInsert(dll_t *dll, it_t iter, const void *data)
 	return new_node;
 }
 
-int IsSameIter(const it_t iter1,const it_t iter2)
+int DLLIsSameIter(const it_t iter1,const it_t iter2)
 {
 	return(iter1 == iter2);
 }
 
-it_t DLLFind(it_t from, it_t to, cmp_f compare, void* params, void* data)
+it_t DLLFind(it_t from, it_t to, cmp_f compare, const void *key, const void *params)
 {
 	it_t current = NULL;
 	int res = 1;
@@ -206,7 +206,7 @@ it_t DLLFind(it_t from, it_t to, cmp_f compare, void* params, void* data)
 
 	for(current = from; current != to ; current = current->next)
 	{
-		res = (compare)(current->data, data, params);
+		res = (compare)(current->data, key, params);
 		if(res != 0)
 		{
 			return current;
@@ -216,7 +216,7 @@ it_t DLLFind(it_t from, it_t to, cmp_f compare, void* params, void* data)
 	return to;
 }
 
-int DLLForEach(it_t from, it_t to, act_f action, void* params)
+int DLLForEach(it_t from, it_t to, act_f action, const void* params)
 {
 	it_t current = NULL;
 	int error = 0;
@@ -238,6 +238,11 @@ void DLLSpliceBefore(it_t where, it_t from, it_t to)
 	it_t before_where = where->prev;
 	it_t before_to = to->prev;
 	it_t before_from = from->prev;
+	
+	if(DLLIsSameIter(from, to))
+	{
+		return;
+	}
 	
 	from->prev = where->prev;
 	to->prev = before_from;

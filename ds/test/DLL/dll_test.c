@@ -26,7 +26,7 @@ int Test_DLLPushFront(void);
 int Test_DLLPopFront(void);
 int Test_DLLPopBack(void);
 int Test_DLLInsert();
-int charcmp(const void *a, const void *b);
+int charcmp(const void *data, const void *key, const void *params);
 int Test_DLLFind(void);
 int print_list(void *data, const void *arg);
 int Test_DLLForEach(void);
@@ -452,7 +452,7 @@ int Test_DLLFind(void)
 	
 
 	/* test7 */
-	res2 = DLLFind(DLLBegin(dll), DLLEnd(dll), charcmp, NULL, (void *)&s2);
+	res2 = DLLFind(DLLBegin(dll), DLLEnd(dll), charcmp, (void *)&s2, NULL);
 	n = *((char *)DLLGetData(res2));
 	expect2 = *((char *)DLLGetData(DLLNext(iter1)));
 	++test_no;
@@ -464,9 +464,10 @@ int Test_DLLFind(void)
 	return result;
 }
 
-int charcmp(const void *a, const void *b)
+int charcmp(const void *data, const void *key, const void *params)
 {
-	if (*((char *)a) == *((char *)b))
+	UNUSED(params);
+	if (*((char *)data) == *((char *)key))
 	{
 		return 1;
 	}

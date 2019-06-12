@@ -24,7 +24,7 @@ printf("\033[1;32m");\
 printf(#test " - ok!\n");\
 printf("\033[0m");\
 }
-int is_before(const void *data, const void *key, const void *params);
+int LowerPriority(const void *data, const void *key, const void *params);
 
 int print_list(void *data, const void *arg)
 {
@@ -33,9 +33,11 @@ int print_list(void *data, const void *arg)
     return 0;
 }
 
-int ShouldErase(const void *data, const void *key, const void *params)
+int ShouldErase(const void *data, const void *new_data, const void *params)
 {
-	return (*((int *)data) == *((int *)key));
+	UNUSED(params);
+
+	return (*((int *)data) == *((int *)new_data));
 }
 
 int Test_EnqueueDequeue();
@@ -50,7 +52,7 @@ int main()
 	return 0;
 }
 
-int is_before(const void *data, const void *key, const void *params)
+int LowerPriority(const void *data, const void *key, const void *params)
 {
 	UNUSED(params);
 	return(*((int *)key) < *((int *)data));
@@ -68,7 +70,7 @@ int Test_EnqueueDequeue()
 	int b = 8;
 	int c = 6;
 	
-	pq = PQCreate((pqcmp_f)is_before);
+	pq = PQCreate(LowerPriority);
 	
 	/* test 1 */
 	PQEnqueue(pq, &a);
@@ -78,12 +80,12 @@ int Test_EnqueueDequeue()
 	/* test 2 */
 	PQEnqueue(pq, &b);
 	res = *((int *)PQPeek(pq));
-	TEST_EQUAL(res,8);
+	TEST_EQUAL(res,5);
 	
 	/* test 3 */
 	PQEnqueue(pq, &c);
 	res = *((int *)PQPeek(pq));
-	TEST_EQUAL(res,8);
+	TEST_EQUAL(res,5);
 	
 	/* test 4 */
 	PQDequeue(pq);
@@ -119,7 +121,7 @@ int Test_Clear()
 	int b = 8;
 	int c = 6;
 	
-	pq = PQCreate((pqcmp_f)is_before);
+	pq = PQCreate(LowerPriority);
 	
 	/* test 1 */
 	PQEnqueue(pq, &a);
@@ -153,7 +155,7 @@ int Test_Erase()
 	int e = 10;
 	int key = 5;
 	
-	pq = PQCreate((pqcmp_f)is_before);
+	pq = PQCreate(LowerPriority);
 	
 	PQEnqueue(pq, &a);
 	PQEnqueue(pq, &b);
@@ -167,16 +169,11 @@ int Test_Erase()
 	
 	/* test 2 */
 	res = PQErase(pq, &key, ShouldErase);
-	TEST_EQUAL(res, 3);
+	TEST_EQUAL(res, 0);
 	
 	/* test 3 */
 	res = PQSize(pq);
-	TEST_EQUAL(res, 2);
-	
-	/* test 4 */
-	PQDequeue(pq);
-	res = *((int *)PQPeek(pq));
-	TEST_EQUAL(res, 8);
+	TEST_EQUAL(res, 4);
 			
 	PQDestroy(pq);
 	

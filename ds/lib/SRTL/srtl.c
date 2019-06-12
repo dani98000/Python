@@ -13,11 +13,11 @@
 struct srtl
 {
 	dll_t *list;
-	cmp_f is_before;
-	void *params;
+	isbefore_f is_before;
+	const void *params;
 };
 
-srtl_t *SrtLCreate(cmp_f is_before, const void *params)
+srtl_t *SrtLCreate(isbefore_f is_before, const void *params)
 {
 	srtl_t *srtl = (srtl_t *)malloc(sizeof(srtl_t));
 	if(NULL == srtl)
@@ -41,7 +41,6 @@ srtl_t *SrtLCreate(cmp_f is_before, const void *params)
 void SrtLDestroy(srtl_t *srtl)
 {
 	assert(NULL != srtl);
-	
 	DLLDestroy(srtl->list);
 	free(srtl);
 }
@@ -60,7 +59,7 @@ int SrtLIsEmpty(const srtl_t *srtl)
 	return DLLIsEmpty(srtl->list);
 }
 
-sit_t SrtLInsert(srtl_t *srtl, const void *data)
+sit_t SrtLInsert(srtl_t *srtl, void *data)
 {
 	sit_t where = NULL;
 	assert(NULL != srtl);
@@ -70,7 +69,7 @@ sit_t SrtLInsert(srtl_t *srtl, const void *data)
 		return DLLPushFront(srtl->list, data);
 	}	
 	
-	where = DLLFind((DLLBegin(srtl->list)), (DLLEnd(srtl->list)), srtl->is_before, srtl->params, (void *)data);
+	where = DLLFind((DLLBegin(srtl->list)), (DLLEnd(srtl->list)), srtl->is_before, (void *)data, srtl->params);
 	
 	return DLLInsert(srtl->list, DLLPrev(where), (void *)data);
 }
@@ -95,12 +94,15 @@ void SrtLPopBack(srtl_t *srtl)
 	DLLErase(DLLPrev(DLLEnd(srtl->list)));
 }
 
-sit_t SrtLFind(sit_t from, sit_t to, scmp_f compare, const void *params, const void *key)
+sit_t SrtLFind(sit_t from, sit_t to, isbefore_f compare, const void *key, const void *params)
 {
-	return DLLFind(from, to, compare, (void *)params, (void *)key);
+	assert(NULL != from);
+	assert(NULL != to);
+
+	return DLLFind(from, to, compare, (void *)key, (void *)params);
 }
 
-int SrtLForEach(sit_t from, sit_t to, sact_f action, void *params)
+int SrtLForEach(sit_t from, sit_t to, sact_f action,const void *params)
 {
 	return DLLForEach(from, to, action, params);
 }
@@ -128,17 +130,24 @@ sit_t SrtLNext(const sit_t iter)
 
 sit_t SrtLPrev(const sit_t iter)
 {
+	assert(NULL != iter);
+
 	return DLLPrev(iter);
 }
 
 void *SrtLGetData(const sit_t iter)
 {
+	assert(NULL != iter);
+
 	return DLLGetData(iter);
 }
 
 int SrtLIsSame(const sit_t iter1, const sit_t iter2)
 {
-	return(IsSameIter(iter1, iter2));	
+	assert(NULL != iter1);
+	assert(NULL != iter2);	
+
+	return(DLLIsSameIter(iter1, iter2));	
 }
 
 void SrtLMerge(srtl_t *dest, srtl_t *src)
