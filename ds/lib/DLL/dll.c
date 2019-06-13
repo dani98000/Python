@@ -9,7 +9,6 @@
 #include <assert.h> /* assert */
 
 #include "../../include/DLL/dll.h" /* My header file */
-#include "../../include/SRTL/srtl.h" /* My header file */
 
 #define UNUSED(X) (void) (X)
 
@@ -95,12 +94,12 @@ size_t DLLSize(const dll_t *dll)
 
 it_t DLLPushFront(dll_t *dll, void *data)
 {
-	it_t begin = DLLBegin(dll);
+	it_t iter = DLLBegin(dll);
 	it_t new_node = DLLCreateNode(data ,dll->head->next,dll->head);
 	assert(NULL != dll);
 	
 	dll->head->next = new_node;
-	begin->prev = new_node;
+	iter->prev = new_node;
 	
 	return new_node;
 }
@@ -118,6 +117,8 @@ it_t DLLPushBack(dll_t *dll, void *data)
 	
 	return new_node;
 }
+
+
 
 it_t DLLBegin(const dll_t *dll)
 {
@@ -251,3 +252,4 @@ void DLLSpliceBefore(it_t where, it_t from, it_t to)
 	before_to->next = where;
 	before_from->next = to;
 }
+

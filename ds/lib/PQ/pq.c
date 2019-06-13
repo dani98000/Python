@@ -92,7 +92,7 @@ void PQClear(pq_t *pq)
 	}
 }
 
-size_t PQErase(pq_t *pq, const void *key, pqcmp_f ShouldErase)
+int PQErase(pq_t *pq, const void *key, pqcmp_f ShouldErase)
 {
 	size_t counter = 0;
 	sit_t found = NULL;

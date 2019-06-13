@@ -20,7 +20,7 @@ int PQDequeue(pq_t *pq);
 int PQIsEmpty(const pq_t *pq);
 size_t PQSize(const pq_t *pq);
 void PQClear(pq_t *pq);
-size_t PQErase(pq_t *pq, const void *key, pqcmp_f ShouldErase);
+int PQErase(pq_t *pq, const void *key, pqcmp_f ShouldErase);
 /* return number of deleted elements */
 
 #endif 
