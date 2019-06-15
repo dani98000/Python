@@ -1,7 +1,7 @@
 #ifndef SCHEDULER_H
 #define SCHEDULER_H
 
-#include "uid.h"
+#include "../../include/Scheduler/task.h"
 
 #ifndef FUNC_T
 #define FUNC_T

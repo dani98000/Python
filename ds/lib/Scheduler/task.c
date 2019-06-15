@@ -40,17 +40,22 @@ void TaskDestroy(task_t *task)
 int TaskExecute(task_t *task)
 {
 	int result = task->func(task->params);
-
-	if(result < 0)
-	{	
-		return 0;
-	}
+	time_t time_left = TaskGetTime(task) - time(NULL); 
 	
-	if(result > 0)
+	
+	if(time_left <= 0)
 	{
-		task->interval = result;
-
-		return 1;
+		task->time_to_run = time(NULL) + task->interval;
+			
+		if(result < 0)
+		{		
+			return 0;
+		}
+		
+		if(result > 0)
+		{
+			task->interval = result;
+		}
 	}
 	
 	task->time_to_run = time(NULL) + task->interval;
