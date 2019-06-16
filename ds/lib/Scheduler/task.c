@@ -1,6 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/time.h>
+#include <time.h>
+#include <assert.h>
+
 
 #include "../../include/Scheduler/task.h"
 
@@ -34,17 +37,24 @@ task_t *TaskCreate(size_t interval, func_t func, void *params)
 
 void TaskDestroy(task_t *task)
 {
+	assert(NULL != task);
+
 	free(task);
 }
 
 int TaskExecute(task_t *task)
 {
-	int result = task->func(task->params);
-	time_t time_left = TaskGetTime(task) - time(NULL); 
+	int result = 0;
+	time_t time_left = 0;
+	 
+	assert(NULL != task);
 	
+
+	time_left = TaskGetTime(task) - time(NULL); 
 	
-	if(time_left <= 0)
+	if(time_left == 0)
 	{
+		result = task->func(task->params);
 		task->time_to_run = time(NULL) + task->interval;
 			
 		if(result < 0)
@@ -57,7 +67,6 @@ int TaskExecute(task_t *task)
 			task->interval = result;
 		}
 	}
-	
 	task->time_to_run = time(NULL) + task->interval;
 	
 	return 1;	
