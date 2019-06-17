@@ -38,7 +38,7 @@ long PeeBreak(void *params)
 {
 	int count = 5;
 	char *file_name = "stop";
-	fopen(file_name,"w");
+	FILE *file = fopen(file_name,"w");
 	UNUSED(params);
 	
 	while(IsExists(file_name))
@@ -50,6 +50,7 @@ long PeeBreak(void *params)
 		sleep(1);
 		--count;
 	}
+	fclose(file);
 	
 	return -1;
 }
@@ -97,7 +98,7 @@ int Test_Flow();
 int main(void)
 {
 	RUN_TEST(Test_ScdSize);
-	RUN_TEST(Test_ScdRemove);	
+	RUN_TEST(Test_ScdRemove);
 	RUN_TEST(Test_File);	
 	RUN_TEST(Test_Flow);
 }
@@ -233,6 +234,8 @@ int Test_Flow()
 	res = a;
 	TEST_EQUAL(res, 4);	
 	printf("-----------------------------------------------------\n");
+	
+	ScdDestroy(scd);
 	
 		
 	return result;
