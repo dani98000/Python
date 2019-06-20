@@ -21,38 +21,20 @@ printf(#test " - ok!\n");\
 printf("\033[0m");\
 }
 
-void test()
-{
-	size_t num_bytes = FSMASuggestSize(5, 5);
-	
-	fsma_t *pool = (fsma_t *)malloc(FSMASuggestSize(5,5));
-	void *temp = NULL;
-	printf("suggested size is: %lu\n", num_bytes);
-	printf("metadata: %lu\n", *((size_t *)((char *)pool + 24)));
-	
-	temp = FSMAInit(pool, FSMASuggestSize(5,5), 5);
-	printf("metadata: %lu\n", *((size_t *)((char *)pool + 24)));
-
-
-	printf("Next free space: %lu\n", *((size_t *)((char *)pool)));
-	printf("metadata: %lu\n", *((size_t *)((char *)pool + 24)));
-	printf("there are %d free blocks\n",FSMACountFree(pool));	
-	temp = FSMAAlloc(pool);		
-	printf("there are %d free blocks\n",FSMACountFree(pool));	
-	FSMAFree(temp);	
-	printf("there are %d free blocks\n",FSMACountFree(pool));	
-}
 
 int Test_FSMASuggestSize();
 int Test_FSMAInit();
 int Test_FSMAAlloc();
+int Test_FSMACountFree();
 
 int main()
 {
-	/*test();*/
 	RUN_TEST(Test_FSMASuggestSize);
 	RUN_TEST(Test_FSMAInit);
 	RUN_TEST(Test_FSMAAlloc);
+	RUN_TEST(Test_FSMACountFree);
+	
+	return 0;
 }
 
 int Test_FSMASuggestSize()
@@ -116,6 +98,7 @@ int Test_FSMAAlloc()
 	int result = 1;
 	size_t test_no = 0;
 	int res = 0;
+	size_t a = 5;
 	fsma_t *pool = (fsma_t *)malloc(FSMASuggestSize(5,5));	
 	pool = FSMAInit(pool, FSMASuggestSize(5,5), 5);	
 	
@@ -123,9 +106,83 @@ int Test_FSMAAlloc()
 	res = FSMASuggestSize(5, 5);
 	TEST_EQUAL(res, 104);
 
-	pool = FSMAAlloc(pool);		
+	pool = FSMAAlloc(pool);
+	*(size_t *)pool	= a;	
+
+	/* test 2 */	
+	res = *(size_t *)((char *)pool - 8);
+	TEST_EQUAL(res, 24);
+	
+	/* test 3 */
+	res = *(size_t *)((char *)pool);
+	TEST_EQUAL(res, 5);
+	
+	/* test 4 */	
+	res = *(size_t *)((char *)pool - 8);
+	TEST_EQUAL(res, 24);
+	
+	/* test 5 */	
+	res = *(size_t *)((char *)pool + 8);
+	TEST_EQUAL(res, 56);		
+	
+	return result;
+}
+
+int Test_FSMACountFree()
+{
+	int result = 1;
+	size_t test_no = 0;
+	int res = 0;
+	size_t a = 5;
+	size_t b = 8;
+	fsma_t *pool = (fsma_t *)malloc(FSMASuggestSize(5,5));	
+	fsma_t *temp = NULL;
+	pool = FSMAInit(pool, FSMASuggestSize(5,5), 5);	
+	
+	/* test 1 */
+	res = FSMASuggestSize(5, 5);
+	TEST_EQUAL(res, 104);
+	
+	/* test 2 */	
+	res = FSMACountFree(pool);
+	TEST_EQUAL(res, 5);
+
+	temp = FSMAAlloc(pool);
+	*(size_t *)temp	= a;		
 
 	/* test 3 */	
-	res = *(size_t *)((char *)pool - 8);
-	TEST_EQUAL(res, 24);		
+	res = FSMACountFree(pool);
+	TEST_EQUAL(res, 4);
+	
+	FSMAAlloc(pool);
+	
+	/* test 4 */
+	res = *(size_t *)((char *)temp);
+	TEST_EQUAL(res, 5);	
+	
+	/* test 5 */	
+	res = FSMACountFree(pool);
+	TEST_EQUAL(res, 3);
+
+	FSMAFree(temp);
+
+	/* test 6 */	
+	res = FSMACountFree(pool);
+	TEST_EQUAL(res, 4);
+	
+	*(size_t *)temp	= b;
+	
+	/* test 7 */
+	res = *(size_t *)((char *)temp);
+	TEST_EQUAL(res, 8);		
+	
+		FSMAAlloc(pool);
+		FSMAAlloc(pool);
+		FSMAAlloc(pool);
+		
+	/* test 6 */	
+	res = FSMACountFree(pool);
+	TEST_EQUAL(res, 1);
+	
+	return result;
 }

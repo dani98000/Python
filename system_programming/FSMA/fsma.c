@@ -1,8 +1,13 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <assert.h>
+/********************************
+* 	 Author  : Daniel Maizel	*
+*	 Date    : 27/05/2019		*
+*	 Reviewer: Eldad        	*
+*								*
+*********************************/
+#include <stdlib.h> /* malloc */
+#include <assert.h> /* assert */
 
-#include "fsma.h"
+#include "fsma.h" /* Fixed Size Memory Allocator header */
 
 #define WORD sizeof(size_t)
 
@@ -13,9 +18,14 @@ struct fsma
 	size_t n_blocks;
 };
 
+static size_t GetBlockSize(size_t block_size)
+{
+	return(WORD * (block_size / WORD) + (((block_size % WORD) == 0) ? 0 : WORD) + WORD);
+}
+
 size_t FSMASuggestSize(size_t n_blocks, size_t block_size)
 {
-	block_size = WORD * (block_size / WORD) + (((block_size % WORD) == 0) ? 0 : WORD) + WORD;
+	block_size = GetBlockSize(block_size);
 	
 	return(sizeof(fsma_t) + block_size * n_blocks);
 }
@@ -27,18 +37,18 @@ fsma_t *FSMAInit(void *pool, size_t pool_size, size_t block_size)
 	char *runner = NULL;
 	fsma_t *new_fsma = NULL;
 	
-	assert(NULL != pool);
+	assert(NULL != pool && pool_size > 32);
 	
 	runner = (char *)pool + base_offset;
 	new_fsma = (fsma_t *)pool;
 	
 	new_fsma->block_size = block_size;
-	block_size = WORD * (block_size / WORD) + (((block_size % WORD) == 0) ? 0 : WORD) + WORD;
+	block_size = GetBlockSize(block_size);
 
 	new_fsma->n_blocks = (pool_size - sizeof(fsma_t)) / block_size;
 	new_fsma->next_free = sizeof(fsma_t); 	
 	
-	while(runner - (char *)pool < pool_size)
+	while((size_t)((char *)runner - (char *)pool) < pool_size)
 	{
 		*runner = (runner - (char *)pool) + block_size;
 		runner += block_size;
@@ -58,7 +68,7 @@ void *FSMAAlloc(fsma_t *fsma)
 	
 	assert(NULL != fsma);
 	
-	block_size = WORD * (fsma->block_size / WORD) + (((fsma->block_size % WORD) == 0) ? 0 : WORD) + WORD;
+	block_size = GetBlockSize(block_size);
 	free_block = (char *)fsma + fsma->next_free + WORD;
 	runner = (char *)fsma + fsma->next_free;
 	
@@ -90,16 +100,13 @@ size_t FSMACountFree(fsma_t *fsma)
 	
 	assert(NULL != fsma);
 	
-	block_size = WORD * (fsma->block_size / WORD) + (((fsma->block_size % WORD) == 0) ? 0 : WORD) + WORD;
-	while(*runner != 0)
-	{
-		++count;
-		runner = runner + block_size;
-	}
-	if(count>1)
-	{
-		++count;
-	}
+	block_size = GetBlockSize(block_size);
 	
+	while((fsma_t *)runner != fsma)
+	{
+		runner = (char *)fsma + *(size_t *)runner;
+		++count;
+	}
+
 	return count;
 }
