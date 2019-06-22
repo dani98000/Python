@@ -1,7 +1,6 @@
-#include <stddef.h>
-#include <assert.h>
-#include  <stdio.h>
-#include "vsma.h"
+#include <assert.h> /* assert */
+
+#include "vsma.h" /* VSMA Header */
 
 #define MAGIC_NUMBER 0x80808080
 #define WORD 8
@@ -11,7 +10,6 @@ struct vsma
 {
     void *pool;
 };
-
 
 typedef struct blk_header
 {
@@ -26,7 +24,7 @@ static void defrag(blk_header_t *current, blk_header_t *next)
 	size_t temp = 0;
 	temp = next->block_size;
 	next = current;
-	current->block_size = current->block_size + temp + sizeof(blk_header_t);
+	current->block_size = current->block_size + temp + METADATA_SIZE;
 	#ifdef DNDEBUG
 	current->magic_num = MAGIC_NUMBER;
 	#endif 
@@ -38,12 +36,13 @@ static blk_header_t *UpdateNext(blk_header_t *current)
 	
 	if(current->block_size < 0)
 	{
-		next = (blk_header_t *)((char *)current + (current->block_size * -1) + sizeof(blk_header_t));
+		next = (blk_header_t *)((char *)current + (current->block_size * -1) + METADATA_SIZE);
 	}
 	else if (current->block_size > 0)
 	{
-		next = (blk_header_t *)((char *)current + current->block_size + sizeof(blk_header_t));
+		next = (blk_header_t *)((char *)current + current->block_size + METADATA_SIZE);
 	}
+	
 	return next;
 }
 
@@ -61,7 +60,7 @@ vsma_t *VSMAInit(void *pool, size_t pool_size)
 	assert(NULL != pool);
 	
 	start = (blk_header_t *)pool;
-	end = (blk_header_t *)((char *)pool + pool_size - sizeof(blk_header_t));
+	end = (blk_header_t *)((char *)pool + pool_size - METADATA_SIZE);
 	end = (blk_header_t *)((size_t)end - ((size_t)end % WORD));
 	start->block_size = (char *)end - (char *)start - METADATA_SIZE;
 	end->block_size = 0;
@@ -80,51 +79,57 @@ void *VSMAAlloc(vsma_t *vsma, size_t block_size)
 	size_t temp = 0;
 	block_size = GetAligned(block_size);
 	
-	
 	if(current->block_size < 0)
 	{
-		next = (blk_header_t *)((char *)current + (current->block_size * -1) + sizeof(blk_header_t));
+		next = (blk_header_t *)((char *)current + (current->block_size * -1) + METADATA_SIZE);
 	}
 	else if (current->block_size > 0)
 	{
-		next = (blk_header_t *)((char *)current + current->block_size + sizeof(blk_header_t));
+		next = (blk_header_t *)((char *)current + current->block_size + METADATA_SIZE);
 	}
 		
-	while(current->block_size < (long)(block_size + sizeof(blk_header_t)) && 0 != current->block_size)
+	while(current->block_size < (long)(block_size + METADATA_SIZE) && 0 != current->block_size)
 	{
 		next = UpdateNext(current);
 		if(current->block_size > 0 && next->block_size > 0)
 		{
-			defrag(current, next); /*Handles defragmentation if needed and updates 'next' */
-		}	
-		if(current->block_size > (long)(block_size + sizeof(blk_header_t)))
+			defrag(current, next); /*Handles defragmentation if needed.*/
+		}
+		if(next->block_size == 0)
 		{
-			next = (blk_header_t *)((char *)current + block_size + sizeof(blk_header_t));
+			break;
+		}	
+		if(current->block_size > (long)(block_size + METADATA_SIZE))
+		{
+			next = (blk_header_t *)((char *)current + block_size + METADATA_SIZE);
 			temp = current->block_size;
 			current->block_size = -1 * block_size;
 			#ifdef DNDEBUG
 			current->magic_num = MAGIC_NUMBER;
 			next->magic_num = MAGIC_NUMBER;
 			#endif
-			next->block_size = temp + current->block_size -  sizeof(blk_header_t);
+			next->block_size = temp + current->block_size - METADATA_SIZE;
 	
-			return (vsma_t *)((char *)current + sizeof(blk_header_t));
+			return (vsma_t *)((char *)current + METADATA_SIZE);
 		}	
 		current = next;					
 	}
 	
 	if(current->block_size != 0)
 	{
-		next = (blk_header_t *)((char *)current +block_size + sizeof(blk_header_t));
+		next = (blk_header_t *)((char *)current +block_size + METADATA_SIZE);
 		temp = current->block_size;
 		current->block_size = -1 * block_size;
-		next->block_size = temp + current->block_size - sizeof(blk_header_t);
+		if(next->block_size != 0)
+		{
+			next->block_size = temp + current->block_size - METADATA_SIZE;
+		}
 		#ifdef DNDEBUG
 		current->magic_num = MAGIC_NUMBER;
 		next->magic_num = MAGIC_NUMBER;
 		#endif
 	
-		return (vsma_t *)((char *)current + sizeof(blk_header_t));
+		return (vsma_t *)((char *)current + METADATA_SIZE);
 	}
 	else
 	{
@@ -134,12 +139,12 @@ void *VSMAAlloc(vsma_t *vsma, size_t block_size)
 
 void VSMAFree(void *block)
 {
-	assert(0 > *(long *)((char *)block - 16));
+	assert(0 > *(long *)((char *)block - METADATA_SIZE));
 	#ifdef DNDEBUG
 	assert(0x80808080 == (*(long *)((char *)block - 8)));
 	#endif
 
-	((blk_header_t *)((char *)block - 16))->block_size *= -1;
+	((blk_header_t *)((char *)block - METADATA_SIZE))->block_size *= -1;
 }
 
 size_t VSMACount(vsma_t *vsma)
@@ -162,11 +167,11 @@ size_t VSMACount(vsma_t *vsma)
 		if(current->block_size > 0)
 		{
 			sum += current->block_size;
-			current = (blk_header_t *)((char *)current + current->block_size + sizeof(blk_header_t));
+			current = (blk_header_t *)((char *)current + current->block_size + METADATA_SIZE);
 		}
 		else
 		{
-			current = (blk_header_t *)((char *)current + current->block_size * -1 + sizeof(blk_header_t));
+			current = (blk_header_t *)((char *)current + current->block_size * -1 + METADATA_SIZE);
 		}					
 	}
 	
@@ -196,11 +201,11 @@ size_t VSMAFindLargestFree(vsma_t *vsma)
 			{
 				max = current->block_size;
 			}
-			current = (blk_header_t *)((char *)current + current->block_size + sizeof(blk_header_t));
+			current = (blk_header_t *)((char *)current + current->block_size + METADATA_SIZE);
 		}
 		else
 		{
-			current = (blk_header_t *)((char *)current + current->block_size * -1 + sizeof(blk_header_t));
+			current = (blk_header_t *)((char *)current + current->block_size * -1 + METADATA_SIZE);
 		}					
 	}
 	
