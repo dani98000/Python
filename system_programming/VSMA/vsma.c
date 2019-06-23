@@ -14,7 +14,7 @@ struct vsma
 typedef struct blk_header
 {
    long block_size;
-	#ifdef DNDEBUG
+	#ifndef NDEBUG
     long magic_num;
 	#endif
 } blk_header_t;
@@ -25,7 +25,7 @@ static void defrag(blk_header_t *current, blk_header_t *next)
 	temp = next->block_size;
 	next = current;
 	current->block_size = current->block_size + temp + METADATA_SIZE;
-	#ifdef DNDEBUG
+	#ifndef NDEBUG
 	current->magic_num = MAGIC_NUMBER;
 	#endif 
 }
@@ -64,7 +64,7 @@ vsma_t *VSMAInit(void *pool, size_t pool_size)
 	end = (blk_header_t *)((size_t)end - ((size_t)end % WORD));
 	start->block_size = (char *)end - (char *)start - METADATA_SIZE;
 	end->block_size = 0;
-	#ifdef DNDEBUG
+	#ifndef NDEBUG
 	start->magic_num = MAGIC_NUMBER;
 	end->magic_num = MAGIC_NUMBER;
 	#endif
@@ -88,7 +88,7 @@ void *VSMAAlloc(vsma_t *vsma, size_t block_size)
 		next = (blk_header_t *)((char *)current + current->block_size + METADATA_SIZE);
 	}
 		
-	while(current->block_size < (long)(block_size + METADATA_SIZE) && 0 != current->block_size)
+	while(current->block_size <= (long)(block_size) && 0 != current->block_size)
 	{
 		next = UpdateNext(current);
 		if(current->block_size > 0 && next->block_size > 0)
@@ -99,19 +99,26 @@ void *VSMAAlloc(vsma_t *vsma, size_t block_size)
 		{
 			break;
 		}	
-		if(current->block_size > (long)(block_size + METADATA_SIZE))
+		if(current->block_size >= (long)(block_size + METADATA_SIZE))
 		{
-			next = (blk_header_t *)((char *)current + block_size + METADATA_SIZE);
 			temp = current->block_size;
 			current->block_size = -1 * block_size;
-			#ifdef DNDEBUG
+			if(current->block_size >= block_size + METADATA_SIZE + WORD)
+			{
+				next->block_size = temp + current->block_size - METADATA_SIZE;
+			}
+			#ifndef NDEBUG
 			current->magic_num = MAGIC_NUMBER;
 			next->magic_num = MAGIC_NUMBER;
 			#endif
-			next->block_size = temp + current->block_size - METADATA_SIZE;
 	
 			return (vsma_t *)((char *)current + METADATA_SIZE);
 		}	
+		if(current->block_size >= (long)(block_size))
+		{
+			current->block_size = -1 * block_size;
+			return (vsma_t *)((char *)current + METADATA_SIZE);	
+		}
 		current = next;					
 	}
 	
@@ -120,11 +127,13 @@ void *VSMAAlloc(vsma_t *vsma, size_t block_size)
 		next = (blk_header_t *)((char *)current +block_size + METADATA_SIZE);
 		temp = current->block_size;
 		current->block_size = -1 * block_size;
-		if(next->block_size != 0)
+		
+		if(current->block_size >= block_size + METADATA_SIZE + WORD && next->block_size != 0)
 		{
 			next->block_size = temp + current->block_size - METADATA_SIZE;
 		}
-		#ifdef DNDEBUG
+		
+		#ifndef NDEBUG
 		current->magic_num = MAGIC_NUMBER;
 		next->magic_num = MAGIC_NUMBER;
 		#endif
@@ -140,8 +149,8 @@ void *VSMAAlloc(vsma_t *vsma, size_t block_size)
 void VSMAFree(void *block)
 {
 	assert(0 > *(long *)((char *)block - METADATA_SIZE));
-	#ifdef DNDEBUG
-	assert(0x80808080 == (*(long *)((char *)block - 8)));
+	#ifndef NDEBUG
+	assert(MAGIC_NUMBER == (*(long *)((char *)block - 8)));
 	#endif
 
 	((blk_header_t *)((char *)block - METADATA_SIZE))->block_size *= -1;
@@ -161,7 +170,7 @@ size_t VSMACount(vsma_t *vsma)
 		next = UpdateNext(current);
 		if(current->block_size > 0 && next->block_size > 0)
 		{	
-			defrag(current, next); /*Handles defragmentation if needed and updates 'next' */
+			defrag(current, next); /*Handles defragmentation if needed */
 			continue; 					
 		}
 		if(current->block_size > 0)
@@ -192,7 +201,7 @@ size_t VSMAFindLargestFree(vsma_t *vsma)
 		next = UpdateNext(current);
 		if(current->block_size > 0 && next->block_size > 0)
 		{	
-			defrag(current, next); /*Handles defragmentation if needed and updates 'next' */
+			defrag(current, next); /*Handles defragmentation if needed */
 			continue; 					
 		}
 		if(current->block_size > 0)

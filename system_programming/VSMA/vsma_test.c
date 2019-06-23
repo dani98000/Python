@@ -22,58 +22,36 @@ printf(#test " - ok!\n");\
 printf("\033[0m");\
 }
 
-void test()
-{
-	vsma_t *vsma = (vsma_t *)malloc(500 * sizeof(char));
-	vsma_t *temp = NULL; 
-	vsma = VSMAInit(vsma, 500);
-	
-	printf("%ld\n", *(size_t *)vsma);
-	printf("magic number: %x\n", *(size_t *)((char *)vsma + 8) );
-		printf("size: %ld\n",VSMACount(vsma));
-		printf("larget free before alloc: %ld\n",VSMAFindLargestFree(vsma));
-	temp = VSMAAlloc(vsma, 100);
-			printf("larget free after alloc: %ld\n",VSMAFindLargestFree(vsma));
-	printf("size: %ld\n",VSMACount(vsma));
-	printf("%ld\n", *(long *)vsma);
-	printf("%ld\n", *(long *)((char *)temp + 104));
-	printf("%ld\n", *(long *)((char *)vsma + 468));
-	VSMAFree(temp);
-	printf("larget free after free: %ld\n",VSMAFindLargestFree(vsma));	
-	printf("after free:%ld\n", *(long *)vsma);
-	printf("size after free: %ld",VSMACount(vsma));
-	
-}
-
 int Test_VSMAInit();
 int Test_VSMAAlloc();
 int Test_VSMACount();
 int Test_VSMAFindLargestFree();
 int Test_VSMAFree();
+int Test_Flow1();
 
 int DTest_VSMAInit();
 int DTest_VSMAAlloc();
 int DTest_VSMACount();
 int DTest_VSMAFindLargestFree();
 int DTest_VSMAFree();
+int DTest_Flow1();
 
 int main()
 {
-	/*test();*/
-	#ifndef DNDEBUG
-	RUN_TEST(Test_VSMAInit);
-	RUN_TEST(Test_VSMAAlloc);
-	RUN_TEST(Test_VSMACount);
-	RUN_TEST(Test_VSMAFindLargestFree);	
-	RUN_TEST(Test_VSMAFree);
-	
-	#else
-	
+	#ifndef NDEBUG
 	RUN_TEST(DTest_VSMAInit);
 	RUN_TEST(DTest_VSMAAlloc);
 	RUN_TEST(DTest_VSMACount);
 	RUN_TEST(DTest_VSMAFindLargestFree);	
 	RUN_TEST(DTest_VSMAFree);
+	RUN_TEST(DTest_Flow1);	
+	#else
+	RUN_TEST(Test_VSMAInit);
+	RUN_TEST(Test_VSMAAlloc);
+	RUN_TEST(Test_VSMACount);
+	RUN_TEST(Test_VSMAFindLargestFree);	
+	RUN_TEST(Test_VSMAFree);
+	RUN_TEST(Test_Flow1);	
 	#endif
 	
 	return 0;
@@ -263,6 +241,43 @@ int Test_VSMAFree()
 	return result;
 }
 
+int Test_Flow1()
+{
+	int result = 1;
+	size_t test_no = 0;
+	int res = 0;
+	vsma_t *vsma = (vsma_t *)malloc(1000 * sizeof(char));
+	vsma_t *alloc1 = NULL;
+	vsma_t *alloc2 = NULL;
+	memset(vsma, 5, 968);		 
+	vsma = VSMAInit(vsma, 1000);	
+	alloc1 = VSMAAlloc(vsma, 200);
+	
+	/* test 1*/
+	res = VSMACount(vsma);
+	TEST_EQUAL(res, 776);
+	
+	alloc2 = VSMAAlloc(vsma, 100);
+	
+	/* test 2*/
+	res = VSMACount(vsma);
+	TEST_EQUAL(res, 664);
+	
+	VSMAFree(alloc1);
+	
+	/* test 3*/
+	res = VSMACount(vsma);
+	TEST_EQUAL(res, 864);
+	
+	alloc1 = VSMAAlloc(vsma, 200);
+	
+	/* test 4*/
+	res = VSMACount(vsma);
+	TEST_EQUAL(res, 664);
+
+	return result;
+}
+
 int DTest_VSMAInit()
 {
 	int result = 1;
@@ -444,5 +459,42 @@ int DTest_VSMAFree()
 	/* test 2*/
 	res = VSMACount(vsma);
 	TEST_EQUAL(res, 464);	
+	return result;
+}
+
+int DTest_Flow1()
+{
+	int result = 1;
+	size_t test_no = 0;
+	int res = 0;
+	vsma_t *vsma = (vsma_t *)malloc(1000 * sizeof(char));
+	vsma_t *alloc1 = NULL;
+	vsma_t *alloc2 = NULL;
+	memset(vsma, 5, 968);		 
+	vsma = VSMAInit(vsma, 1000);	
+	alloc1 = VSMAAlloc(vsma, 200);
+	
+	/* test 1*/
+	res = VSMACount(vsma);
+	TEST_EQUAL(res, 752);
+	
+	alloc2 = VSMAAlloc(vsma, 100);
+	
+	/* test 2*/
+	res = VSMACount(vsma);
+	TEST_EQUAL(res, 632);
+	
+	VSMAFree(alloc1);
+	
+	/* test 3*/
+	res = VSMACount(vsma);
+	TEST_EQUAL(res, 832);
+	
+	alloc1 = VSMAAlloc(vsma, 200);
+	
+	/* test 4*/
+	res = VSMACount(vsma);
+	TEST_EQUAL(res, 632);
+
 	return result;
 }
