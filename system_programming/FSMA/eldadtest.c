@@ -87,7 +87,7 @@ static int TestInit()
     {
         printf(RED"%d. TestInit malloc failure\n"RESET, i);
         
-        return 1;        
+        return 1;       
     }
     
     fsma = FSMAInit(pool, pool_size, block_size);
@@ -99,6 +99,8 @@ static int TestInit()
     }
     printf(GREEN"%d. Init\n"RESET, i);
     printf(GREEN"Size of pool is %lu\n"RESET, pool_size);
+    
+    free(pool);
 
     return 0;
 }
@@ -115,7 +117,6 @@ static int TestAllocFreeCount()
     char *third = NULL;
     char *fourth = NULL;
     char *fifth = NULL;       
-    
     pool_size = FSMASuggestSize(n_blocks, block_size);
     
     ++i;
@@ -145,6 +146,7 @@ static int TestAllocFreeCount()
         
         return 1;           
     }
+#if 0    
     printf(GREEN"%d. Count to 4\n"RESET, i);        
 
      
@@ -204,7 +206,8 @@ static int TestAllocFreeCount()
         return 1;           
     }
     printf(GREEN"%d. Count to 4 after free\n"RESET, i);    
-
+#endif
+    free(pool);
     return 0;
 }
 

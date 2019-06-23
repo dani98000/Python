@@ -1,3 +1,9 @@
+/********************************
+* 	 Author  : Daniel Maizel	*
+*	 Date    : 23/06/2019		*
+*	 Reviewer: Andrei        	*
+*								*
+*********************************/
 #include <assert.h> /* assert */
 
 #include "vsma.h" /* VSMA Header */
@@ -17,7 +23,7 @@ typedef struct blk_header
 	#ifndef NDEBUG
     long magic_num;
 	#endif
-} blk_header_t;
+}blk_header_t;
 
 static void defrag(blk_header_t *current, blk_header_t *next)
 {	
@@ -51,7 +57,6 @@ static size_t GetAligned(size_t block_size)
 	return(WORD * (block_size / WORD) + (((block_size % WORD) == 0) ? 0 : WORD));
 }
 
-/* Initiates allocation manager */
 vsma_t *VSMAInit(void *pool, size_t pool_size)
 {
 	blk_header_t *start = NULL;
@@ -78,15 +83,6 @@ void *VSMAAlloc(vsma_t *vsma, size_t block_size)
 	blk_header_t *next = NULL;
 	size_t temp = 0;
 	block_size = GetAligned(block_size);
-	
-	if(current->block_size < 0)
-	{
-		next = (blk_header_t *)((char *)current + (current->block_size * -1) + METADATA_SIZE);
-	}
-	else if (current->block_size > 0)
-	{
-		next = (blk_header_t *)((char *)current + current->block_size + METADATA_SIZE);
-	}
 		
 	while(current->block_size <= (long)(block_size) && 0 != current->block_size)
 	{
@@ -95,10 +91,7 @@ void *VSMAAlloc(vsma_t *vsma, size_t block_size)
 		{
 			defrag(current, next); /*Handles defragmentation if needed.*/
 		}
-		if(next->block_size == 0)
-		{
-			break;
-		}	
+		
 		if(current->block_size >= (long)(block_size + METADATA_SIZE))
 		{
 			temp = current->block_size;
@@ -107,6 +100,7 @@ void *VSMAAlloc(vsma_t *vsma, size_t block_size)
 			{
 				next->block_size = temp + current->block_size - METADATA_SIZE;
 			}
+			
 			#ifndef NDEBUG
 			current->magic_num = MAGIC_NUMBER;
 			next->magic_num = MAGIC_NUMBER;
@@ -114,9 +108,11 @@ void *VSMAAlloc(vsma_t *vsma, size_t block_size)
 	
 			return (vsma_t *)((char *)current + METADATA_SIZE);
 		}	
+		
 		if(current->block_size >= (long)(block_size))
 		{
 			current->block_size = -1 * block_size;
+			
 			return (vsma_t *)((char *)current + METADATA_SIZE);	
 		}
 		current = next;					
@@ -140,10 +136,8 @@ void *VSMAAlloc(vsma_t *vsma, size_t block_size)
 	
 		return (vsma_t *)((char *)current + METADATA_SIZE);
 	}
-	else
-	{
-		return NULL;
-	}
+	
+	return NULL;
 }
 
 void VSMAFree(void *block)

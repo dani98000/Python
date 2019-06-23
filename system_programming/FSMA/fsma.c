@@ -6,6 +6,7 @@
 *********************************/
 #include <stdlib.h> /* malloc */
 #include <assert.h> /* assert */
+#include <stdio.h>
 
 #include "fsma.h" /* Fixed Size Memory Allocator header */
 
@@ -48,13 +49,13 @@ fsma_t *FSMAInit(void *pool, size_t pool_size, size_t block_size)
 	new_fsma->n_blocks = (pool_size - sizeof(fsma_t)) / block_size;
 	new_fsma->next_free = sizeof(fsma_t); 	
 	
-	while((size_t)((char *)runner - (char *)pool) < pool_size)
+	while((size_t)((char *)runner - (char *)pool) < pool_size - block_size)
 	{
-		*runner = (runner - (char *)pool) + block_size;
+		*(size_t *)runner = (runner - (char *)pool) + block_size;
 		runner += block_size;
 	}
 	
-	*(size_t *)((char *)pool + pool_size - block_size) = 0;
+	*runner = 0;
 	
 	return pool;
 }
@@ -100,13 +101,14 @@ size_t FSMACountFree(fsma_t *fsma)
 	
 	assert(NULL != fsma);
 	
-	block_size = GetBlockSize(block_size);
+	block_size = GetBlockSize(fsma->block_size);
 	
-	while((fsma_t *)runner != fsma)
+	while((*(size_t *)runner != 0))
 	{
-		runner = (char *)fsma + *(size_t *)runner;
+		runner += block_size;
 		++count;
 	}
-
+	count = count > 0 ? count + 1 : count;
+	 
 	return count;
 }
