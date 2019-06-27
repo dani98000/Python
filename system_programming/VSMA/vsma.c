@@ -120,7 +120,7 @@ void *VSMAAlloc(vsma_t *vsma, size_t block_size)
 	
 	if(current->block_size != 0)
 	{
-		next = (blk_header_t *)((char *)current +block_size + METADATA_SIZE);
+		next = (blk_header_t *)((char *)current + block_size + METADATA_SIZE);
 		temp = current->block_size;
 		current->block_size = -1 * block_size;
 		
