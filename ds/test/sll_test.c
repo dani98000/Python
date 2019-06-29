@@ -21,41 +21,6 @@ printf(#test " - ok!\n");\
 printf("\033[0m");\
 }
 
-/*void test()
-{
-	char c = '5';
-	char d = 'a';
-	size_t size = 0;
-	char n = 0;
-	it_t iter1 = NULL;
-	it_t iter2 = NULL;
-	sll_t *sll = SLLCreate();
-	printf("before push:%lu\n",SLLSize(sll));
-	iter1 = SLLPushFront(sll, (void*)&c);
-	printf("after push%lu\n",SLLSize(sll));
-	n = *((char *)SLLGetData((void *)iter1));
-	printf("%c\n",n);
-	
-	iter2 = SLLPushBack(sll, (void *)&d);
-	printf("after push%lu\n",SLLSize(sll));
-	n = *((char *)SLLGetData((void *)iter2));
-	printf("%c\n",n);
-	iter2=SLLBegin(sll);
-	n = *((char *)SLLGetData((void *)iter2));
-	printf("%c\n",n);
-	SLLPushFront(sll, (void*)&d);
-	SLLPushBack(sll, (void*)&d);
-	n = *((char *)SLLGetData((void *)SLLBegin(sll)));
-	printf("%c\n",n);
-	
-	
-	
-	
-	
-	
-	SLLDestroy(sll);
-}*/
-
 int charcmp(const void *a, const void *b);
 int print_list(void *data, const void *arg);
 int Test_SLLPushBack(void);
@@ -311,11 +276,9 @@ int Test_SLLPopFront(void)
 	size_t test_no = 0;
 	int c = 5;
 	int d = 8;
-	int e = 9;
 	char n = 0;
 	it_t iter1 = NULL;
 	it_t iter2 = NULL;
-	it_t iter3 = NULL;
 	sll_t *sll = SLLCreate();
 	
 	/* test1 */
@@ -401,11 +364,10 @@ int Test_SLLPopBack(void)
 	size_t test_no = 0;
 	int c = 5;
 	int d = 8;
-	int e = 9;
 	char n = 0;
 	it_t iter1 = NULL;
 	it_t iter2 = NULL;
-	it_t iter3 = NULL;
+
 	sll_t *sll = SLLCreate();
 	
 	/* test1 */
@@ -487,15 +449,14 @@ int Test_SLLFind(void)
 {
 	int result = 1;
 	char res = 0;
-	it_t res2 = 0;
 	char expect = 0;
-	it_t expect2 = 0;
+	/*it_t res2 = 0;
+	it_t expect2 = 0;*/
 	size_t test_no = 0;
 	char c = 'a';
 	char d = 'h';
 	char e = 's';
 	char n = 0;
-	char s2 = 'h';
 	it_t iter1 = NULL;
 	it_t iter2 = NULL;
 	it_t iter3 = NULL;
@@ -555,13 +516,13 @@ int Test_SLLFind(void)
 	result *= (expect == res);
 	
 
-	/* test7 */
+	/* test7 
 	res2 = SLLFind(SLLBegin(sll), SLLEnd(sll), (void *)&s2, charcmp);
 	expect2 = SLLNext(iter1);
 	++test_no;
 	printf("\ttest %lu: expected: %c, got: %c\n", test_no, expect, res);
 	result *= (expect == res);
-	
+	*/
 	SLLDestroy(sll);
 	
 	return result;
@@ -731,48 +692,4 @@ int Test_SLLFlip(void)
 	SLLDestroy(sll);
 	
 	return result;
-}
-
-int Test_SLLFindIntersection()
-{
-	typedef struct robot	
-	{
-		char *name;
-		char *color;
-		int age;
-	}robot_t;
-	
-	sll_t *sll1 = SLLCreate();
-	sll_t *sll2 = SLLCreate();
-
-
-		
-	int result = 1;
-	char res = 0;
-	char expect = 0;
-	size_t test_no = 0;
-	it_t iter1 = NULL
-	it_t iter2 = NULL
-	
-	static robot_t robots[4] = {{NULL, NULL, 0}, {NULL, NULL, 1},
-							   {NULL, NULL, 2}, {NULL, NULL, 4}};
-	
-
-	
-	SLLPushBack(sll1, (void*)&robots[0].age);
-	SLLPushBack(sll1, (void*)&robots[1].age);
-	iter1 = SLLPushBack(sll1, (void*)&robots[2].age);
-	printf("\t");
-	SLLForEach(SLLBegin(sll1), SLLEnd(sll1), sll1, print_list);
-	printf("NULL");
-	printf("\n");
-
-	iter2 = SLLPushBack(sll2, (void*)&robots[3].age);
-	SLLPushBack(sll2, (void*)&robots[2].age);
-	printf("\t");
-	SLLForEach(SLLBegin(sll2), SLLEnd(sll2), sll2, print_list);
-	printf("NULL");
-	printf("\n");
-	
-	return 1;
 }
