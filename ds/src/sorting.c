@@ -1,24 +1,30 @@
 #include <stdlib.h> /* size_t */
 #include <string.h>
 #include <errno.h>
+#include <stdio.h>
+#include <assert.h>
+
 #include "../include/sorting.h"
 
 
-void Swap(void *x, void *y, size_t element_size, char *holder);
-
-/*
-Compare  < 0 *left goes before *right
-Compare == 0 *left is equivalent to *right
-Compare  > 0 *left goes after *right
-*/
+static void Swap(void *x, void *y, size_t element_size, char *holder);
 
 void InsertionSort(void *base, size_t n_elements, size_t element_size, cmp_f Compare)
 {
-	char *right = (char *)base + element_size;
-	char *left = (char *)base;
-	char *end = (char *)base + element_size * (n_elements);
-	char *runner = (char *)base + element_size;
-	char *holder = (char *)malloc(element_size);
+	char *right = NULL;
+	char *left = NULL;
+	char *end = NULL;
+	char *runner = NULL;
+	char *holder = NULL;
+	
+	assert(NULL != base);
+	
+	right = (char *)base + element_size;
+	left = (char *)base;
+	end = (char *)base + element_size * (n_elements);
+	runner = (char *)base + element_size;
+	
+	holder = (char *)malloc(element_size);
 	if(NULL == holder)
 	{
 		perror("malloc failed");
@@ -46,23 +52,23 @@ void InsertionSort(void *base, size_t n_elements, size_t element_size, cmp_f Com
 		right = runner + element_size;
 		left = runner;	
 	}
+	
 	free(holder);
-}
-
-void Swap(void *x, void *y, size_t element_size, char *holder)
-{	
-	memcpy(holder, *(void **)x, element_size);
-	memcpy(*(void **)x, *(void **)y, element_size);
-	memcpy(*(void **)y, holder, element_size);
 }
 
 void BubbleSort(void *base, size_t n_elements, size_t element_size, cmp_f Compare)
 {
-	char *left = (char *)base; 
-	char *right = (char *)base + element_size;
-	char *end = (char *)base + (n_elements - 1)*element_size;
+	char *left = NULL; 
+	char *right = NULL;
+	char *holder = NULL;
+	char *end = NULL;
 	int flag = 1;
-	char *holder = (char *)malloc(element_size);
+	
+	assert(NULL != base);
+	
+	end = (char *)base + (n_elements - 1)*element_size;
+	
+	holder = (char *)malloc(element_size);
 	if(NULL == holder)
 	{
 		perror("malloc failed");
@@ -84,17 +90,24 @@ void BubbleSort(void *base, size_t n_elements, size_t element_size, cmp_f Compar
 			right += element_size;
 		}
 	}
+	
 	free(holder);
 }
 
 void SelectionSort(void *base, size_t n_elements, size_t element_size, cmp_f Compare)
 {
 	char *min_index = NULL;
-	char *unsorted_runner = (char *)base;
-	char *sorted_runner = (char *)base;
-	char *end = (char *)base + (n_elements - 1)*element_size;
-	char *holder = (char *)malloc(element_size);
+	char *unsorted_runner = NULL;
+	char *sorted_runner = NULL;
+	char *end = NULL;
+	char *holder = NULL;
+	
+	assert(NULL != base);
 
+	sorted_runner = (char *)base;	
+	end = (char *)base + (n_elements - 1)*element_size;
+	
+	holder = (char *)malloc(element_size);
 	if(NULL == holder)
 	{
 		perror("malloc failed");
@@ -106,7 +119,7 @@ void SelectionSort(void *base, size_t n_elements, size_t element_size, cmp_f Com
 		unsorted_runner = sorted_runner;
 		while(unsorted_runner < end)
 		{
-			if(Compare((const void *)min_index, (const void *)(char *)(unsorted_runner + element_size)) > 0)
+			if(Compare((const void *)min_index, (const void *)(char *)(unsorted_runner + 					element_size)) > 0)
 			{
 				min_index = unsorted_runner + element_size;
 			}
@@ -118,3 +131,9 @@ void SelectionSort(void *base, size_t n_elements, size_t element_size, cmp_f Com
 	free(holder);
 }
 
+static void Swap(void *x, void *y, size_t element_size, char *holder)
+{	
+	memcpy(holder, *(void **)x, element_size);
+	memcpy(*(void **)x, *(void **)y, element_size);
+	memcpy(*(void **)y, holder, element_size);
+}
