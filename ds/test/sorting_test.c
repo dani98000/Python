@@ -48,6 +48,8 @@ size_t g_total_tests = 0;
 size_t g_total_success = 0;
 size_t g_total_failed = 0;
 
+static int IsSorted(int *arr);
+static void ArrayInit(int *arr);
 int Test_BubbleSort();
 int Test_InsertionSort();
 int Test_SelectionSort();
@@ -66,122 +68,194 @@ int main()
 
 int Test_BubbleSort()
 {
-	clock_t start_t, end_t, total_t;
+	clock_t start_t, end_t;
+	double seconds = 0.0;
+	double total_time = 0.0;
     int my_array[5000];
-	int i = 0;
 	int result = 1;
+	int res = 0;
 	size_t test_no = 0;
 
-	srand(0);
-	
-	for (; i < 5000; i++) 
-	{
-    	my_array[i] = rand() % 5000;
-	}
-	
-	for(i = 0; i < 4999; i++)
-	 {
-        if(my_array[i] <= my_array[i+1])
-        {
-			result *=1;
-		}
-		else
-		{
-			result = 0;
-		} 
- 	 }
- 	 TEST_EQUAL(result, 0);
- 	 
- 	 result = 1;
- 	 start_t = clock();
- 	 BubbleSort((int *)my_array, 5000, sizeof(int), IsBefore);
- 	 end_t = clock();
-   
- 	 
- 	 for(i = 0; i < 4999; i++)
-	 {
-        if(my_array[i] <= my_array[i+1])
-        {
-			result *=1;
-		}
-		else
-		{
-			result = 0;
-		} 
- 	 }
- 	 
-     total_t = (double)(end_t - start_t);
-     printf("Total clock ticks        :%lu\n", total_t);
 
- 	 TEST_EQUAL(result, 1);
+	/* test1*/
+	ArrayInit(my_array);
+	
+ 	start_t = clock();	
+	BubbleSort((int *)my_array, 5000, sizeof(int), IsBefore);
+ 	end_t = clock();
+ 	
+	seconds = (double)(end_t - start_t) / CLOCKS_PER_SEC;
+	total_time += seconds;
+	printf( "\tsorted in " CYAN"[%f ms]\n" CLEAR, seconds * 1000);
+	
+	res = IsSorted(my_array);	
+ 	TEST_EQUAL(res, 1);
+ 	
+	/* test2*/
+	ArrayInit(my_array);
+	
+ 	start_t = clock();	
+	BubbleSort((int *)my_array, 5000, sizeof(int), IsBefore);
+ 	end_t = clock();
+ 	
+	seconds = (double)(end_t - start_t) / CLOCKS_PER_SEC;
+	total_time += seconds;
+	printf( "\tsorted in " CYAN"[%f ms]\n" CLEAR, seconds * 1000);
+	
+	res = IsSorted(my_array);	
+ 	TEST_EQUAL(res, 1);
+ 	
+	/* test3*/
+	ArrayInit(my_array);
+	
+ 	start_t = clock();	
+	BubbleSort((int *)my_array, 5000, sizeof(int), IsBefore);
+ 	end_t = clock();
+ 	
+	seconds = (double)(end_t - start_t) / CLOCKS_PER_SEC;
+	total_time += seconds;
+	printf( "\tsorted in " CYAN"[%f ms]\n" CLEAR, seconds * 1000);
+	
+	res = IsSorted(my_array);	
+ 	TEST_EQUAL(res, 1);	
+ 	
+ 	printf("\tOn Average it takes "CYAN"[%f ms]"CLEAR" to BubbleSort an array of 5000 integers.\n", (total_time * 1000/ 3));
  	 
- 	 return result;
+	return result;   
 }
 
 int Test_InsertionSort()
-{
-	int my_array[5000];
-	int i = 0;
+{	
+	clock_t start_t, end_t;
+	double seconds = 0.0;
+	double total_time = 0.0;
+    int my_array[5000];
 	int result = 1;
+	int res = 0;
 	size_t test_no = 0;
+
+
+	/* test1*/
+	ArrayInit(my_array);
 	
-	srand(0);
+ 	start_t = clock();	
+	InsertionSort((int *)my_array, 5000, sizeof(int), IsBefore);
+ 	end_t = clock();
+ 	
+	seconds = (double)(end_t - start_t) / CLOCKS_PER_SEC;
+	total_time += seconds;
+	printf( "\tsorted in " CYAN"[%f ms]\n" CLEAR, seconds * 1000);
 	
-	for (; i < 5000; i++) 
-	{
-    	my_array[i] = rand() % 5000;
-	}
+	res = IsSorted(my_array);	
+ 	TEST_EQUAL(res, 1);
+ 	
+	/* test2*/
+	ArrayInit(my_array);
 	
+ 	start_t = clock();	
+	InsertionSort((int *)my_array, 5000, sizeof(int), IsBefore);
+ 	end_t = clock();
+ 	
+	seconds = (double)(end_t - start_t) / CLOCKS_PER_SEC;
+	total_time += seconds;
+	printf( "\tsorted in " CYAN"[%f ms]\n" CLEAR, seconds * 1000);
 	
-	for(i = 0; i < 4999; i++)
-	 {
-        if(my_array[i] <= my_array[i+1])
-        {
-			result *=1;
-		}
-		else
-		{
-			result = 0;
-		} 
- 	 }
- 	 TEST_EQUAL(result, 0);
- 	 
- 	 result = 1;
- 	 InsertionSort((int *)my_array, 5000, sizeof(int), IsBefore);
- 	 
- 	 for(i = 0; i < 4999; i++)
-	 {
-        if(my_array[i] <= my_array[i+1])
-        {
-			result *=1;
-		}
-		else
-		{
-			result = 0;
-		} 
- 	 }
- 	 TEST_EQUAL(result, 1);
- 	 
- 	 return result;
+	res = IsSorted(my_array);	
+ 	TEST_EQUAL(res, 1);
+ 	
+	/* test3*/
+	ArrayInit(my_array);
+	
+ 	start_t = clock();	
+	InsertionSort((int *)my_array, 5000, sizeof(int), IsBefore);
+ 	end_t = clock();
+ 	
+	seconds = (double)(end_t - start_t) / CLOCKS_PER_SEC;
+	total_time += seconds;
+	printf( "\tsorted in " CYAN"[%f ms]\n" CLEAR, seconds * 1000);
+	
+	res = IsSorted(my_array);	
+ 	TEST_EQUAL(res, 1);	
+ 	
+ 	printf("\tOn Average it takes "CYAN"[%f ms]"CLEAR" to InsertionSort an array of 5000 integers.\n", (total_time * 1000/ 3));
+ 	 	 
+	return result;
 }
 int Test_SelectionSort()
 {
-	int my_array[5000];
-	int i = 0;
+	clock_t start_t, end_t;
+	double seconds = 0.0;
+	double total_time = 0.0;
+    int my_array[5000];
 	int result = 1;
+	int res = 0;
 	size_t test_no = 0;
+
+
+	/* test1*/
+	ArrayInit(my_array);
 	
-	srand(0);
+ 	start_t = clock();	
+	SelectionSort((int *)my_array, 5000, sizeof(int), IsBefore);
+ 	end_t = clock();
+ 	
+	seconds = (double)(end_t - start_t) / CLOCKS_PER_SEC;
+	total_time += seconds;
+	printf( "\tsorted in " CYAN"[%f ms]\n" CLEAR, seconds * 1000);
 	
-	for (; i < 5000; i++) 
+	res = IsSorted(my_array);	
+ 	TEST_EQUAL(res, 1);
+ 	
+	/* test2*/
+	ArrayInit(my_array);
+	
+ 	start_t = clock();	
+	SelectionSort((int *)my_array, 5000, sizeof(int), IsBefore);
+ 	end_t = clock();
+ 	
+	seconds = (double)(end_t - start_t) / CLOCKS_PER_SEC;
+	total_time += seconds;
+	printf( "\tsorted in " CYAN"[%f ms]\n" CLEAR, seconds * 1000);
+	
+	res = IsSorted(my_array);	
+ 	TEST_EQUAL(res, 1);
+ 	
+	/* test3*/
+	ArrayInit(my_array);
+	
+ 	start_t = clock();	
+	SelectionSort((int *)my_array, 5000, sizeof(int), IsBefore);
+ 	end_t = clock();
+ 	
+	seconds = (double)(end_t - start_t) / CLOCKS_PER_SEC;
+	total_time += seconds;
+	printf( "\tsorted in " CYAN"[%f ms]\n" CLEAR, seconds * 1000);
+	
+	res = IsSorted(my_array);	
+ 	TEST_EQUAL(res, 1);	
+ 	
+ 	printf("\tOn Average it takes "CYAN"[%f ms]"CLEAR" to SelectionSort an array of 5000 integers.\n", (total_time * 1000/ 3));
+ 	 
+	return result;}
+
+void ArrayInit(int *arr)
+{
+	int i = 0;
+	
+	for(; i < 5000; i++) 
 	{
-    	my_array[i] = rand() % 5000;
+    	arr[i] = rand() % 5000;
 	}
+}
+
+int IsSorted(int *arr)
+{
+	int result = 1;
+	int i = 0; 
 	
-	
-	for(i = 0; i < 4999; i++)
-	 {
-        if(my_array[i] <= my_array[i+1])
+	for(; i < 4999; i++)
+	{
+		if(arr[i] <= arr[i+1])
         {
 			result *=1;
 		}
@@ -190,23 +264,6 @@ int Test_SelectionSort()
 			result = 0;
 		} 
  	 }
- 	 TEST_EQUAL(result, 0);
- 	 
- 	 result = 1;
- 	 SelectionSort((int *)my_array, 5000, sizeof(int), IsBefore);
- 	 
- 	 for(i = 0; i < 4999; i++)
-	 {
-        if(my_array[i] <= my_array[i+1])
-        {
-			result *=1;
-		}
-		else
-		{
-			result = 0;
-		} 
- 	 }
- 	 TEST_EQUAL(result, 1);
  	 
  	 return result;
 }
