@@ -44,6 +44,22 @@ int IsBefore(const void *left, const void *right)
 	return(*(int *)(left) - *(int *)(right));
 }
 
+size_t char_ktn(const void *value, const void *args)
+{
+	size_t res = 0;
+	UNUSED(args);
+	res = (size_t)*(char *)value - 97;
+	return res;
+}
+
+size_t ktn(const void *value, const void *args)
+{
+	size_t res = 0;
+	UNUSED(args);
+	res = *(int *)value;
+	return res;
+}
+
 size_t g_total_tests = 0;
 size_t g_total_success = 0;
 size_t g_total_failed = 0;
@@ -53,14 +69,16 @@ static void ArrayInit(int *arr);
 int Test_BubbleSort();
 int Test_InsertionSort();
 int Test_SelectionSort();
-int test();
+int Test_CountingSort();
+int Test_RadixSort();
 
 int main()
 {
 	RUN_TEST(Test_BubbleSort);
 	RUN_TEST(Test_InsertionSort);
 	RUN_TEST(Test_SelectionSort);
-	
+	RUN_TEST(Test_CountingSort);	
+	RUN_TEST(Test_RadixSort);	
 	TEST_SUMMARY(g_total_tests, g_total_success, g_total_failed);
 	
 	return 0;
@@ -86,7 +104,7 @@ int Test_BubbleSort()
  	
 	seconds = (double)(end_t - start_t) / CLOCKS_PER_SEC;
 	total_time += seconds;
-	printf( "\tsorted in " CYAN"[%f ms]\n" CLEAR, seconds * 1000);
+	printf( "\tsorted in " CYAN"[%.3f ms]\n" CLEAR, seconds * 1000);
 	
 	res = IsSorted(my_array);	
  	TEST_EQUAL(res, 1);
@@ -236,7 +254,125 @@ int Test_SelectionSort()
  	
  	printf("\tOn Average it takes "CYAN"[%f ms]"CLEAR" to SelectionSort an array of 5000 integers.\n", (total_time * 1000/ 3));
  	 
-	return result;}
+	return result;
+}
+
+int Test_CountingSort()
+{
+	clock_t start_t, end_t;
+	double seconds = 0.0;
+	double total_time = 0.0;
+    int my_array[5000];
+	int result = 1;
+	int res = 0;
+	size_t test_no = 0;
+
+
+	/* test1*/
+	ArrayInit(my_array);
+	
+ 	start_t = clock();	
+	CountingSort(my_array, 5000, 4, ktn, NULL, 5000);
+ 	end_t = clock();
+ 	
+	seconds = (double)(end_t - start_t) / CLOCKS_PER_SEC;
+	total_time += seconds;
+	printf( "\tsorted in " CYAN"[%f ms]\n" CLEAR, seconds * 1000);
+	
+	res = IsSorted(my_array);	
+ 	TEST_EQUAL(res, 1);
+ 	
+	/* test2*/
+	ArrayInit(my_array);
+	
+ 	start_t = clock();	
+	CountingSort(my_array, 5000, 4, ktn, NULL, 5000);
+ 	end_t = clock();
+ 	
+	seconds = (double)(end_t - start_t) / CLOCKS_PER_SEC;
+	total_time += seconds;
+	printf( "\tsorted in " CYAN"[%f ms]\n" CLEAR, seconds * 1000);
+	
+	res = IsSorted(my_array);	
+ 	TEST_EQUAL(res, 1);
+ 	
+	/* test3*/
+	ArrayInit(my_array);
+	
+ 	start_t = clock();	
+	CountingSort(my_array, 5000, 4, ktn, NULL, 5000);
+ 	end_t = clock();
+ 	
+	seconds = (double)(end_t - start_t) / CLOCKS_PER_SEC;
+	total_time += seconds;
+	printf( "\tsorted in " CYAN"[%f ms]\n" CLEAR, seconds * 1000);
+	
+	res = IsSorted(my_array);	
+ 	TEST_EQUAL(res, 1);	
+ 	
+ 	printf("\tOn Average it takes "CYAN"[%f ms]"CLEAR" to CountingSort an array of 5000 integers.\n", (total_time * 1000/ 3));
+ 	 
+	return result;
+}
+
+int Test_RadixSort()
+{
+	clock_t start_t, end_t;
+	double seconds = 0.0;
+	double total_time = 0.0;
+    int my_array[5000];
+	int result = 1;
+	int res = 0;
+	size_t test_no = 0;
+
+
+	/* test1*/
+	ArrayInit(my_array);
+	
+ 	start_t = clock();	
+	RadixSort(my_array, 5000, sizeof(int), ktn, NULL, 4);
+ 	end_t = clock();
+ 	
+	seconds = (double)(end_t - start_t) / CLOCKS_PER_SEC;
+	total_time += seconds;
+	printf( "\tsorted in " CYAN"[%f ms]\n" CLEAR, seconds * 1000);
+	
+	res = IsSorted(my_array);	
+ 	TEST_EQUAL(res, 1);
+ 	
+	/* test2*/
+	ArrayInit(my_array);
+	
+ 	start_t = clock();	
+	RadixSort(my_array, 5000, sizeof(int), ktn, NULL, 4);
+ 	end_t = clock();
+ 	
+	seconds = (double)(end_t - start_t) / CLOCKS_PER_SEC;
+	total_time += seconds;
+	printf( "\tsorted in " CYAN"[%f ms]\n" CLEAR, seconds * 1000);
+	
+	res = IsSorted(my_array);	
+ 	TEST_EQUAL(res, 1);
+ 	
+	/* test3*/
+	ArrayInit(my_array);
+	
+ 	start_t = clock();	
+	RadixSort(my_array, 5000, sizeof(int), ktn, NULL, 4);
+ 	end_t = clock();
+ 	
+	seconds = (double)(end_t - start_t) / CLOCKS_PER_SEC;
+	total_time += seconds;
+	printf( "\tsorted in " CYAN"[%f ms]\n" CLEAR, seconds * 1000);
+	
+	res = IsSorted(my_array);	
+ 	TEST_EQUAL(res, 1);	
+ 	
+ 	printf("\tOn Average it takes "CYAN"[%f ms]"CLEAR" to RadixSort an array of 5000 integers.\n", (total_time * 1000/ 3));
+ 	 
+	return result;
+}
+
 
 void ArrayInit(int *arr)
 {
@@ -267,3 +403,5 @@ int IsSorted(int *arr)
  	 
  	 return result;
 }
+
+

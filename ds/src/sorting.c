@@ -1,11 +1,25 @@
+/********************************
+* 	 Author  : Daniel Maizel	*
+*	 Date    : 30/06/2019		*
+*	 Reviewer: Ben           	*
+*								*
+*********************************/
 #include <stdlib.h> /* size_t */
-#include <string.h>
-#include <errno.h>
-#include <stdio.h>
-#include <assert.h>
+#include <string.h> /* memcpy */
+#include <errno.h> /* errno */
+#include <stdio.h> /* perror */
+#include <assert.h> /* assert */
 
-#include "../include/sorting.h"
+#include "../include/sorting.h" /* sorting.h header */
 
+size_t my_ktn(const void *value, const void *args);
+
+typedef struct info
+{
+	key_to_num ktn;
+	const void *args;
+	size_t shift;
+}info_t;
 
 static void Swap(void *x, void *y, size_t element_size, char *holder);
 
@@ -119,7 +133,7 @@ void SelectionSort(void *base, size_t n_elements, size_t element_size, cmp_f Com
 		unsorted_runner = sorted_runner;
 		while(unsorted_runner < end)
 		{
-			if(Compare((const void *)min_index, (const void *)(char *)(unsorted_runner + 					element_size)) > 0)
+			if(Compare((const void *)min_index, (const void *)(char *)(unsorted_runner + element_size)) > 0)
 			{
 				min_index = unsorted_runner + element_size;
 			}
@@ -128,7 +142,95 @@ void SelectionSort(void *base, size_t n_elements, size_t element_size, cmp_f Com
 		Swap(&min_index, &sorted_runner, element_size, holder);
 		sorted_runner += element_size;		
 	}
+	
 	free(holder);
+}
+
+int CountingSort(void *base, size_t num_of_members, size_t element_size, key_to_num ktn, const void *args, size_t range)
+{
+	void *output = NULL;
+	int *count = NULL;
+	char *runner_base = base;
+	char *runner_output = NULL;
+	int i = 0;
+	size_t index = 0;
+	
+	assert(NULL != base);
+	
+	output = (void *)malloc(num_of_members * element_size);
+	if (NULL == output)
+	{
+		return -1;	
+	}
+	runner_output = output;
+	
+	count = (int *)calloc(range, sizeof(int));
+	if (NULL == output)
+	{
+		return -1;	
+	}
+	
+	for(i = 0; i < num_of_members; ++i)
+	{
+		index = ktn((runner_base + i * element_size), args);
+		count[index] += 1;
+	}
+	
+	for(i = 1; i < range; ++i)
+	{
+		count[i] += count[i - 1];
+	}
+	
+	for(i = num_of_members - 1; i >= 0; --i)
+    { 
+    	index = ktn((runner_base + i * element_size), args); 
+        memcpy(runner_output + (count[index] - 1) * element_size, runner_base + i * element_size, element_size);
+        count[index] -= 1; 
+    } 
+    
+	memcpy(base, output, element_size * num_of_members);
+	free(output);
+	
+    return 0;
+}
+
+int RadixSort(void *base, size_t num_of_members, size_t element_size, key_to_num ktn, const void *args, size_t num_of_bytes)
+{
+	int count_nibs = 0;
+	int pos = 0;
+	info_t *info = NULL;
+
+	assert(NULL != base);
+	
+	info = (info_t *)malloc(sizeof(info_t));
+	if (NULL == info)
+	{
+		return -1;
+	}
+	
+	info->args = args;
+	info->ktn = ktn;
+	info->shift = pos * count_nibs;
+	
+	count_nibs = num_of_bytes * 2;
+	
+	while(pos < count_nibs)
+	{
+		CountingSort(base, num_of_members, element_size, my_ktn, (info_t *)info, 16);
+		++pos;
+		info->shift = pos * 4;
+	}
+	
+	free(info);
+	
+	return 0;
+}
+
+size_t my_ktn(const void *value, const void *args)
+{
+	info_t *info = (info_t *)args;
+	
+	return ((info->ktn(value, info->args) >> info->shift) & 0x0F);
 }
 
 static void Swap(void *x, void *y, size_t element_size, char *holder)
