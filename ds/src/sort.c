@@ -10,7 +10,7 @@
 #include <stdio.h> /* perror */
 #include <assert.h> /* assert */
 
-#include "../include/sorting.h" /* sorting.h header */
+#include "../include/sort.h" /* sorting.h header */
 
 size_t my_ktn(const void *value, const void *args);
 
@@ -59,7 +59,7 @@ void InsertionSort(void *base, size_t n_elements, size_t element_size, cmp_f Com
 		runner = right;
 		while(Compare((const void *)left, (const void *)right) > 0 && right > (char *)base)
 		{
-			Swap(&left, &right, element_size, holder);
+			Swap(left, right, element_size, holder);
 			left -= element_size;
 			right -= element_size;			
 		}
@@ -98,7 +98,7 @@ void BubbleSort(void *base, size_t n_elements, size_t element_size, cmp_f Compar
 			if(Compare((const void *)left, (const void *)right) > 0)
 			{
 				flag = 1;
-				Swap(&left, &right, element_size, holder);
+				Swap(left, right, element_size, holder);
 			}
 			left += element_size;
 			right += element_size;
@@ -139,7 +139,7 @@ void SelectionSort(void *base, size_t n_elements, size_t element_size, cmp_f Com
 			}
 			unsorted_runner += element_size;
 		}
-		Swap(&min_index, &sorted_runner, element_size, holder);
+		Swap(min_index, sorted_runner, element_size, holder);
 		sorted_runner += element_size;		
 	}
 	
@@ -170,13 +170,13 @@ int CountingSort(void *base, size_t num_of_members, size_t element_size, key_to_
 		return -1;	
 	}
 	
-	for(i = 0; i < num_of_members; ++i)
+	for(i = 0; i < (signed)num_of_members; ++i)
 	{
 		index = ktn((runner_base + i * element_size), args);
 		count[index] += 1;
 	}
 	
-	for(i = 1; i < range; ++i)
+	for(i = 1; i < (signed)range; ++i)
 	{
 		count[i] += count[i - 1];
 	}
@@ -235,7 +235,7 @@ size_t my_ktn(const void *value, const void *args)
 
 static void Swap(void *x, void *y, size_t element_size, char *holder)
 {	
-	memcpy(holder, *(void **)x, element_size);
-	memcpy(*(void **)x, *(void **)y, element_size);
-	memcpy(*(void **)y, holder, element_size);
+	memcpy(holder, x, element_size);
+	memcpy(x, y, element_size);
+	memcpy(y, holder, element_size);
 }

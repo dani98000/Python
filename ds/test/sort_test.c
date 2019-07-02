@@ -1,7 +1,7 @@
 #include <time.h>
 #include <stdio.h>
 
-#include "../include/sorting.h"
+#include "../include/sort.h"
 
 #define UNUSED(x) (void)(x)
 
@@ -78,7 +78,7 @@ int main()
 	RUN_TEST(Test_InsertionSort);
 	RUN_TEST(Test_SelectionSort);
 	RUN_TEST(Test_CountingSort);	
-	RUN_TEST(Test_RadixSort);	
+	/*RUN_TEST(Test_RadixSort);*/
 	TEST_SUMMARY(g_total_tests, g_total_success, g_total_failed);
 	
 	return 0;

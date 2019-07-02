@@ -46,37 +46,13 @@ int cmp(const void *current_data, const void *data, const void *params);
 int print_list(void *data, const void *arg);
 int Test_BSTInsert();
 int Test_BSTRemove();
+int Test_BSTFind();
 
 int main()
-{
-	int a = 5;
-	int b = 6;
-	int c = 4;
-	int n = 0;
-	bst_t *bst = BSTCreate(cmp, NULL);
-	bst_it_t iter1 = BSTInsert(bst, &a);
-	bst_it_t iter2 = BSTInsert(bst, &b);
-	bst_it_t iter3 = BSTInsert(bst, &c);
-	bst_it_t temp = NULL;
-	n= *(int *)BSTGetData(BSTBegin(bst));
-	printf("%d\n", n);
-	temp = BSTNext(iter1);
-	n= *(int *)BSTGetData(temp);
-	printf("%d\n", n);
-	temp = BSTPrev(iter2);
-	n= *(int *)BSTGetData(temp);
-	printf("%d\n", n);	
-	
-	/*BSTRemove(iter3);*/
-	
-	n= *(int *)BSTGetData(BSTBegin(bst));
-	printf("%d\n", n);	
-	
-	temp = BSTFind(bst, &b);
-	n= *(int *)BSTGetData(temp);	
-	printf("found :%d\n", n);		
+{	
 	RUN_TEST(Test_BSTInsert);
 	RUN_TEST(Test_BSTRemove);
+	RUN_TEST(Test_BSTFind);
 	
 	return 0;
 }
@@ -138,6 +114,8 @@ int Test_BSTInsert()
  	res = BSTCount(bst);	
  	TEST_EQUAL(res, 3);	
 	
+	BSTDestroy(bst);
+	
 	return result;
 }
 
@@ -153,20 +131,24 @@ int Test_BSTRemove()
 	bst_t *bst = BSTCreate(cmp, NULL);
 	bst_it_t iter1,iter2,iter3,iter4,iter5,iter6,iter7;
 	
-	iter1 = BSTInsert(bst, arr);
-	iter2 = BSTInsert(bst, arr + 1);
-	iter3 = BSTInsert(bst, arr + 2);
-	iter4 = BSTInsert(bst, arr + 3);
-	iter5 = BSTInsert(bst, arr + 4);
-	iter6 = BSTInsert(bst, arr + 5);
-	iter7 = BSTInsert(bst, arr + 6);
+	iter1 = BSTInsert(bst, &arr[0]);
+	iter2 = BSTInsert(bst, &arr[1]);
+	iter3 = BSTInsert(bst, &arr[2]);
+	iter4 = BSTInsert(bst, &arr[3]);
+	iter5 = BSTInsert(bst, &arr[4]);
+	iter6 = BSTInsert(bst, &arr[5]);
+	iter7 = BSTInsert(bst, &arr[6]);
 
 	
 	/* test1 */
 	res = BSTIsEmpty(bst);	
  	TEST_EQUAL(res, 0);
-
- 	/* test4 */
+	
+	/* test2 */
+ 	res = BSTCount(bst);	
+ 	TEST_EQUAL(res, 7);	
+	
+ 	/* test3 */
  	n= *(int *)BSTGetData(BSTBegin(bst));
  	res = n;	
  	TEST_EQUAL(res, 20);	
@@ -178,18 +160,92 @@ int Test_BSTRemove()
  	
  	BSTRemove(iter2);
  	
+ 	/* test5 */
  	n= *(int *)BSTGetData((iter2));
  	res = n;	
  	TEST_EQUAL(res, 60);
  	
+ 	/* test6 */
  	n= *(int *)BSTGetData((iter4));
  	res = n;	
  	TEST_EQUAL(res, 70);
  	
+ 	BSTRemove(iter6);
+ 	
+ 	/* test7 */
+ 	n= *(int *)BSTGetData(iter6);
+ 	res = n;	
+ 	TEST_EQUAL(res, 30);
+ 	
+  	BSTRemove(iter6);
+
+	/* test8 */
+ 	n= *(int *)BSTGetData(iter2);
+ 	res = n;	
+ 	TEST_EQUAL(res, 60);
+ 	
+ 	/* test9 */
+ 	res = BSTCount(bst);	
+ 	TEST_EQUAL(res, 4);	
+ 	
  	printf("\t");
  	BSTForEach(BSTBegin(bst), BSTEnd(bst), print_list, NULL);
-
 	printf("\n");
+	
+	BSTDestroy(bst);
+	
+	return result;
+}
+
+int Test_BSTFind()
+{
+	int result = 1;
+	int res = 0;
+	size_t test_no = 0;
+	int arr[]={20,50,80,60,70,40,30};
+	int n = 0;
+	bst_t *bst = BSTCreate(cmp, NULL);
+	bst_it_t iter1,iter2,iter3,iter4,iter5,iter6,iter7,key;
+	
+	iter1 = BSTInsert(bst, &arr[0]);
+	iter2 = BSTInsert(bst, &arr[1]);
+	iter3 = BSTInsert(bst, &arr[2]);
+	iter4 = BSTInsert(bst, &arr[3]);
+	iter5 = BSTInsert(bst, &arr[4]);
+	iter6 = BSTInsert(bst, &arr[5]);
+	iter7 = BSTInsert(bst, &arr[6]);
+	
+	
+	/* test1 */
+	res = BSTIsEmpty(bst);	
+ 	TEST_EQUAL(res, 0);
+ 	
+	/* test2 */
+	key = BSTFind(bst, &arr[0]);
+	n = *((int *)BSTGetData(key));
+	res = n;	
+ 	TEST_EQUAL(res, 20);
+ 	
+ 	/* test3 */
+	key = BSTFind(bst, &arr[1]);
+	n = *((int *)BSTGetData(key));
+	res = n;	
+ 	TEST_EQUAL(res, 50);
+	
+ 	/* test4 */
+	key = BSTFind(bst, &arr[2]);
+	n = *((int *)BSTGetData(key));
+	res = n;	
+ 	TEST_EQUAL(res, 80);	
+	
+ 	/* test5 */
+	key = BSTFind(bst, &arr[3]);
+	n = *((int *)BSTGetData(key));
+	res = n;	
+ 	TEST_EQUAL(res, 60);
+	
+	BSTDestroy(bst);
+	
 	return result;
 }
 
