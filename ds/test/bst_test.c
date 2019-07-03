@@ -124,12 +124,11 @@ int Test_BSTRemove()
 	int result = 1;
 	int res = 0;
 	size_t test_no = 0;
-	int a = 5;
-	int b = 3;
+	int a = 100;
 	int arr[]={20,50,80,60,70,40,30};
 	int n = 0;
 	bst_t *bst = BSTCreate(cmp, NULL);
-	bst_it_t iter1,iter2,iter3,iter4,iter5,iter6,iter7;
+	bst_it_t iter1, iter2, iter3, iter4,iter5, iter6, iter7, temp;
 	
 	iter1 = BSTInsert(bst, &arr[0]);
 	iter2 = BSTInsert(bst, &arr[1]);
@@ -187,6 +186,15 @@ int Test_BSTRemove()
  	/* test9 */
  	res = BSTCount(bst);	
  	TEST_EQUAL(res, 4);	
+ 	
+ 	BSTRemove(iter4);
+ 	BSTInsert(bst, &a);
+  	BSTRemove(iter3);	
+  	
+	/* test8 */
+ 	n= *(int *)BSTGetData(iter3);
+ 	res = n;	
+ 	TEST_EQUAL(res, 100);  	
  	
  	printf("\t");
  	BSTForEach(BSTBegin(bst), BSTEnd(bst), print_list, NULL);

@@ -1,8 +1,15 @@
-#include <stdlib.h>
-#include <assert.h>
+/********************************
+* 	 Author  : Daniel Maizel	*
+*	 Date    : 30/06/2019		*
+*	 Reviewer: Ben           	*
+*								*
+*********************************/
+#include <stdlib.h> /* malloc */
+#include <assert.h>/* assert */
 
-#include "../include/bst.h"
+#include "../include/bst.h" /* bst header */
 
+enum children{NO_CHILDREN = -1, LEFT_CHILD, RIGHT_CHILD, TWO_CHILDREN};
 enum side{LEFT, RIGHT};
 
 struct bst_node
@@ -18,8 +25,9 @@ struct bst
 	cmp_f compare;
 	void *params;
 };
+
 static bst_it_t InOrder(bst_it_t iter, int side);
-static int HowManyChildren(bst_it_t node);
+static int ChildrenTest(bst_it_t node);
 
 static bst_it_t BSTCreateNode(void *data, bst_it_t parent, bst_it_t left, bst_it_t right)
 {
@@ -161,43 +169,39 @@ void *BSTGetData(bst_it_t node)
 void BSTRemove(bst_it_t node)
 {
 	int side = 0;
+	int res = 0;
 	bst_it_t successor = NULL;
 	bst_it_t parent = NULL;
 	
 	assert(NULL != node);
 	
 	parent = node->parent;
-	
-	if(HowManyChildren(node) == -1)
+	res = ChildrenTest(node);
+	if(res == NO_CHILDREN)
 	{
 		free(node);
-		side = node == parent->children[RIGHT];			
+		side = node == parent->children[RIGHT];		
 		parent->children[side] = NULL;
 	}
-	else if(HowManyChildren(node) == 1)
-	{
-		node->data = node->children[RIGHT]->data;
-		free(node->children[RIGHT]);
-		parent->children[RIGHT] = NULL;
-	}
-	else if(HowManyChildren(node) == 0)
-	{
-		node->data = node->children[LEFT]->data;
-		free(node->children[LEFT]);
-		node->children[LEFT] = NULL;
-	}
-	else if(HowManyChildren(node) == 2)
+	else if(res == TWO_CHILDREN)
 	{
 		successor = BSTNext(node);
 		parent = successor->parent;
 		node->data = successor->data;
-		if(HowManyChildren(successor) == 1)
+		res = ChildrenTest(successor);	
+		if(res == RIGHT_CHILD)
 		{
 			successor->data = successor->children[RIGHT]->data;
 			free(successor->children[RIGHT]);
 			successor->children[RIGHT] = NULL;
 		}	
 	}
+	else
+	{
+		node->data = node->children[res]->data;
+		free(node->children[res]);
+		node->children[res] = NULL;
+	}	
 }
 
 size_t BSTCount(const bst_t *bst)
@@ -277,7 +281,7 @@ void BSTDestroy(bst_t *bst)
 	
 	assert(NULL != bst);
 	
-	root = BSTBegin(bst);
+	root = bst->dummy.children[LEFT];
 	while(parent != BSTEnd(bst))
 	{
         if(root->children[LEFT]) 
@@ -291,7 +295,8 @@ void BSTDestroy(bst_t *bst)
         else 
         {
             parent = root->parent;
-            free(root);             
+            free(root);
+                         
             if(parent->children[LEFT] == root)
             {
                 parent->children[LEFT] = NULL;
@@ -306,7 +311,7 @@ void BSTDestroy(bst_t *bst)
     free(bst);
 }	
 
-static int HowManyChildren(bst_it_t node)
+static int ChildrenTest(bst_it_t node)
 {
 	if(node->children[LEFT] == NULL && node->children[RIGHT] == NULL)
 	{
