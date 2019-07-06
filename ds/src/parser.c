@@ -1,80 +1,166 @@
-typedef struct transition
-{
-	states to;
-	int (*handler)(char *str);
-}trans_t
+#include <stdio.h>
+#include <stdlib.h> /* strtod */
+
+#include "../include/parser.h"
+
+#define UNUSED(X) (void)(X)
+
+typedef int (*handler)(char **str);
 
 enum states
 {
-	W.N;
-	W.O;
-	ERROR;
-}
+	WAIT_NUM,
+	WAIT_OP,	
+	ERROR
+};
 
-int next_state = W.N;
+typedef struct transition
+{
+	enum states to;
+	int (*handler)(char **str);
+}trans_t;
 
-static int NumHandler(char *str, int next_state);
-static int OpHandler(char *str, int next_state);
 
-trans_t *TransTableInit()
+static trans_t table[256][2];
+static int g_is_initialized = 0;
+static int NumHandler(char **str);
+static int OpHandler(char **str);
+static int ErrorHandler(char **str);
+static int SpacesHandler(char **str);
+static int UnaryHandler(char **str);
+static int DivByZeroHandler(char **str);
+
+void TransTableInit()
 {
 	int i = 0;
-
-	trans_t *table[256][2];
 	
 	for(; i < 256; ++i)
 	{
-		table[i][W.N]->to = ERROR;
-		table[i][W.N]->hanlder = ErrorFunc;
-		table[i][W.O]->to = ERROR;
-		table[i][W.O]->hanlder = ErrorFunc;
+		table[i][WAIT_NUM].to = ERROR;
+		table[i][WAIT_NUM].handler = ErrorHandler;
+		table[i][WAIT_OP].to = ERROR;
+		table[i][WAIT_OP].handler = ErrorHandler;
 	}
 	
 	for(i = '0'; i <= '9'; ++i)
 	{
-		table[i][W.N]->to = W.O;
-		table[i][W.N]->hanlder = NumHandler;
+		table[i][WAIT_NUM].to = WAIT_OP;
+		table[i][WAIT_NUM].handler = NumHandler;
 	}	
 	
-	table['+'][W.O]->to = W.N;
-	table['+'][W.O]->handler = OpHandler;
+	table['+'][WAIT_OP].to = WAIT_NUM;
+	table['+'][WAIT_OP].handler = OpHandler;
+	table['+'][WAIT_NUM].to = WAIT_OP;
+	table['+'][WAIT_NUM].handler = UnaryHandler;
 	
-	table['-'][W.O]->to = W.N;
-	table['-'][W.O]->handler = OpHandler;
 	
-	table['*'][W.O]->to = W.N;
-	table['*'][W.O]->handler = OpHandler;
+	table['-'][WAIT_OP].to = WAIT_NUM;
+	table['-'][WAIT_OP].handler = OpHandler;
+	table['-'][WAIT_NUM].to = WAIT_OP;
+	table['-'][WAIT_NUM].handler = UnaryHandler;
 	
-	table['/'][W.O]->to = W.N;
-	table['/'][W.O]->handler = OpHandler;	
+	table['*'][WAIT_OP].to = WAIT_NUM;
+	table['*'][WAIT_OP].handler = OpHandler;
+	table['*'][WAIT_NUM].to = ERROR;
+	table['*'][WAIT_NUM].handler = ErrorHandler;
+
 	
-	table['\0'][W.O]->to = W.N;
-	table['\0'][W.O]->handler = OpHandler;		
+	table['/'][WAIT_OP].to = WAIT_NUM;
+	table['/'][WAIT_OP].handler = DivByZeroHandler;	
+	table['/'][WAIT_NUM].to = ERROR;
+	table['/'][WAIT_NUM].handler = ErrorHandler;
+	
+	table['^'][WAIT_OP].to = WAIT_NUM;
+	table['^'][WAIT_OP].handler = OpHandler;	
+	table['^'][WAIT_NUM].to = ERROR;
+	table['^'][WAIT_NUM].handler = ErrorHandler;
+	
+	table[' '][WAIT_OP].to = WAIT_OP;
+	table[' '][WAIT_OP].handler = SpacesHandler;	
+	table[' '][WAIT_NUM].to = WAIT_NUM;
+	table[' '][WAIT_NUM].handler = SpacesHandler;
+		
+	g_is_initialized = 1;		
 } 
 
-static int NumHandler(char *str, int next_state)
+static int NumHandler(char **str)
 {
-	char *ptr = NULL;
-    double ret = NULL;
-    ret = strtod(str, &str);
-    next_state = W.O;
+    double ret = 0.0;
+    ret = strtod(*str, str);
+	AMPushNum(ret);
 
-	return PushNum(ret);
+	return 0; 
 }
 
-static int OpHandler(char *str, int next_state)
+static int OpHandler(char **str)
 {
-	next_state = W.N;		
-	return PushOp(*str);
+	enum status status;
+	status = AMPushOp(**str);
+	++*str;
+	
+	return status;	
 }
 
-int Calculate(const char *str, dobule result)
+static int SpacesHandler(char **str)
+{
+	++*str;
+
+	return OK;
+}
+
+static int ErrorHandler(char **str)
+{
+	UNUSED(str);
+	
+	return E_SYNTAX;
+}
+
+static int UnaryHandler(char **str)
+{
+    double ret = 0.0;
+    ret = strtod(*str, str);
+	AMPushNum(ret);
+	
+	return 0;
+}
+
+static int DivByZeroHandler(char **str)
+{
+    if(*(*str+1) == '0')
+    {
+		return E_MATH;
+	}
+
+	return OpHandler(str);
+}
+
+int Calculate(char *str, double *result)
 {
 	char *runner = str;
-	double num = 0.0;
+	int status = 0;
+	enum states curr_state = WAIT_NUM;
+	trans_t transition_to;
 	
-	while(NULL != *runner && state != ERROR)
+	if(g_is_initialized == 0)
 	{
-				
+		TransTableInit();
 	}
+	status = AMCreate(str);
+
+	while('\0' != *runner && curr_state != ERROR)
+	{			
+		transition_to = table[(int)*runner][curr_state];	
+		curr_state = transition_to.to;
+		status = transition_to.handler(&runner);
+	
+		if(0 != status)
+		{
+			return status;
+		}
+	}
+	
+	*result = AMPushEOS();	
+	AMDestroy();	
+	
+	return OK;			
 }

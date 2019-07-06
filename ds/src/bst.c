@@ -9,8 +9,10 @@
 
 #include "../include/bst.h" /* bst header */
 
-enum children{NO_CHILDREN = -1, LEFT_CHILD, RIGHT_CHILD, TWO_CHILDREN};
-enum side{LEFT, RIGHT};
+static enum children{NO_CHILDREN = -1, LEFT_CHILD, RIGHT_CHILD, TWO_CHILDREN};
+static enum side{LEFT, RIGHT};
+static bst_it_t InOrder(bst_it_t iter, int side);
+static int ChildrenTest(bst_it_t node);
 
 struct bst_node
 {
@@ -25,9 +27,6 @@ struct bst
 	cmp_f compare;
 	void *params;
 };
-
-static bst_it_t InOrder(bst_it_t iter, int side);
-static int ChildrenTest(bst_it_t node);
 
 static bst_it_t BSTCreateNode(void *data, bst_it_t parent, bst_it_t left, bst_it_t right)
 {
@@ -189,12 +188,16 @@ void BSTRemove(bst_it_t node)
 		parent = successor->parent;
 		node->data = successor->data;
 		res = ChildrenTest(successor);	
+		
 		if(res == RIGHT_CHILD)
 		{
 			successor->data = successor->children[RIGHT]->data;
-			free(successor->children[RIGHT]);
-			successor->children[RIGHT] = NULL;
-		}	
+			BSTRemove(successor->children[RIGHT]);
+		}
+		else
+		{	
+			BSTRemove(successor);
+		}
 	}
 	else
 	{

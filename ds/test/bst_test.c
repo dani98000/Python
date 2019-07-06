@@ -138,6 +138,11 @@ int Test_BSTRemove()
 	iter6 = BSTInsert(bst, &arr[5]);
 	iter7 = BSTInsert(bst, &arr[6]);
 
+
+	printf("\t");
+ 	BSTForEach(BSTBegin(bst), BSTEnd(bst), print_list, NULL);
+	printf("\n");
+
 	
 	/* test1 */
 	res = BSTIsEmpty(bst);	
@@ -224,6 +229,7 @@ int Test_BSTFind()
 	iter7 = BSTInsert(bst, &arr[6]);
 	
 	
+	
 	/* test1 */
 	res = BSTIsEmpty(bst);	
  	TEST_EQUAL(res, 0);
@@ -235,10 +241,10 @@ int Test_BSTFind()
  	TEST_EQUAL(res, 20);
  	
  	/* test3 */
-	key = BSTFind(bst, &arr[1]);
+	key = BSTFind(bst, &arr[3]);
 	n = *((int *)BSTGetData(key));
 	res = n;	
- 	TEST_EQUAL(res, 50);
+ 	TEST_EQUAL(res, 60);
 	
  	/* test4 */
 	key = BSTFind(bst, &arr[2]);
@@ -260,11 +266,11 @@ int Test_BSTFind()
 int cmp(const void *current, const void *data, const void *params)
 {
 	UNUSED(params);
-	if(1 == (*(int*)current > *(int*)data))
+	if((*(int*)current > *(int*)data))
 	{
 		return 1; /* enter left */
 	}
-	else if(1 == (*(int*)current < *(int*)data))
+	else if((*(int*)current < *(int*)data))
 
 	{
 		return -1; /* enter right */
