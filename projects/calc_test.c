@@ -1,6 +1,6 @@
 #include <stdio.h>
 
-#include "../include/parser.h"
+#include "parser.h"
 
 #define TEST_STATUS(status, expected) \
 ++test_no; ++g_total_tests;\
@@ -44,12 +44,16 @@ size_t g_total_failed = 0;
 int Test_AddAndMult();
 int Test_SubAndDiv();
 int Test_Pow();
+int Test_Paranthesses();
+int Test_Errors();
 
 int main()
 {
 	RUN_TEST(Test_AddAndMult);
 	RUN_TEST(Test_SubAndDiv);
 	RUN_TEST(Test_Pow);
+	RUN_TEST(Test_Paranthesses);
+	RUN_TEST(Test_Errors);
 	
 	return 0;
 }
@@ -140,6 +144,142 @@ int Test_Pow()
 	TEST_RES(res, 261);
 	TEST_STATUS(status, 0);
 	
-	return result;		
+	printf("\n\n");
 
+	return result;		
+}
+
+int Test_Paranthesses()
+{
+	int result = 1;
+	int status = 0;
+	double res = 0;
+	size_t test_no = 0;
+	char *str1 = "1^(5+3)*5";
+	char *str2 = "(5+5)*4";
+	char *str3 = "((((8 - 1) + 3) * 6) - ((3 + 7) * 2))";
+	char *str4 = "3-2-1";
+	char *str5 = "2^2^3 - 2-5*3^2^2";
+
+	/* TEST1 */
+	status = Calculate(str1 , &res);
+	printf("\t\t\t%s\n", str1);
+	TEST_RES(res, 5);
+	TEST_STATUS(status, 0);
+	
+	printf("\n\n");
+	
+	/* TEST2 */
+	status = Calculate(str2 , &res);
+	printf("\t\t\t%s\n", str2);
+	TEST_RES(res, 40);
+	TEST_STATUS(status, 0);
+	res = 0;
+	
+	printf("\n\n");
+	
+	/* TEST3 */
+	status = Calculate(str3 , &res);
+	printf("\t\t\t%s\n", str3);
+	TEST_RES(res, 40);
+	TEST_STATUS(status, 0);
+	res = 0;
+		
+	printf("\n\n");
+	
+	/* TEST4 */
+	status = Calculate(str4 , &res);
+	printf("\t\t\t%s\n", str4);
+	TEST_RES(res, 0);
+	TEST_STATUS(status, 0);
+	res = 0;
+		
+	printf("\n\n");
+	
+	/* TEST5 */
+	status = Calculate(str5 , &res);
+	printf("\t\t\t%s\n", str5);
+	TEST_RES(res, -151);
+	TEST_STATUS(status, 0);
+	res = 0;
+	
+	return result;	
+}
+
+int Test_Errors()
+{
+	int result = 1;
+	int status = 0;
+	double res = 0;
+	size_t test_no = 0;
+	char *str1 = "8+5/0";
+	char *str2 = "5+++5";
+	char *str3 = " ";
+	char *str4 = "5**";
+	char *str5 = "5++5";
+	char *str6 = "5+(5+4";
+	char *str7 = "5+5+4)";	
+
+	/* TEST1 */
+	status = Calculate(str1 , &res);
+	printf("\t\t\t%s\n", str1);
+	TEST_RES(res, 0);
+	TEST_STATUS(status, 1);
+	res = 0;
+	
+	printf("\n\n");
+	
+	/* TEST2 */
+	status = Calculate(str2 , &res);
+	printf("\t\t\t%s\n", str2);
+	TEST_RES(res, 0);
+	TEST_STATUS(status, 2);
+	res = 0;
+	
+	printf("\n\n");
+	
+	/* TEST3 */
+	status = Calculate(str3 , &res);
+	printf("\t\t\t%s\n", str3);
+	TEST_RES(res, 0);
+	TEST_STATUS(status, 2);
+	res = 0;	
+	
+	printf("\n\n");
+	
+	/* TEST4 */
+	status = Calculate(str4 , &res);
+	printf("\t\t\t%s\n", str4);
+	TEST_RES(res, 0);
+	TEST_STATUS(status, 2);
+	res = 0;
+		
+	printf("\n\n");
+	
+	/* TEST5 */
+	status = Calculate(str5 , &res);
+	printf("\t\t\t%s\n", str5);
+	TEST_RES(res, 10);
+	TEST_STATUS(status, 0);
+	res = 0;
+	
+		printf("\n\n");
+	
+	/* TEST6 */
+	status = Calculate(str6 , &res);
+	printf("\t\t\t%s\n", str6);
+	TEST_RES(res, 0);
+	TEST_STATUS(status, 2);
+	res = 0;
+		
+	printf("\n\n");
+	
+	/* TEST7 */
+	status = Calculate(str7 , &res);
+	printf("\t\t\t%s\n", str7);
+	TEST_RES(res, 0);
+	TEST_STATUS(status, 2);
+	res = 0;
+		
+	return result;
 }

@@ -9,5 +9,6 @@ void AMDestroy();
 void AMPushNum(double num);
 int AMPushOp(char op);
 int AMPushEOS();
+int AMPushClosing();
 
 #endif

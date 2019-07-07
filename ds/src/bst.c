@@ -171,6 +171,7 @@ void BSTRemove(bst_it_t node)
 	int res = 0;
 	bst_it_t successor = NULL;
 	bst_it_t parent = NULL;
+	bst_it_t temp = NULL;
 	
 	assert(NULL != node);
 	
@@ -191,8 +192,13 @@ void BSTRemove(bst_it_t node)
 		
 		if(res == RIGHT_CHILD)
 		{
-			successor->data = successor->children[RIGHT]->data;
-			BSTRemove(successor->children[RIGHT]);
+			temp = successor->children[RIGHT];
+			while(temp->children[LEFT] != NULL)
+			{
+				temp = temp->children[LEFT];
+			}
+			successor->data = temp->data;
+			BSTRemove(temp);
 		}
 		else
 		{	
@@ -285,7 +291,7 @@ void BSTDestroy(bst_t *bst)
 	assert(NULL != bst);
 	
 	root = bst->dummy.children[LEFT];
-	while(parent != BSTEnd(bst))
+	while(!BSTIsEmpty(bst))
 	{
         if(root->children[LEFT]) 
         {

@@ -1,7 +1,7 @@
 #ifndef _PARS_H
 #define _PARS_H
 
-#include "../include/am.h"
+#include "am.h"
 
 enum status
 {

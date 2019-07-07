@@ -1,15 +1,16 @@
-#include <string.h>
-#include <stdio.h>
-#include <math.h>
+#include <string.h> /* strlen */
+#include <math.h> /* pow */
+#include <assert.h> /* assert */
 
-#include "../include/am.h"
-#include "../include/parser.h"
-#include "../include/stack.h"
-
+#include "am.h" /* am header file */
+#include "parser.h" /* parser header file */
+#include "../ds/include/stack.h" /* stack header file */
 
 enum precedence
 {
-	DOLLAR = 5,
+	DOLLAR = 10,
+	CLOSINGPAR = 6,
+	OPENPAR = 5,
 	ADD = 4,
 	SUB = 4,
 	MULT = 3,
@@ -30,7 +31,6 @@ typedef struct operator
 	handler_func handler;
 }operator_t;
 
-
 static int go_is_initialized = 0;
 static stack_t *num_stack;
 static stack_t *op_stack;
@@ -46,6 +46,9 @@ int AMCreate(char *str)
 {
 	size_t stack_size = 0;
 	char stub = '$';	
+	
+	assert(NULL != str);
+	
 	stack_size = strlen(str);
 	
 	num_stack = STACKCreate(stack_size, sizeof(double));
@@ -58,8 +61,10 @@ int AMCreate(char *str)
 	if(NULL == num_stack)
 	{
 		STACKDestroy(num_stack);
+		
 		return E_MALLOC;
 	}
+	
 	STACKPush(op_stack, (void *)&stub);
 	
 	if(go_is_initialized == 0)
@@ -115,6 +120,19 @@ void OpTableInit()
 			table[i].precedence = DOLLAR;
 			table[i].handler = NULL;
 		}
+		else if(i == '(')
+		{
+			table[i].associativity = LEFT_TO_RIGHT;
+			table[i].precedence = OPENPAR;
+			table[i].handler = NULL;		
+		}
+
+		else if(i == ')')
+		{
+			table[i].associativity = RIGHT_TO_LEFT;
+			table[i].precedence = CLOSINGPAR;
+			table[i].handler = AMPushClosing;
+		}
 	}
 			
 	go_is_initialized = 1;		
@@ -129,7 +147,6 @@ void AMDestroy()
 void AMPushNum(double num)
 {
 	STACKPush(num_stack, (void *)&num);
-	printf("Pushing To Numbers Stack :%f\n", num);	
 }
 
 int AMPushOp(char op)
@@ -146,11 +163,11 @@ int AMPushOp(char op)
 	
 	if(current.associativity == LEFT_TO_RIGHT)
 	{
-		while(prev.precedence <= current.precedence)
+		while(prev.precedence <= current.precedence && (int)op != '(')
 		{
-			num1 = 	*(double *)STACKPeek(num_stack);
+			num2 = 	*(double *)STACKPeek(num_stack);
 			STACKPop(num_stack);
-			num2 = *(double *)STACKPeek(num_stack);
+			num1 = *(double *)STACKPeek(num_stack);
 			STACKPop(num_stack);
 	
 			STACKPop(op_stack);
@@ -162,9 +179,9 @@ int AMPushOp(char op)
 			}
 			
 			prev = (table[(int)*(char *)STACKPeek(op_stack)]);
-
 		}
 	}
+	
 	else
 	{
 		while(prev.precedence < current.precedence)
@@ -183,16 +200,17 @@ int AMPushOp(char op)
 			}
 
 			prev = table[(int)*(char *)STACKPeek(op_stack)];
+			
+			if((int)*(char *)STACKPeek(op_stack) == '(')
+			{
+				break;
+			}
 		}
 	}
 	
 	STACKPush(op_stack, (void *)&op);
-	if(op != '$')
-	{
-		printf("Pushing To Operator Stack :%c\n", op);
-	}
 			
-	return OK;
+	return status;
 }
 
 static int AddHandler(double num1, double num2)
@@ -212,10 +230,17 @@ static int MultHandler(double num1, double num2)
 
 static int DivHandler(double num1, double num2)
 {
-	double result = num1 / num2;
+	double result = 0;
+	
+	if((int)num2 == 0)
+	{
+		return E_MATH;
+	}
+	
+	result = num1 / num2;
 	STACKPush(num_stack, (void *)&result);
 	
-	return 0;
+	return OK;
 }
 
 static int SubHandler(double num1, double num2)
@@ -234,11 +259,37 @@ static int PowHandler(double num1, double num2)
 	return 0;
 }
 
-int AMPushEOS()
+int AMPushEOS(double *result)
 {	
-	AMPushOp('$');
-	printf("Pushing EOS\n");
+	enum status status = OK;
+	status = AMPushOp('$');
 	
-	return *(double *)STACKPeek(num_stack);	
+	assert(NULL != result);	
+	
+	if(STACKSize(op_stack) > 2)
+	{
+		return E_SYNTAX;
+	}
+	
+	if(status == OK)
+	{
+		*result = *(double *)STACKPeek(num_stack);	
+	}
+	
+	
+	return status;
 }
 
+int AMPushClosing()
+{
+	AMPushOp(')');
+	STACKPop(op_stack);
+	
+	if('(' ==  *(char *)STACKPeek(op_stack))
+	{
+			STACKPop(op_stack);
+			return OK;
+	}
+	
+	return E_SYNTAX;
+}
