@@ -220,7 +220,7 @@ int Test_Errors()
 	char *str6 = "5+(5+4";
 	char *str7 = "5+5+4)";	
 
-	/* TEST1 */
+	/* TEST1 
 	status = Calculate(str1 , &res);
 	printf("\t\t\t%s\n", str1);
 	TEST_RES(res, 0);
@@ -229,7 +229,7 @@ int Test_Errors()
 	
 	printf("\n\n");
 	
-	/* TEST2 */
+	/* TEST2 
 	status = Calculate(str2 , &res);
 	printf("\t\t\t%s\n", str2);
 	TEST_RES(res, 0);
@@ -247,7 +247,7 @@ int Test_Errors()
 	
 	printf("\n\n");*/
 	
-	/* TEST4 */
+	/* TEST4 
 	status = Calculate(str4 , &res);
 	printf("\t\t\t%s\n", str4);
 	TEST_RES(res, 0);
@@ -256,14 +256,14 @@ int Test_Errors()
 		
 	printf("\n\n");
 	
-	/* TEST5 */
+	/* TEST5 
 	status = Calculate(str5 , &res);
 	printf("\t\t\t%s\n", str5);
 	TEST_RES(res, 10);
 	TEST_STATUS(status, 0);
 	res = 0;
 	
-		printf("\n\n");
+		printf("\n\n");*/
 	
 	/* TEST6 */
 	status = Calculate(str6 , &res);

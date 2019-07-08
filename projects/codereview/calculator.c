@@ -34,7 +34,7 @@ static int NumHandler(char **str, state_t next_state);
 static int ParenthesesHandler(char **str, state_t next_state);
 static int SpaceHandler(char **str, state_t next_state);
 
-state_t current_state = WAITING_NUM;
+state_t g_current_state = WAITING_NUM;
 
 void TTableInit(transition_t t_table[256][3])
 {
@@ -87,7 +87,7 @@ static int NumHandler(char **str, state_t next_state)
 	
 	*str = current_location;
 	
-	current_state = next_state;
+	g_current_state = next_state;
 	
 	return PusnNum(num);
 }
@@ -98,7 +98,7 @@ static int OpHandler(char **str, state_t next_state)
 	
 	++(*str);
 	
-	current_state = next_state;
+	g_current_state = next_state;
 	
 	return PushOp(op);
 }
@@ -107,7 +107,7 @@ static int SpaceHandler(char **str, state_t next_state)
 {
 	++(*str);
 	
-	current_state = next_state;
+	g_current_state = next_state;
 	
 	return OK;
 }
@@ -115,7 +115,7 @@ static int SpaceHandler(char **str, state_t next_state)
 static int ErrorHandler(char **str, state_t next_state)
 {
 	UNUSED(str);
-	current_state = next_state;
+	g_current_state = next_state;
 	
 	return E_SYNTAX;
 }
@@ -123,7 +123,7 @@ static int ErrorHandler(char **str, state_t next_state)
 static int ParenthesesHandler(char **str, state_t next_state)
 {
 	UNUSED(str);
-	current_state = next_state;
+	g_current_state = next_state;
 	
 	++(*str);
 	
@@ -144,17 +144,19 @@ enum status Calculate(const char *str, double *result)
 		
 		is_init = 1;	
 	}
+	
 	current_status = AMCreate(len);
-	current_state = WAITING_NUM;
-	while ('\0' != *runner && current_state != ERROR)
+	g_current_state = WAITING_NUM;
+	
+	while ('\0' != *runner && g_current_state != ERROR)
 	{
-		current_status = t_table[(int)*runner][current_state].Handler(&runner, 
-								t_table[(int)*runner][current_state].next_state);	
+		current_status = t_table[(int)*runner][g_current_state].Handler(&runner, 
+								t_table[(int)*runner][g_current_state].next_state);	
 	}			
 	
-	if (current_state != ERROR)
+	if (g_current_state != ERROR)
 	{
-			current_status = EOS(result);							
+		current_status = EOS(result);							
 	}
 	
 	AMDestroy();

@@ -19,6 +19,7 @@ static operator_t op_table[256];
 stack_t *num_stack;
 stack_t *op_stack;
 static enum status g_current_status = OK;
+static int g_flag = 0;
 
 static void OPTableInit(operator_t op_table[256]);
 static double Division(double num1, double num2);
@@ -92,7 +93,7 @@ static double Power(double num1, double num2)
 	return pow(num1, num2);
 }
 
-static void Calc()
+static enum status Calc()
 {
 	double first_num = 0;
 	double second_num = 0;
@@ -104,9 +105,15 @@ static void Calc()
 	first_num = *(double *)STACKPeek(num_stack);
 	STACKPop(num_stack);
 	op = *(char *)STACKPeek(op_stack);
+	if(op == '(')
+	{
+		return E_SYNTAX;
+	}
 	STACKPop(op_stack);
 	result = op_table[(int)op].Handler(first_num, second_num);
 	STACKPush(num_stack, &result);
+	
+	return OK;
 }
 
 enum status AMCreate(size_t len)
@@ -143,6 +150,8 @@ void AMDestroy()
 enum status PushOp(char new_op)
 {
 	char last_op = *(char *)STACKPeek(op_stack);
+
+
 	
 	if ('(' == new_op)
 	{
@@ -150,9 +159,10 @@ enum status PushOp(char new_op)
 		
 		return g_current_status;
 	}
-	
+
 	while (op_table[(int)new_op].precedence > op_table[(int)last_op].precedence)
 	{
+
 		Calc();
 		last_op = *(char *)STACKPeek(op_stack);
 	}
@@ -160,6 +170,7 @@ enum status PushOp(char new_op)
 	while (op_table[(int)new_op].precedence == op_table[(int)last_op].precedence 
 									&& op_table[(int)last_op].associativity == LR)
 	{
+
 		Calc();
 		last_op = *(char *)STACKPeek(op_stack);
 	}
@@ -183,10 +194,22 @@ enum status PusnNum(double num)
 
 enum status Parentheses()
 {
+	g_flag = 0;
+	
 	while (1 < STACKSize(num_stack) && '(' != *(char *)STACKPeek(op_stack))
 	{
 		Calc();
 	}
+	
+	if('(' != *(char *)STACKPeek(op_stack) && 1 > STACKSize(num_stack))
+	{
+		return E_SYNTAX;
+	}
+	else
+	{
+		g_flag = 1;
+	}
+
 	
 	STACKPop(op_stack);
 	
@@ -197,13 +220,21 @@ enum status EOS(double *result)
 {
 	while (1 < STACKSize(num_stack))
 	{
-		Calc();
+		g_current_status = Calc();
+		
+		if(g_current_status != OK)
+		{
+			return g_current_status;
+		}
 	}
-	*result = *(double *)STACKPeek(num_stack);
-	
-	if('(' == *(char *)STACKPeek(op_stack))
+	if(g_flag == 0)
 	{
-		g_current_status = E_SYNTAX;
+		*result = *(double *)STACKPeek(num_stack);
+	}
+	
+	if((g_current_status != E_MATH) && g_flag  == 1)
+	{
+		return E_SYNTAX;
 	}
 		
 	return g_current_status;
