@@ -1,23 +1,23 @@
 #include <stdio.h>
 #include "../include/recursion.h"
 
+static void SortedInsert(stack_t *stack, int x);
 
-
-int FibRec(int n)
+long RecurFibonacci(long n)
 {
 	if(n == 0 || n == 1)
 	{
-		return 1;
+		return n;
 	}
 	
-	return(FibRec(n-1) + FibRec(n-2));
+	return(RecurFibonacci(n-1) + RecurFibonacci(n-2));
 }
 
-int FibIter(int n)
+long IterFibonacci(long n)
 {
-	int current = 1;
-	int prev = 1;
-	int next = 2;
+	long current = 1;
+	int prev = 0;
+	int next = 1;
 	size_t counter = 0;
 	
 	while(counter < n - 1)
@@ -31,51 +31,36 @@ int FibIter(int n)
 	return current;
 }
 
-int str_len(char *str)
+size_t RecurStrlen(const char *s)
 {
-	char *runner = str;
-	if('\0' == *runner)
+	if('\0' == *s)
 	{
 		return 0;
 	}
 	
-	++runner;
-	
-	return str_len(runner) + 1;
+	return RecurStrlen(++s) + 1;
 }
 
-int str_cmp(char *str1, char *str2)
+int RecurStrcmp(const char *s1, const char *s2)
 {
-	char *runner1 = str1;
-	char *runner2 = str2;
-	
-	if(*runner1 != *runner2 || *(runner1+1) == '\0')
+	if(*s1 != *s2 || *(s1+1) == '\0')
 	{
-		return *runner1 - *runner2;
+		return *s1 - *s2;
 	}
-	
-	++runner1;
-	++runner2;
-	
-	return(str_cmp(runner1, runner2));
+
+	return(RecurStrcmp(++s1, ++s2));
 }
 
-char *str_cpy(char *dest, const char *src)
+char *RecurStrcpy(char *dest, const char *src)
 {
-	char *dest_runner = dest;
-	char *src_runner = (char *)src;
+	*dest = *src; 
 	
-	if(*src_runner == '\0')
+	if(*src != '\0')
 	{
-		*dest_runner = '\0';
-		return dest;
+		RecurStrcpy(++dest, ++src);
 	}
 	
-	*dest_runner = *src_runner;
-	++dest_runner;
-	++src_runner;
-	
-	return str_cpy(dest_runner, src_runner);
+	return dest;
 }
 
 node_t *RecurFlip(node_t *head)
@@ -102,28 +87,61 @@ void RecurStackSort(stack_t *stack)
 	{
 		temp = *(int *)STACKPeek(stack);
 		STACKPop(stack);
-		if(*(int *)STACKPeek(stack) < temp)
+		RecurStackSort(stack);
+		SortedInsert(stack, temp);
+	}
+}
+
+static void SortedInsert(stack_t *stack, int x)
+{
+	int temp = 0;	
+	if(STACKSize(stack) > 0)
+	{
+		temp = *(int *)STACKPeek(stack);
+		STACKPop(stack);
+		
+		if(x > temp)
 		{
+			SortedInsert(stack, x);
 			STACKPush(stack, &temp);
-			
 		}
 		else
 		{
-
-			if(*(int *)STACKPeek(stack) > temp)
-			{				
-				/*STACKPush(stack, &temp);*/
-			RecurStackSort(stack);
-				/*STACKPop(stack);*/
-			}
-			else
-			{
-
-				STACKPush(stack, &temp);
-			}
-			
+			STACKPush(stack, &temp);
+			STACKPush(stack, &x);						
 		}
+	}
+	else
+	{
+		STACKPush(stack, &x);						
+	}
+}
 
+char *RecurStrcat(char *dest, const char *src)
+{
+	int size = RecurStrlen(dest);
+	*(dest+size) = *src;
+
+	if(*src == '\0')
+	{
+		return dest;
 	}
 	
+	return RecurStrcat(++dest,++src);
+}
+
+char *RecurStrstr(const char *heystack, const char *needle)
+{
+	int niddle_size = RecurStrlen(needle);
+	
+	if(*(needle) == '\0')
+	{
+		return (char *)heystack - strlen(needle);
+	}	
+	elseif(*(heystack + 1) == *(needle + 1))
+	{
+		return 	RecurStrstr(++heystack, ++needle);
+	}
+	
+	return RecurStrstr(++heystack, needle);
 }

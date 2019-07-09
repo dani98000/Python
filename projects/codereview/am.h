@@ -9,6 +9,6 @@ void AMDestroy();
 enum status PushOp(char op);
 enum status PusnNum(double num);
 enum status EOS();
-enum status Parentheses();
+enum status Parentheses(char op);
 
 #endif

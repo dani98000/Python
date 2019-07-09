@@ -19,7 +19,9 @@ static operator_t op_table[256];
 stack_t *num_stack;
 stack_t *op_stack;
 static enum status g_current_status = OK;
-static int g_flag = 0;
+static int g_open_p = 0;
+static int g_close_p = 0;
+
 
 static void OPTableInit(operator_t op_table[256]);
 static double Division(double num1, double num2);
@@ -93,7 +95,7 @@ static double Power(double num1, double num2)
 	return pow(num1, num2);
 }
 
-static enum status Calc()
+static void Calc()
 {
 	double first_num = 0;
 	double second_num = 0;
@@ -105,15 +107,9 @@ static enum status Calc()
 	first_num = *(double *)STACKPeek(num_stack);
 	STACKPop(num_stack);
 	op = *(char *)STACKPeek(op_stack);
-	if(op == '(')
-	{
-		return E_SYNTAX;
-	}
 	STACKPop(op_stack);
 	result = op_table[(int)op].Handler(first_num, second_num);
 	STACKPush(num_stack, &result);
-	
-	return OK;
 }
 
 enum status AMCreate(size_t len)
@@ -145,32 +141,23 @@ void AMDestroy()
 {
 	STACKDestroy(num_stack);
 	STACKDestroy(op_stack);
+	g_open_p = 0;
+	g_close_p = 0;
 }
 
 enum status PushOp(char new_op)
 {
 	char last_op = *(char *)STACKPeek(op_stack);
-
-
 	
-	if ('(' == new_op)
-	{
-		STACKPush(op_stack, &new_op);
-		
-		return g_current_status;
-	}
-
 	while (op_table[(int)new_op].precedence > op_table[(int)last_op].precedence)
 	{
-
 		Calc();
 		last_op = *(char *)STACKPeek(op_stack);
 	}
 	
 	while (op_table[(int)new_op].precedence == op_table[(int)last_op].precedence 
-									&& op_table[(int)last_op].associativity == LR)
+								   && op_table[(int)last_op].associativity == LR)
 	{
-
 		Calc();
 		last_op = *(char *)STACKPeek(op_stack);
 	}
@@ -192,50 +179,56 @@ enum status PusnNum(double num)
 	return OK;
 }
 
-enum status Parentheses()
+enum status Parentheses(char new_op)
 {
-	g_flag = 0;
+	if ('(' == new_op)
+	{
+		STACKPush(op_stack, &new_op);
+		++g_open_p;
+		
+		return g_current_status;
+	}
+	
+	if(')' == new_op && 0 == g_open_p)
+	{
+		return E_SYNTAX;
+	}
+	
+	++g_close_p;
 	
 	while (1 < STACKSize(num_stack) && '(' != *(char *)STACKPeek(op_stack))
 	{
 		Calc();
 	}
 	
-	if('(' != *(char *)STACKPeek(op_stack) && 1 > STACKSize(num_stack))
+	if('(' == *(char *)STACKPeek(op_stack))
 	{
-		return E_SYNTAX;
-	}
-	else
-	{
-		g_flag = 1;
-	}
-
+		--g_open_p;
+		--g_close_p;
+		STACKPop(op_stack);
 	
-	STACKPop(op_stack);
+		return g_current_status;
+	}
 	
-	return g_current_status;
+	return E_SYNTAX;
 }
 
 enum status EOS(double *result)
 {
-	while (1 < STACKSize(num_stack))
+	if (g_close_p != g_open_p)
 	{
-		g_current_status = Calc();
-		
-		if(g_current_status != OK)
-		{
-			return g_current_status;
-		}
-	}
-	if(g_flag == 0)
-	{
-		*result = *(double *)STACKPeek(num_stack);
+		return E_SYNTAX;
 	}
 	
-	if((g_current_status != E_MATH) && g_flag  == 1)
+	while (1 < STACKSize(num_stack))
 	{
-		printf("daniel");
-		return E_SYNTAX;
+		Calc();
+	}
+	*result = *(double *)STACKPeek(num_stack);
+	
+	if(1 < STACKSize(op_stack) && g_current_status != E_MATH)
+	{
+		g_current_status = E_SYNTAX;
 	}
 		
 	return g_current_status;

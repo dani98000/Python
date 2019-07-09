@@ -1,18 +1,38 @@
+#ifndef RECURSION_H
+#define RECURSION_H
+
+#include <stddef.h> /* size_t */
 #include "stack.h" /* stack header file */
 
-struct node
+typedef struct node
 {
-	struct node *next;
 	void *data;
-};
+	struct node *next;
+} node_t;
 
-typedef struct node node_t;
+long IterFibonacci(long n);
 
-int FibRec(int n);
-int FibIter(int n);
-int str_len(char *str);
-int str_cmp(char *str1, char *str2);
-char *str_cpy(char *dest, const char *src);
+long RecurFibonacci(long n);
+
+size_t RecurStrlen(const char *s);
+
+int RecurStrcmp(const char *s1, const char *s2);
+
+char *RecurStrcpy(char *dest, const char *src);
+
 node_t *RecurFlip(node_t *head);
 
+/*
+	the stack contains only integers.
+	the min number should be at the top of the stack.
+*/
+void RecurStackSort(stack_t *stack);
 
+/* extra */
+
+char *RecurStrcat(char *dest, const char *src);
+
+char *RecurStrstr(const char *haystack, const char *needle);
+
+
+#endif          /* recursion  */

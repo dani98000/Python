@@ -49,6 +49,9 @@ int Test_strcmp();
 int Test_strcpy();
 int Test_flip();
 int Test_stack();
+int Test_RecurStrcat();
+int Test_strstr();
+static int IsSorted(stack_t *stack, int n_elements);
 
 int main()
 {
@@ -58,7 +61,9 @@ int main()
 	RUN_TEST(Test_strcmp);
 	RUN_TEST(Test_strcpy);	
 	RUN_TEST(Test_flip);	
-	RUN_TEST(Test_stack);	
+	RUN_TEST(Test_stack);
+	/*RUN_TEST(Test_RecurStrcat);	
+	RUN_TEST(Test_strstr);*/
 	
 	TEST_SUMMARY(g_total_tests, g_total_success, g_total_failed);
 	
@@ -71,8 +76,8 @@ int Test_FibRec()
 	int res = 0;
 	size_t test_no = 0;
 	
-	res = FibRec(5);
-	TEST_EQUAL(res, 8);
+	res = RecurFibonacci(5);
+	TEST_EQUAL(res, 5);
 	
 	return result;
 }
@@ -83,8 +88,8 @@ int Test_FibIter()
 	int res = 0;
 	size_t test_no = 0;
 	
-	res = FibIter(5);
-	TEST_EQUAL(res, 8);
+	res = IterFibonacci(5);
+	TEST_EQUAL(res, 5);
 	
 	return result;
 }
@@ -96,7 +101,7 @@ int Test_strlen()
 	size_t test_no = 0;
 	char *str = "daniel";
 
-	res = str_len(str);
+	res = RecurStrlen(str);
 	
 	TEST_EQUAL(res, 6);
 	
@@ -113,10 +118,10 @@ int Test_strcmp()
 	char *str3 = "abcd";
 	char *str4 = "abce";
 	
-	res = str_cmp(str1,str2);
+	res = RecurStrcmp(str1,str2);
 	TEST_EQUAL(res, 0);
 	
-	res = str_cmp(str3,str4);
+	res = RecurStrcmp(str3,str4);
 	TEST_EQUAL(res, -1);
 	
 	return result;
@@ -130,8 +135,8 @@ int Test_strcpy()
 	char *str1 = "daniel";
 	char str2[] = "      ";
 	
-	str_cpy(str2,str1);
-	res = str_cmp(str1,str2);
+	RecurStrcpy(str2,str1);
+	res = RecurStrcmp(str1,str2);
 	
 	TEST_EQUAL(res, 0);
 	
@@ -169,33 +174,78 @@ int Test_flip()
 
 int Test_stack()
 {
-	stack_t *stack = STACKCreate(3, sizeof(int)); 
+	stack_t *stack = STACKCreate(4, sizeof(int)); 
 	int a = 1;
-	int b = 10;
-	int c = 5;	
+	int b = 2;
+	int c = 3;
+	int d = 4;	
 	int n = 0;
-	
 	int result = 1;
+	int res = 0;
+	size_t test_no = 0;
+
 	STACKPush(stack, &a); 
 	STACKPush(stack, &b); 
 	STACKPush(stack, &c); 
+	STACKPush(stack, &d); 
 	
 	RecurStackSort(stack);
 		
-	n = *((int *)STACKPeek((void *)stack)); 
-	printf("%d\n",n);
-	
-		printf("size = %d\n",STACKSize(stack));
-	
-	
-	
-	STACKPop(stack);
-	n = *((int *)STACKPeek((void *)stack)); 
-	printf("%d\n",n);
-		
-	
-	
-	result *= (n == 1);
+	res = IsSorted(stack,(STACKSize(stack)));
+	TEST_EQUAL(res, 1);
 	
 	return result;
+}
+
+static int IsSorted(stack_t *stack, int n_elements)
+{
+	int temp = 0;
+	int res = 1;
+	int i = 0;	
+	for(; i < n_elements - 1; ++i)
+	{
+		temp = *(int *)STACKPeek(stack);
+		STACKPop(stack);
+		
+		if(temp < *(int *)STACKPeek(stack))
+		{
+			res *= 1;
+		}
+		else
+		{
+			res = 0;
+		}
+	}
+	
+	return res;
+}
+
+int Test_RecurStrcat()
+{
+	int result = 1;
+	int res = 0;
+	size_t test_no = 0;
+
+	char src[] = "world";
+	char dest[20] = {'h','e','l','l','o'};
+	
+	RecurStrcat(dest,src);
+	
+	printf("%s", dest);
+	
+	return 1;
+}
+
+int Test_strstr()
+{
+	int result = 1;
+	int res = 0;
+	size_t test_no = 0;
+
+	char *heystack = "heydaniell";
+	char *needle = "daniel";
+	
+	printf("%s", RecurStrstr(heystack, needle));
+	
+	return 1;
 }
