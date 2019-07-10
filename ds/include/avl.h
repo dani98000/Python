@@ -1,5 +1,6 @@
-/*****************
-Recursive implementation of balanced avl binary search tree
+#include <stdio.h>
+
+/*Recursive implementation of balanced avl binary search tree
 *****************/
 
 #ifndef AVL_H
@@ -12,7 +13,7 @@ typedef int (*avl_act_f)(void *data, const void *args);
 typedef struct avl_node
 {
 	void *data;
-	struct avl_node children[2];
+	struct avl_node *children[2];
 	size_t height;
 } avl_node_t;
 
@@ -25,6 +26,7 @@ typedef struct avl_node
 ****************************/
 
 typedef struct avl avl_t;
+typedef struct avl_node avl_node_t;
 
 avl_t *AVLCreate(avl_cmp_f Compare, const void *params);
 
@@ -41,7 +43,7 @@ void AVLRemove(avl_t *avl, const void *key);
 int AVLForEach(avl_t *avl, avl_act_f Act, const void *args);
 
 /* Return pointer to user data */
-void *Find(const avl_t *avl, const void *key);
+void *AVLFind(const avl_t *avl, const void *key);
 
 /*Implement pre order */
 size_t AVLSize(const avl_t *avl);

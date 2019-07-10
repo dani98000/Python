@@ -138,7 +138,7 @@ char *RecurStrstr(const char *heystack, const char *needle)
 	{
 		return (char *)heystack - strlen(needle);
 	}	
-	elseif(*(heystack + 1) == *(needle + 1))
+	else if(*(heystack + 1) == *(needle + 1))
 	{
 		return 	RecurStrstr(++heystack, ++needle);
 	}
