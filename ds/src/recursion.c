@@ -65,18 +65,18 @@ char *RecurStrcpy(char *dest, const char *src)
 
 node_t *RecurFlip(node_t *head)
 {
-	node_t *rest = NULL;
+	node_t *next = NULL;
 	
-	if(head->next == NULL)
+	if(NULL == head->next)
 	{
 		return head;
 	}
 	
-	rest = RecurFlip(head->next);
+	next = RecurFlip(head->next);
 	head->next->next = head;
-	head->next  = NULL;
+	head->next = NULL;
 	
-	return rest;
+	return next;
 }
 
 void RecurStackSort(stack_t *stack)

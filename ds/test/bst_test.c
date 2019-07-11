@@ -204,7 +204,7 @@ int Test_BSTRemove()
  	printf("\t");
  	BSTForEach(BSTBegin(bst), BSTEnd(bst), print_list, NULL);
 	printf("\n");
-	int AVLIsEmpty(const avl_t *avl);
+	
 	BSTDestroy(bst);
 	
 	return result;

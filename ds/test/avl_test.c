@@ -42,8 +42,11 @@ size_t g_total_failed = 0;
 
 int cmp(const void *current, const void *data, const void *params);
 int print_list(void *data, const void *arg);
+int IsSorted(int *arr, int size);
 int Test_Insert();
 int Test_Balance();
+int Test_Remove();
+int Stress_Test();
 
 int main()
 {
@@ -85,6 +88,9 @@ int main()
 	AVLDestroy(tree);*/
 	RUN_TEST(Test_Insert);
 	RUN_TEST(Test_Balance);
+	RUN_TEST(Test_Remove);
+	RUN_TEST(Stress_Test);
+	
 	return 0;
 }
 
@@ -145,14 +151,18 @@ int Test_Balance()
 	
 	/* TEST1 */
 	res = AVLSize(tree);
-	TEST_EQUAL(res, 3);
+	TEST_EQUAL(res, 4);
 	
 	/* TEST2 */
 	res = AVLGetHeight(tree);
-	TEST_EQUAL(res, 3);
+	TEST_EQUAL(res, 2);
+	
+	return result;
+	
+	AVLDestroy(tree);
 }
 
-/*int Test_Remove()
+int Test_Remove()
 {
 	int result = 1;
 	int res = 0;
@@ -167,6 +177,8 @@ int Test_Balance()
 	int w = 20;
 	int n = 18;
 	int z = 6;
+	int key = 4;
+	int key2 = 7;	
 	
 	AVLInsert(tree, &a);
 	AVLInsert(tree, &b);
@@ -178,8 +190,62 @@ int Test_Balance()
 	AVLInsert(tree, &n);
 	AVLInsert(tree, &z);
 	
+
+	
+	
+	/* TEST1 */
+	res = AVLSize(tree);
+	TEST_EQUAL(res, 9);
+	
+	/*AVLRemove(tree, &key);*/
+	AVLRemove(tree, &key2);
+	
+	AVLForEach(tree,print_list, NULL);
+	printf("\n");
+	
+	AVLDestroy(tree);
+	
 	return result;
-}*/
+}
+
+int Stress_Test()
+{
+	int result = 1;
+	int res = 0;
+	size_t test_no = 0;
+	int randomIndex = 0;
+	int temp = 0;
+	int i = 0;
+	avl_t *tree = AVLCreate(cmp ,NULL);
+	int arr[50000];
+
+	
+	for(i = 0; i < 50000; i++) 
+	{
+    	arr[i] = i;
+	}
+
+	for(i = 0; i < 50000; i++) 
+	{   
+    	temp = arr[i];
+   		randomIndex = rand() % 50000;
+
+   		arr[i] = arr[randomIndex];
+    	arr[randomIndex] = temp;
+	}
+
+	for(i = 0; i < 50000; i++) 
+	{   
+		AVLInsert(tree, &arr[i]);
+	}
+	
+	AVLForEach(tree,print_list, NULL);
+	printf("\n");
+	
+
+	
+	return result;
+}	
 
 int cmp(const void *current, const void *data, const void *params)
 {
