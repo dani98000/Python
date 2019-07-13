@@ -50,46 +50,10 @@ int Stress_Test();
 
 int main()
 {
-	/*avl_t *tree = AVLCreate(cmp ,NULL);
-	avl_node_t *node = NULL;
-	int a = 5;
-	int b = 7;
-	int c = 4;
-	int d = 1;
-	int x = 0;
-	int e = 3;
-	int w = 20;
-	int n = 18;
-	int z = 6;
-	int key = 5;
-	int size = 0;
-	int res = 0;
-	
-	AVLInsert(tree, &a);
-	AVLInsert(tree, &b);
-	AVLInsert(tree, &c);
-	AVLInsert(tree, &d);
-	AVLInsert(tree, &x);	
-	AVLInsert(tree, &e);
-	AVLInsert(tree, &w);
-	AVLInsert(tree, &n);
-	AVLInsert(tree, &z);
-	
-	AVLRemove(tree, &key);
-	
-	AVLForEach(tree,print_list, NULL);
-	printf("\n");
-	
-	size = AVLSize(tree);
-	printf("size = %d\n", size);
-	/*res = *(int *)AVLFind(tree, &key);*/
-/*	printf("should print 1: %d\n",*(int *)AVLFind(tree, &key));
-	
-	AVLDestroy(tree);*/
 	RUN_TEST(Test_Insert);
 	RUN_TEST(Test_Balance);
 	RUN_TEST(Test_Remove);
-	RUN_TEST(Stress_Test);
+/*	RUN_TEST(Stress_Test);*/
 	
 	return 0;
 }
@@ -157,9 +121,9 @@ int Test_Balance()
 	res = AVLGetHeight(tree);
 	TEST_EQUAL(res, 2);
 	
-	return result;
-	
 	AVLDestroy(tree);
+	
+	return result;
 }
 
 int Test_Remove()
@@ -177,8 +141,6 @@ int Test_Remove()
 	int w = 20;
 	int n = 18;
 	int z = 6;
-	int key = 4;
-	int key2 = 7;	
 	
 	AVLInsert(tree, &a);
 	AVLInsert(tree, &b);
@@ -196,9 +158,32 @@ int Test_Remove()
 	/* TEST1 */
 	res = AVLSize(tree);
 	TEST_EQUAL(res, 9);
+
+	/* TEST2 */
+	res = AVLGetHeight(tree);
+	TEST_EQUAL(res, 3);
+
+	AVLRemove(tree, &b);
+
+	/* TEST3 */
+	res = AVLSize(tree);
+	TEST_EQUAL(res, 8);
+
+	/* TEST4 */
+	res = AVLGetHeight(tree);
+	TEST_EQUAL(res, 3);
 	
-	/*AVLRemove(tree, &key);*/
-	AVLRemove(tree, &key2);
+	AVLRemove(tree, &w);
+	
+	/* TEST5 */
+	res = AVLSize(tree);
+	TEST_EQUAL(res, 7);
+
+	/* TEST6 */
+	res = AVLGetHeight(tree);
+	TEST_EQUAL(res, 2);
+	
+	
 	
 	AVLForEach(tree,print_list, NULL);
 	printf("\n");
@@ -239,10 +224,10 @@ int Stress_Test()
 		AVLInsert(tree, &arr[i]);
 	}
 	
-	AVLForEach(tree,print_list, NULL);
+	/*AVLForEach(tree,print_list, NULL);
 	printf("\n");
-	
-
+	*/
+	AVLDestroy(tree);
 	
 	return result;
 }	
@@ -268,3 +253,4 @@ int print_list(void *data, const void *arg)
     printf("%d->", *(int *)data);   
     return 0;
 }
+

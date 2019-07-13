@@ -55,13 +55,13 @@ static int IsSorted(stack_t *stack, int n_elements);
 
 int main()
 {
-	/*RUN_TEST(Test_FibRec);
+	RUN_TEST(Test_FibRec);
 	RUN_TEST(Test_FibIter);
 	RUN_TEST(Test_strlen);
 	RUN_TEST(Test_strcmp);
-	RUN_TEST(Test_strcpy);	*/
+	RUN_TEST(Test_strcpy);
 	RUN_TEST(Test_flip);	
-	/*RUN_TEST(Test_stack);*/
+	RUN_TEST(Test_stack);
 	/*RUN_TEST(Test_RecurStrcat);	
 	RUN_TEST(Test_strstr);*/
 	
@@ -220,7 +220,7 @@ static int IsSorted(stack_t *stack, int n_elements)
 	return res;
 }
 
-int Test_RecurStrcat()
+/*int Test_RecurStrcat()
 {
 	int result = 1;
 	int res = 0;
@@ -248,4 +248,4 @@ int Test_strstr()
 	printf("%s", RecurStrstr(heystack, needle));
 	
 	return 1;
-}
+}*/

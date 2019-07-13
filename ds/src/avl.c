@@ -1,10 +1,15 @@
-#include <stdlib.h>
-#include <assert.h>
-#include <sys/types.h>
-
+/********************************
+* 	 Author  : Daniel Maizel	*
+*	 Date    : 11/07/2019		*
+*	 Reviewer: Sandra          	*
+*								*
+*********************************/
+#include <stdlib.h>	/* malloc */
+#include <assert.h> /* assert */
+#include <sys/types.h> /* ssize_t */
 #include <stdio.h> /*debug */
 
-#include "../include/avl.h"
+#include "../include/avl.h"/* AVL Header file */
 
 enum children{LEFT, RIGHT};
 
@@ -28,54 +33,15 @@ static int GetBalanceFactor(avl_node_t *root);
 static ssize_t GetMaxHeight(avl_node_t *node);
 static size_t RecSize(avl_node_t *node);
 static int InOrder(avl_node_t *node, avl_act_f act, const void *args);
-static int IsRChild(avl_node_t *node);
-static int IsLChild(avl_node_t *node);
 static int IsLeaf(avl_node_t *node);
 static avl_node_t *RecInsert(avl_node_t *node, avl_node_t *parent, int side, void *data, avl_cmp_f compare);
 static void NodeToDestroy(avl_node_t *node);
 static avl_node_t *RecFind(avl_node_t *node, const void *key, avl_cmp_f compare);
 static int ChildrenTest(avl_node_t *node);
 static avl_node_t *RecRemove(avl_node_t *node, const void *key, avl_cmp_f compare);
-static avl_node_t *GetLeftiestChild(avl_node_t *node);
-static int IsMyRChild(avl_node_t *node, avl_node_t *parent);
+static avl_node_t *GetSuccessor(avl_node_t *node);
 static avl_node_t *Balance(avl_node_t *node);
-
-static void PrintTree(avl_node_t *root)
-{
-	if(NULL == root)
-	{
-		return;
-	}
-	
-	printf("data: %d height: %ld balance: %d ", *(int *)root->data, root->height, GetBalanceFactor(root));
-	
-	if(NULL != root->children[LEFT])
-	{
-		printf(" left: %d ", *(int *)root->children[LEFT]->data);
-	}
-	
-	if(NULL != root->children[RIGHT])
-	{
-		printf(" right: %d ", *(int *)root->children[RIGHT]->data);
-	}
-	
-	printf("\n");
-	
-	PrintTree(root->children[LEFT]);
-	PrintTree(root->children[RIGHT]);
-}
-
-avl_node_t *GetRoot(avl_t *tree)
-{
-	printf("daniel");
-	return tree->root;
-}
-
-void *GetData(avl_node_t *root)
-{
-	printf("%d", root->height);
-	return root->data;
-}
+static void PrintTree(avl_node_t *root);/* Utility Function for tests only! */
 
 avl_t *AVLCreate(avl_cmp_f compare, const void *params)
 {
@@ -94,6 +60,8 @@ avl_t *AVLCreate(avl_cmp_f compare, const void *params)
 
 int AVLInsert(avl_t *avl, void *data)
 {
+	assert(avl);
+
 	avl->root = RecInsert((avl_node_t *)avl->root , NULL, 0, data, avl->compare);
 	
 	return 1;	
@@ -102,7 +70,6 @@ int AVLInsert(avl_t *avl, void *data)
 static avl_node_t *RecInsert(avl_node_t *node, avl_node_t *parent, int side, void *data, avl_cmp_f compare)
 {
 	int res = 0;
-	avl_node_t *current = NULL;
 	int balance_factor = 0;
 	
 	if(node == NULL)
@@ -128,6 +95,7 @@ static avl_node_t *RecInsert(avl_node_t *node, avl_node_t *parent, int side, voi
 	}
 	
 	balance_factor = GetBalanceFactor(node);
+	
 	if(abs(balance_factor) > 1)
 	{
 		node = Balance(node);
@@ -140,28 +108,34 @@ static avl_node_t *RecInsert(avl_node_t *node, avl_node_t *parent, int side, voi
 
 int AVLIsEmpty(const avl_t *avl)
 {
+	assert(avl);
+
 	return avl->root == NULL;
 }
 
 size_t AVLSize(const avl_t *avl)
 {
+	assert(avl);
+
 	return RecSize(avl->root);
 }
 
 int AVLForEach(avl_t *avl, avl_act_f Act, const void *args)
 {
-	assert(NULL != avl);
+	assert(avl);
 	
 	return InOrder(avl->root, Act, args);
 }
 
 size_t AVLGetHeight(const avl_t *avl)
 {
-	assert(NULL != avl);
+	assert(avl);
+	
 	if(avl->root == NULL)
 	{
 		return 0;
 	}
+	
 	return avl->root->height;
 }
 
@@ -169,19 +143,23 @@ void AVLDestroy(avl_t *avl)
 {
 	if(!AVLIsEmpty(avl))
 	{
-		PrintTree(avl->root);
 		NodeToDestroy(avl->root);
 	}
+
 	free(avl);
 }
 
 void *AVLFind(const avl_t *avl, const void *key)
 {
+	assert(avl);
+
 	return RecFind(avl->root, key, avl->compare);
 }
 
 void AVLRemove(avl_t *avl, const void *key)
 {
+	assert(avl);
+
 	if(!AVLIsEmpty(avl))
 	{
 		RecRemove(avl->root, key, avl->compare);
@@ -192,8 +170,8 @@ static avl_node_t *RecRemove(avl_node_t *node, const void *key, avl_cmp_f compar
 {
 	int side = 0;
 	avl_node_t *temp = NULL;
-	int balance_factor = 0;
 	int res = 0;
+	
 	if(node == NULL)
 	{
 		return node;
@@ -204,21 +182,24 @@ static avl_node_t *RecRemove(avl_node_t *node, const void *key, avl_cmp_f compar
 	{
 		node->children[LEFT] = RecRemove(node->children[LEFT], key, compare);
 	}
+	
 	else if(res < 0)
 	{
 		node->children[RIGHT] = RecRemove(node->children[RIGHT], key, compare);
 	}
+	
 	else
 	{
 		if(IsLeaf(node))
 		{
 			free(node);
+			
 			return NULL;
 		}
 	
 		else if(ChildrenTest(node) == 2)
 		{
- 			temp = GetLeftiestChild(node->children[RIGHT]);
+ 			temp = GetSuccessor(node->children[RIGHT]);
  			node->data = temp->data;
 			temp->children[RIGHT] = RecRemove(node->children[RIGHT], temp->data, compare);
 		}
@@ -234,7 +215,9 @@ static avl_node_t *RecRemove(avl_node_t *node, const void *key, avl_cmp_f compar
 	}
 	
 	if(abs(GetBalanceFactor(node))> 1)
-	node = Balance(node);
+	{
+		node = Balance(node);
+	}
 	
 	node->height = GetMaxHeight(node) + 1;
 	
@@ -276,6 +259,7 @@ static avl_node_t *Balance(avl_node_t *node)
 		
 		return SameSideRotataion(node, RIGHT);
 	}
+	
 	if(balance_factor < -1)
 	{		
 		if(GetBalanceFactor(node->children[RIGHT]) < 0)
@@ -357,16 +341,14 @@ static int InOrder(avl_node_t *node, avl_act_f act, const void *args)
 	return InOrder(node->children[RIGHT], act, args);
 }
 
-static avl_node_t *GetLeftiestChild(avl_node_t *node)
-{	
-	avl_node_t *temp = node;
-	
+static avl_node_t *GetSuccessor(avl_node_t *node)
+{		
 	if(NULL == node->children[LEFT])
 	{
 		return node;
 	}
 
-	return GetLeftiestChild(node->children[LEFT]);
+	return GetSuccessor(node->children[LEFT]);
 }
 
 static ssize_t GetNodeHeight(avl_node_t *node)
@@ -392,7 +374,6 @@ static avl_node_t *SameSideRotataion(avl_node_t *root ,int side)
 	int other_side = side == LEFT;
 	avl_node_t *pivot = root->children[other_side];
 	avl_node_t *pivot_child = pivot->children[side];
-	/*pivot->children[other_side] = NULL;*/
 	
 	pivot->children[side] = root;
 	root->children[other_side] = pivot_child;
@@ -402,18 +383,6 @@ static avl_node_t *SameSideRotataion(avl_node_t *root ,int side)
 	
 	return pivot;
 }
-
-/*static avl_node_t * DifferentSideRotation(avl_node_t *root, int side)
-{
-	int other_side = side == LEFT;
-	avi_node_t *pivot_child = pivot->children[side];
-	avi_node_t *pivot = root->children[other_side];
-	
-	pivot = root;
-	
-	
-
-}*/
 
 static avl_node_t *CreateNode(void *data)
 {
@@ -435,8 +404,6 @@ static avl_node_t *CreateNode(void *data)
 	return node;
 }
 
-/*static int CompareGetSide()*/
-
 static int GetBalanceFactor(avl_node_t *root)
 {
 	ssize_t r_child_height = GetNodeHeight(root->children[RIGHT]);
@@ -445,22 +412,32 @@ static int GetBalanceFactor(avl_node_t *root)
 	return l_child_height - r_child_height;
 }
 
-static int IsRChild(avl_node_t *node)
-{
-	return node->children[RIGHT] != NULL;
-}
-
-static int IsLChild(avl_node_t *node)
-{
-	return node->children[LEFT] != NULL;
-}
-
 static int IsLeaf(avl_node_t *node)
 {
 	return node->children[LEFT] == NULL && node->children[RIGHT] == NULL;
 }
 
-static int IsMyRChild(avl_node_t *node, avl_node_t *parent)
+static void PrintTree(avl_node_t *root)
 {
-	return parent->children[RIGHT] == node;
+	if(NULL == root)
+	{
+		return;
+	}
+	
+	printf("data: %d height: %ld balance: %d ", *(int *)root->data, root->height, 				GetBalanceFactor(root));
+	
+	if(NULL != root->children[LEFT])
+	{
+		printf(" left: %d ", *(int *)root->children[LEFT]->data);
+	}
+	
+	if(NULL != root->children[RIGHT])
+	{
+		printf(" right: %d ", *(int *)root->children[RIGHT]->data);
+	}
+	
+	printf("\n");
+	
+	PrintTree(root->children[LEFT]);
+	PrintTree(root->children[RIGHT]);
 }
