@@ -53,7 +53,7 @@ int main()
 	RUN_TEST(Test_Insert);
 	RUN_TEST(Test_Balance);
 	RUN_TEST(Test_Remove);
-/*	RUN_TEST(Stress_Test);*/
+	RUN_TEST(Stress_Test);
 	
 	return 0;
 }
@@ -162,8 +162,9 @@ int Test_Remove()
 	/* TEST2 */
 	res = AVLGetHeight(tree);
 	TEST_EQUAL(res, 3);
-
-	AVLRemove(tree, &b);
+	
+	/*revmove 0*/
+	AVLRemove(tree, &x);
 
 	/* TEST3 */
 	res = AVLSize(tree);
@@ -173,7 +174,8 @@ int Test_Remove()
 	res = AVLGetHeight(tree);
 	TEST_EQUAL(res, 3);
 	
-	AVLRemove(tree, &w);
+	/*remove 1*/
+	AVLRemove(tree, &d);
 	
 	/* TEST5 */
 	res = AVLSize(tree);
@@ -181,9 +183,18 @@ int Test_Remove()
 
 	/* TEST6 */
 	res = AVLGetHeight(tree);
+	TEST_EQUAL(res, 3);
+	
+	/*remove 7*/
+	AVLRemove(tree, &b);
+	
+	/* TEST5 */
+	res = AVLSize(tree);
+	TEST_EQUAL(res, 6);
+
+	/* TEST6 */
+	res = AVLGetHeight(tree);
 	TEST_EQUAL(res, 2);
-	
-	
 	
 	AVLForEach(tree,print_list, NULL);
 	printf("\n");
@@ -221,6 +232,7 @@ int Stress_Test()
 
 	for(i = 0; i < 50000; i++) 
 	{   
+		printf("%d->", i);
 		AVLInsert(tree, &arr[i]);
 	}
 	

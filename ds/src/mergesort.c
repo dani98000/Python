@@ -1,38 +1,42 @@
-#include "../include/mergesort.h"
+#include <stdlib.h>/* Free */
 
-void MergeSort(int arr[], int l, int r)
+#include "../include/mergesort.h" /* Merge Sort header file */
+
+static void Merge(int arr[], int left, int middle, int right);
+
+void MergeSort(int arr[], int left, int right)
 {
-	int m = 0;
+	int middle = 0;
 	
-	if(l < r)
+	if(left < right)
 	{
-		m = (l + r) / 2;
-		MergeSort(arr, l, m);
-		MergeSort(arr, m + 1, r);
-		Merge(arr, l, m, r);	
+		middle = (left + right) / 2;
+		MergeSort(arr, left, middle);
+		MergeSort(arr, middle + 1, right);
+		Merge(arr, left, middle, right);	
 	}
 }
 
-void Merge(int arr[], int l, int m, int r)
+static void Merge(int arr[], int left, int middle, int right)
 {
 	int i = 0, j = 0, k = 0;
-	int n1 = m - l + 1;
-	int n2 = r - m;
+	int n1 = middle - left + 1;
+	int n2 = right - middle;
 	int *l_arr = (int *)malloc(sizeof(int) * n1);
 	int *r_arr = (int *)malloc(sizeof(int) * n2);
 	
 	for(i = 0; i < n1; ++i)
 	{
-		l_arr[i] = arr[l + i];
+		l_arr[i] = arr[left + i];
 	}
 	for(j = 0; j < n2; ++j)
 	{
-		r_arr[j] = arr[m + j + 1];
+		r_arr[j] = arr[middle + j + 1];
 	}
 	
 	i = 0;
 	j = 0;
-	k = l;
+	k = left;
 	
 	while(i < n1 && j < n2)
 	{

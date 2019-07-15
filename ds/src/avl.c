@@ -34,9 +34,9 @@ static ssize_t GetMaxHeight(avl_node_t *node);
 static size_t RecSize(avl_node_t *node);
 static int InOrder(avl_node_t *node, avl_act_f act, const void *args);
 static int IsLeaf(avl_node_t *node);
-static avl_node_t *RecInsert(avl_node_t *node, avl_node_t *parent, int side, void *data, avl_cmp_f compare);
+static avl_node_t *RecInsert(avl_node_t *node,void *data, avl_cmp_f compare);
 static void NodeToDestroy(avl_node_t *node);
-static avl_node_t *RecFind(avl_node_t *node, const void *key, avl_cmp_f compare);
+static void *RecFind(avl_node_t *node, const void *key, avl_cmp_f compare);
 static int ChildrenTest(avl_node_t *node);
 static avl_node_t *RecRemove(avl_node_t *node, const void *key, avl_cmp_f compare);
 static avl_node_t *GetSuccessor(avl_node_t *node);
@@ -61,13 +61,13 @@ avl_t *AVLCreate(avl_cmp_f compare, const void *params)
 int AVLInsert(avl_t *avl, void *data)
 {
 	assert(avl);
-
-	avl->root = RecInsert((avl_node_t *)avl->root , NULL, 0, data, avl->compare);
+	
+	avl->root = RecInsert((avl_node_t *)avl->root, data, avl->compare);
 	
 	return 1;	
 }
 
-static avl_node_t *RecInsert(avl_node_t *node, avl_node_t *parent, int side, void *data, avl_cmp_f compare)
+static avl_node_t *RecInsert(avl_node_t *node, void *data, avl_cmp_f compare)
 {
 	int res = 0;
 	int balance_factor = 0;
@@ -75,11 +75,7 @@ static avl_node_t *RecInsert(avl_node_t *node, avl_node_t *parent, int side, voi
 	if(node == NULL)
 	{
 		node = CreateNode(data);
-		if(parent != NULL)
-		{
-			parent->children[side] = node;
-		}
-		
+	
 		return node;
 	}
 
@@ -87,19 +83,18 @@ static avl_node_t *RecInsert(avl_node_t *node, avl_node_t *parent, int side, voi
 	
 	if(res > 0)
 	{
-		node->children[LEFT] = RecInsert(node->children[LEFT], node, LEFT, data, compare);
+		node->children[LEFT] = RecInsert(node->children[LEFT], data, compare);
 	}
 	if(res < 0)
 	{
-		node->children[RIGHT] = RecInsert(node->children[RIGHT], node, RIGHT, data, compare);
+		node->children[RIGHT] = RecInsert(node->children[RIGHT], data, compare);
 	}
 	
 	balance_factor = GetBalanceFactor(node);
 	
-	if(abs(balance_factor) > 1)
-	{
-		node = Balance(node);
-	}
+
+	node = Balance(node);
+	
 	
 	node->height = GetMaxHeight(node) + 1;
 	
@@ -143,6 +138,7 @@ void AVLDestroy(avl_t *avl)
 {
 	if(!AVLIsEmpty(avl))
 	{
+		PrintTree(avl->root);
 		NodeToDestroy(avl->root);
 	}
 
@@ -162,7 +158,7 @@ void AVLRemove(avl_t *avl, const void *key)
 
 	if(!AVLIsEmpty(avl))
 	{
-		RecRemove(avl->root, key, avl->compare);
+		avl->root = RecRemove(avl->root, key, avl->compare);
 	}
 }
 
@@ -208,16 +204,13 @@ static avl_node_t *RecRemove(avl_node_t *node, const void *key, avl_cmp_f compar
 		{
 			side = ChildrenTest(node);
 			temp = node->children[side];
-			free(node);
-			
+			free(node);	
+				
 			return temp;
 		}
 	}
 	
-	if(abs(GetBalanceFactor(node))> 1)
-	{
-		node = Balance(node);
-	}
+	node = Balance(node);
 	
 	node->height = GetMaxHeight(node) + 1;
 	
@@ -250,7 +243,7 @@ static avl_node_t *Balance(avl_node_t *node)
 	
 	if(balance_factor > 1)
 	{
-		if(GetBalanceFactor(node->children[LEFT]) > 0)
+		if(GetBalanceFactor(node->children[LEFT]) >= 0)
 		{
 			return SameSideRotataion(node, RIGHT);
 		}
@@ -262,7 +255,7 @@ static avl_node_t *Balance(avl_node_t *node)
 	
 	if(balance_factor < -1)
 	{		
-		if(GetBalanceFactor(node->children[RIGHT]) < 0)
+		if(GetBalanceFactor(node->children[RIGHT]) <= 0)
 		{
 			return SameSideRotataion(node, LEFT);
 		}
@@ -271,9 +264,11 @@ static avl_node_t *Balance(avl_node_t *node)
 		
 		return SameSideRotataion(node, LEFT);
 	}
+	
+	return node;
 }
 
-static avl_node_t *RecFind(avl_node_t *node, const void *key, avl_cmp_f compare)
+static void *RecFind(avl_node_t *node, const void *key, avl_cmp_f compare)
 {
 	int side = 0;
 	int res = compare(node->data, key, NULL);
@@ -286,7 +281,7 @@ static avl_node_t *RecFind(avl_node_t *node, const void *key, avl_cmp_f compare)
 	side = res > 0 ? LEFT : RIGHT; 
 	RecFind(node->children[side], key, compare);
 	
-	if(NULL == node)
+	if(NULL == node->children[side])
 	{
 		return NULL;
 	}
@@ -441,3 +436,5 @@ static void PrintTree(avl_node_t *root)
 	PrintTree(root->children[LEFT]);
 	PrintTree(root->children[RIGHT]);
 }
+
+

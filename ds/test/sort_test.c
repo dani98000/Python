@@ -71,6 +71,7 @@ int Test_InsertionSort();
 int Test_SelectionSort();
 int Test_CountingSort();
 int Test_RadixSort();
+int Test_MergeSort();
 
 int main()
 {
@@ -78,7 +79,9 @@ int main()
 	RUN_TEST(Test_InsertionSort);
 	RUN_TEST(Test_SelectionSort);
 	RUN_TEST(Test_CountingSort);	
-	/*RUN_TEST(Test_RadixSort);*/
+	RUN_TEST(Test_RadixSort);
+	RUN_TEST(Test_MergeSort);
+	
 	TEST_SUMMARY(g_total_tests, g_total_success, g_total_failed);
 	
 	return 0;
@@ -199,6 +202,7 @@ int Test_InsertionSort()
  	 	 
 	return result;
 }
+
 int Test_SelectionSort()
 {
 	clock_t start_t, end_t;
@@ -371,6 +375,64 @@ int Test_RadixSort()
  	printf("\tOn Average it takes "CYAN"[%f ms]"CLEAR" to RadixSort an array of 5000 integers.\n", (total_time * 1000/ 3));
  	 
 	return result;
+}
+
+int Test_MergeSort()
+{
+	clock_t start_t, end_t;
+	double seconds = 0.0;
+	double total_time = 0.0;
+    int my_array[5000];
+	int result = 1;
+	int res = 0;
+	size_t test_no = 0;
+
+
+	/* test1*/
+	ArrayInit(my_array);
+	
+ 	start_t = clock();	
+	MergeSort((int *)my_array, 5000, sizeof(int), IsBefore);
+ 	end_t = clock();
+ 	
+	seconds = (double)(end_t - start_t) / CLOCKS_PER_SEC;
+	total_time += seconds;
+	printf( "\tsorted in " CYAN"[%.3f ms]\n" CLEAR, seconds * 1000);
+	
+	res = IsSorted(my_array);	
+ 	TEST_EQUAL(res, 1);
+ 	
+	/* test2*/
+	ArrayInit(my_array);
+	
+ 	start_t = clock();	
+	MergeSort((int *)my_array, 5000, sizeof(int), IsBefore);
+ 	end_t = clock();
+ 	
+	seconds = (double)(end_t - start_t) / CLOCKS_PER_SEC;
+	total_time += seconds;
+	printf( "\tsorted in " CYAN"[%f ms]\n" CLEAR, seconds * 1000);
+	
+	res = IsSorted(my_array);	
+ 	TEST_EQUAL(res, 1);
+ 	
+	/* test3*/
+	ArrayInit(my_array);
+	
+ 	start_t = clock();	
+	MergeSort((int *)my_array, 5000, sizeof(int), IsBefore);
+ 	end_t = clock();
+ 	
+	seconds = (double)(end_t - start_t) / CLOCKS_PER_SEC;
+	total_time += seconds;
+	printf( "\tsorted in " CYAN"[%f ms]\n" CLEAR, seconds * 1000);
+	
+	res = IsSorted(my_array);	
+ 	TEST_EQUAL(res, 1);	
+ 	
+ 	printf("\tOn Average it takes "CYAN"[%f ms]"CLEAR" to MergeSort an array of 5000 integers.\n", (total_time * 1000/ 3));
+ 	 
+	return result;   
 }
 
 

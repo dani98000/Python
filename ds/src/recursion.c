@@ -43,7 +43,7 @@ size_t RecurStrlen(const char *s)
 
 int RecurStrcmp(const char *s1, const char *s2)
 {
-	if(*s1 != *s2 || *(s1+1) == '\0')
+	if(*s1 != *s2 || *s1 == '\0' || *s2 == '\0')
 	{
 		return *s1 - *s2;
 	}
@@ -57,7 +57,7 @@ char *RecurStrcpy(char *dest, const char *src)
 	
 	if(*src != '\0')
 	{
-		RecurStrcpy(++dest, ++src);
+		RecurStrcpy(dest + 1, src + 1);
 	}
 	
 	return dest;

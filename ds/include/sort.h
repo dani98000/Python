@@ -42,4 +42,7 @@ int CountingSort(void *base, size_t num_of_members, size_t element_size,
 /* returns -1 on failure and 0 on success */
 int RadixSort(void *base, size_t num_of_members, size_t element_size,
 					key_to_num ktn, const void *args, size_t num_of_bytes);
+					
+int MergeSort(void *base, size_t n_elements, size_t element_size, cmp_f Compare);
+
 #endif

@@ -226,6 +226,62 @@ int RadixSort(void *base, size_t num_of_members, size_t element_size, key_to_num
 	return 0;
 }
 
+int MergeSort(void *base, size_t n_elements, size_t element_size, cmp_f Compare)
+{
+    size_t n1 = n_elements / 2;
+    size_t n2 = n_elements - n1;
+
+    char *b1 = base;
+    char *b2 = (char *)base + (n1 * element_size);
+    void *temp_arr = (void *)malloc(element_size * n_elements);
+    char *tmp = temp_arr;
+    
+	if(n_elements <= 1)
+	{
+        return 0;     /* Already sorted */
+	}
+    if(temp_arr == NULL)
+    {
+        return - 1;
+    }
+
+    MergeSort(b1, n1, element_size, Compare);
+    MergeSort(b2, n2, element_size, Compare);
+
+
+
+    while (n1 > 0 && n2 > 0)
+    {
+        if ((Compare)(b1, b2) <= 0)
+        {
+            memcpy(tmp, b1, element_size);
+            tmp += element_size;
+            b1 += element_size;
+            --n1;
+        }
+        else
+        {
+            memcpy(tmp, b2, element_size);
+            tmp += element_size;
+            b2 += element_size;
+            --n2;
+        }
+    }
+    if (n1 > 0)
+    {
+        memcpy(tmp, b1, n1 * element_size);
+    }
+    else if (n2 > 0)
+    {
+        memcpy(tmp, b2, n2 * element_size);
+    }
+    
+    memcpy(base, temp_arr, n_elements * element_size);
+    free(temp_arr);
+    
+    return 0;
+}
+
 size_t my_ktn(const void *value, const void *args)
 {
 	info_t *info = (info_t *)args;
