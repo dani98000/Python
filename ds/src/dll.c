@@ -111,6 +111,10 @@ it_t DLLPushBack(dll_t *dll, void *data)
 	assert(NULL != dll);
 
 	new_node = DLLCreateNode(data ,dll->tail,dll->tail->prev);
+	if(!new_node)
+	{
+		return DLLEnd(dll);
+	}
 	temp = dll->tail->prev;
 	dll->tail->prev =new_node;
 	temp->next = new_node;

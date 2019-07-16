@@ -3,9 +3,10 @@
             Exersice: Hash Table
 ******************************************/
 
-/*#include "dll.h"
+/*#include "dll.h"*/
+#include <stdio.h>
 
-struct hash
+/*struct hash
 {
 	int (*cmp_f)(const void *data, const void *key);
 	size_t (*hash_f)(void *key);

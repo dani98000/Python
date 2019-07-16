@@ -1,72 +1,220 @@
+/********************************
+* 	 Author  : Daniel Maizel	*
+*	 Date    : 16/07/2019		*
+*	 Reviewer: Inbar       		*
+*								*
+*********************************/
+#include <stdlib.h> /* malloc */
+#include <assert.h> /* assert */
+#include <math.h> /* pow */
 
-/* Create the hash table.
-Return value: a pointer to the hash table.
-Compare != NULL
-key != NULL
-range > 0 */
-hash_t *HashCreate(int (*cmp_f)(const void *data, const void *key), size_t (*hash_f)(void *key),	const size_t range)
+#include "../include/dll.h" /* Dll header file */
+#include "../include/hash.h" /* Hash header file */
+
+struct dll
+{
+    struct dll_node *head;
+    struct dll_node *tail;
+};
+
+struct hash
+{
+	int (*Compare)(const void *data, const void *key);
+	size_t (*HashFunction)(void *key);
+	size_t range;
+	dll_t **table;
+};
+
+hash_t *HashCreate(int (*Compare)(const void *data, const void *key), size_t (*HashFunction)(void *key), const size_t range)
 {
 	hash_t *hash = NULL;
 	int i = 0;
-	
-	assert (cmp_f);
-	assert (hash_f);
+
+	assert (Compare);
+	assert (HashFunction);
 	assert (range > 0);
 
 	hash = (hash_t *)malloc(sizeof(hash_t));
-	if(!hash)
+	if (!hash)
 	{
 		return NULL;
 	}
 
-	for()
+	hash->Compare = Compare;
+	hash->HashFunction = HashFunction;
+	hash->range = range;
+
+	hash->table = (dll_t **)malloc(sizeof(dll_t *) * range);
+	if (!hash->table)
+	{
+		free(hash);
+
+		return NULL;
+	}
+
+	for (; i < (int)range; ++i)
+	{
+		hash->table[i] = DLLCreate();
+		if(hash->table[i] == NULL)
+		{
+			for(; i >= 0; --i)
+			{
+				DLLDestroy(hash->table[i]);
+			}
+
+			free(hash->table);
+			free(hash);
+		}
+	}
+
+	return hash;
 }
 
-/* Destroy the table. 
-table != NULL */
-void HashDestroy(hash_t *table);
+void HashDestroy(hash_t *table)
+{
+	int i = 0;
 
-/* Insert data to the table.
-Return value: 1 - for successful insertion, 0 - for failure 
-table != NULL 
-data != NULL */
-int HashInsert(hash_t *table, const void *data);
+	assert(table);
 
-/* Remove the key from the list.
-table != NULL
-key != NULL */
-void HashRemove(hash_t *table, void *key);
+	for (; i < (int)table->range; ++i)
+	{
+		DLLDestroy(table->table[i]);
+	}
+	free(table->table);
+	free(table);
+}
 
-/* Find the key in the table.
-Return value: data if found, NULL else.
-table != NULL.
-key != NULL; */
-void *HashFind(const hash_t *table, void *key);
+int HashInsert(hash_t *table, const void *data)
+{
+	size_t key = 0;
 
-/* Calculate the sum of the elemets in the table.
-Return vlue: returns number of inserted data 
-table != NULL */
-size_t HashSize(const hash_t *table);
+	assert(table);
+	assert(data);
 
-/* Check if the table is empty.
-Return value: 1 if empty, 0 else 
-table != NULL */
-int HashIsEmpty(const hash_t *table);
+	key = table->HashFunction((void *)data) % table->range;
 
-/* Perform the action function on each element in the table.
-Return value: 1 if OK for all, 0 else 
-table != NULL
-act_f != NULL */
-int HashForEach(hash_t *table, 
-				int (*act_f)(void *data, const void *params),
-				const void *params);
+	return (DLLEnd(table->table[key]) == DLLPushBack(table->table[key], (void *)data));
+}
 
-/* Calculate the load on the table.
-Return value: HashSize / range
-table != NULL */
-double HashLoad(hash_t *table);
+void HashRemove(hash_t *table, void *key)
+{
+	size_t hash_key = 0;
+	void *data = 0;
+	int res = 0;
+	it_t current = NULL;
 
-/* Calculate standart error.
-Rerurn value: STD / HashSize
-STD = root of: (sum of every element - avrage) / HashSize.
-table != NULL */
+	assert(table);
+	assert(key);
+
+	hash_key = table->HashFunction((void *)key);
+	current = DLLBegin(table->table[hash_key]);
+	while (current)
+	{
+		data = DLLGetData(current);
+		res = table->Compare(data , key);
+		if(res == 1)
+		{
+			DLLPopFront(table->table[hash_key]);
+
+			return ;
+		}
+	}
+}
+
+void *HashFind(const hash_t *table, void *key)
+{
+	size_t hash_key = 0;
+	void *data = 0;
+	int res = 0;
+	it_t current = NULL;
+
+	assert(table);
+	assert(key);
+
+	hash_key = table->HashFunction((void *)key) % table->range;
+	current = DLLBegin(table->table[hash_key]);
+
+	if(DLLEnd(table->table[hash_key]) == current)
+	{
+		return NULL;
+	}
+
+	while (current != DLLEnd(table->table[hash_key]))
+	{
+		data = DLLGetData(current);
+		res = table->Compare(data , key);
+		if(res == 1)
+		{
+			return data;
+		}
+		current = DLLNext(current);
+	}
+
+	return NULL;
+}
+
+size_t HashSize(const hash_t *table)
+{
+	int i = 0;
+	size_t size = 0;
+
+	assert(table);
+
+	for (; i < (int)table->range; ++i)
+	{
+		size += DLLSize(table->table[i]);	
+	}
+
+	return size;
+}
+
+int HashIsEmpty(const hash_t *table)
+{
+	assert(table);
+
+	return (0 == HashSize(table));
+}
+
+int HashForEach(hash_t *table, int (*act_f)(void *data, const void *params), const void *params)
+{
+	int i = 0;
+	int status = 0;
+
+	assert(table);
+
+	for (; i < (int)table->range; ++i)
+	{
+		status = DLLForEach(DLLBegin(table->table[i]), DLLEnd(table->table[i]), act_f, params);	
+		if(0 != status)
+		{
+			return 0;
+		} 
+	}
+
+	return 1;
+}
+
+double HashLoad(hash_t *table)
+{
+	assert(table);
+
+	return (HashSize(table) / table->range);
+}
+
+double HashSD(hash_t *table)
+{
+    double mid =  HashLoad(table);
+    double sum = 0;
+    size_t i = 0;
+
+   	assert(table);
+    
+    for(; i< table->range; ++i)
+    {
+        sum += pow(DLLSize(table->table[i]) - mid, 2);
+    }
+    
+    sum = sum / table->range;
+    
+    return sqrt(sum) / sqrt(table->range);
+}
