@@ -7,7 +7,7 @@
 #include <stdlib.h> /* malloc */
 #include <assert.h> /* assert */
 
-#include "../include/pq.h" /* it_t */
+#include "pq.h" /* it_t */
 
 struct pq
 {

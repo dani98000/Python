@@ -3,7 +3,7 @@
 #include <stddef.h>
 #include <string.h>
 
-#include "../include/sll.h"
+#include "sll.h"
 
 #define UNUSED(X) (void) (X)
 

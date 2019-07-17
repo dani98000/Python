@@ -1,6 +1,6 @@
 #include <stdio.h>
 
-#include "../include/task.h"
+#include "task.h"
 #include <time.h>
 
 void test()

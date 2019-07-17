@@ -33,7 +33,7 @@ void HashDestroy(hash_t *table);
 Return value: 1 - for successful insertion, 0 - for failure 
 table != NULL 
 data != NULL */
-int HashInsert(hash_t *table, const void *data);
+int HashInsert(hash_t *table, void *data);
 
 /* Remove the key from the list.
 table != NULL
@@ -67,13 +67,13 @@ int HashForEach(hash_t *table,
 /* Calculate the load on the table.
 Return value: HashSize / range
 table != NULL */
-double HashLoad(hash_t *table);
+double HashLoad(const hash_t *table);
 
 /* Calculate standart error.
 Rerurn value: STD / HashSize
 STD = root of: (sum of every element - avrage) / HashSize.
 table != NULL */
-double HashSD(hash_t *table);
+double HashSD(const hash_t *table);
 
 
 /* for testing, insert all of the dictionary(/usr/share/dict) and test finding */

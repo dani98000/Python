@@ -4,9 +4,9 @@
 #include <unistd.h> /* sleep  */
 #include <errno.h>  /* errno  */
 
-#include "../include/scheduler.h" /* Scheduler header file*/
-#include "../include/pq.h" /* Priority Queue header file*/
-#include "../include/task.h" /* Task header file*/
+#include "scheduler.h" /* Scheduler header file*/
+#include "pq.h" /* Priority Queue header file*/
+#include "task.h" /* Task header file*/
 
 #define UNUSED(X) (void)(X)
 

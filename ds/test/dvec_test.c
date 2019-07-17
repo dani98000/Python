@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "../include/dvec.h"
+#include "dvec.h"
 
 #define RUN_TEST(test)\
 if(!test())\
@@ -165,13 +165,7 @@ int Test_DvecPeek()
 	result *= (expect == res);
 
 
-	/* test4 */
-	res = *(int *)DVECGetItemAddress(dvec,3);
-	expect = 0;
-	++test_no;
-	printf("\ttest %lu: expected: %d, got: %d\n", test_no, expect, res);
-	result *= (expect == res);
-
+	
 	DVECDestroy(dvec);
 
 	return result;

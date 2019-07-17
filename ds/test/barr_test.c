@@ -1,6 +1,6 @@
 #include <stdio.h>/* printf */
 
-#include "../include/barr.h"
+#include "barr.h"
 
 #define RUN_TEST(test)\
 if(!test())\

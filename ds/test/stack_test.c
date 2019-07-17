@@ -1,6 +1,6 @@
 #include <stdio.h>
 
-#include "../include/stack.h"
+#include "stack.h"
 
 #define RUN_TEST(test)\
 if(!test())\

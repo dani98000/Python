@@ -3,7 +3,7 @@
 #include <stddef.h>
 #include <string.h>
 
-#include "../include/pq.h"
+#include "pq.h"
 
 #define UNUSED(X) (void) (X)
 

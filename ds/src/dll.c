@@ -8,7 +8,7 @@
 #include <stdlib.h> /* malloc */
 #include <assert.h> /* assert */
 
-#include "../include/dll.h" /* My header file */
+#include "dll.h" /* My header file */
 
 #define UNUSED(X) (void) (X)
 

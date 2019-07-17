@@ -1,6 +1,6 @@
 #include <stdlib.h>/* Free */
 
-#include "../include/mergesort.h" /* Merge Sort header file */
+#include "mergesort.h" /* Merge Sort header file */
 
 static void Merge(int arr[], int left, int middle, int right);
 

@@ -8,7 +8,7 @@
 #include <unistd.h>
 #include <stdio.h>
 
-#include "../include/uid.h"
+#include "uid.h"
 
 const unid_t bad_uid;
 

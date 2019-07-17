@@ -1,5 +1,6 @@
 #include <stdio.h>
-#include "../include/recursion.h"
+
+#include "recursion.h"
 
 static void SortedInsert(stack_t *stack, int x);
 

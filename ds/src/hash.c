@@ -8,8 +8,10 @@
 #include <assert.h> /* assert */
 #include <math.h> /* pow */
 
-#include "../include/dll.h" /* Dll header file */
-#include "../include/hash.h" /* Hash header file */
+#include "dll.h" /* Dll header file */
+#include "hash.h" /* Hash header file */
+
+static it_t Caching(dll_t *dll, it_t node);
 
 struct dll
 {
@@ -84,7 +86,7 @@ void HashDestroy(hash_t *table)
 	free(table);
 }
 
-int HashInsert(hash_t *table, const void *data)
+int HashInsert(hash_t *table, void *data)
 {
 	size_t key = 0;
 
@@ -127,6 +129,7 @@ void *HashFind(const hash_t *table, void *key)
 	void *data = 0;
 	int res = 0;
 	it_t current = NULL;
+	it_t node = NULL;
 
 	assert(table);
 	assert(key);
@@ -145,7 +148,9 @@ void *HashFind(const hash_t *table, void *key)
 		res = table->Compare(data , key);
 		if(res == 1)
 		{
-			return data;
+			node = Caching(table->table[hash_key], current);
+
+			return DLLGetData(node);
 		}
 		current = DLLNext(current);
 	}
@@ -194,14 +199,14 @@ int HashForEach(hash_t *table, int (*act_f)(void *data, const void *params), con
 	return 1;
 }
 
-double HashLoad(hash_t *table)
+double HashLoad(const hash_t *table)
 {
 	assert(table);
 
 	return (HashSize(table) / table->range);
 }
 
-double HashSD(hash_t *table)
+double HashSD(const hash_t *table)
 {
     double mid =  HashLoad(table);
     double sum = 0;
@@ -217,4 +222,15 @@ double HashSD(hash_t *table)
     sum = sum / table->range;
     
     return sqrt(sum) / sqrt(table->range);
+}
+
+static it_t Caching(dll_t *dll, it_t node)
+{
+	it_t temp = node;
+	if(node != DLLBegin(dll))
+	{	
+		temp = DLLPushFront(dll, DLLGetData(node));
+		DLLErase(node);
+	}
+	return temp;
 }

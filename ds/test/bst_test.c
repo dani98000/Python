@@ -1,6 +1,6 @@
 #include <stdio.h>
 
-#include "../include/bst.h"
+#include "bst.h"
 
 #define UNUSED(X) (void) (X)
 

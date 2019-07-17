@@ -1,4 +1,4 @@
-#include "../include/mergesort.h"
+#include "mergesort.h"
 
 int IsBefore(void const *v1, void const *v2)
 {

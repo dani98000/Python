@@ -1,3 +1,6 @@
+#ifndef DVEC_H
+#define DVEC_H
+
 typedef struct Dvec dvec_t;
 
 dvec_t *DVECCreate(size_t size_of_element,size_t num_elements);
@@ -8,3 +11,5 @@ void DVECPopBack(dvec_t *dvec);
 size_t DVECSize(const dvec_t *dvec);
 size_t DVECCapacity(const dvec_t *dvec);
 int DVECReserve(dvec_t *dvec, size_t new_capacity);/* returns 1 on allocation failure */
+
+#endif

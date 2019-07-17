@@ -7,7 +7,7 @@
 #include <stdlib.h> /* malloc */
 #include <assert.h>/* assert */
 
-#include "../include/bst.h" /* bst header */
+#include "bst.h" /* bst header */
 
 static enum children{NO_CHILDREN = -1, LEFT_CHILD, RIGHT_CHILD, TWO_CHILDREN};
 static enum side{LEFT, RIGHT};

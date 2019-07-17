@@ -1,4 +1,4 @@
-#include "../include/hash.h" /* My header file */
+#include "hash.h" /* My header file */
 
 #include <stdio.h>
 #include <string.h>

@@ -8,7 +8,7 @@
 #include <stdlib.h> /* malloc */
 #include <assert.h> /* assert */
 
-#include "../include/sll.h" /* My Header */
+#include "sll.h" /* My Header */
 
 struct node
 {

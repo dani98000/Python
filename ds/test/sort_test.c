@@ -1,7 +1,7 @@
 #include <time.h>
 #include <stdio.h>
 
-#include "../include/sort.h"
+#include "sort.h"
 
 #define UNUSED(x) (void)(x)
 

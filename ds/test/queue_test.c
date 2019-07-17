@@ -3,8 +3,8 @@
 #include <stddef.h>
 #include <string.h>
 
-#include "../include/sll.h"
-#include "../include/queue.h"
+#include "sll.h"
+#include "queue.h"
 
 #define RUN_TEST(test)\
 if(!test())\

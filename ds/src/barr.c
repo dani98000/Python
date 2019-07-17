@@ -9,7 +9,7 @@
 #include <assert.h> /* assert */
 #include <stdlib.h> /* malloc */
 
-#include "../include/barr.h"
+#include "barr.h"
 
 size_t BARRSetBit(size_t arr, int index, int value)
 {

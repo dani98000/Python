@@ -10,7 +10,7 @@
 #include <stdio.h>  /* size_t */
 #include <assert.h> /* assert */
 
-#include "../include/stack.h"
+#include "stack.h"
 
 struct Stack
 {

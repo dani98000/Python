@@ -9,7 +9,7 @@
 #include <time.h>   /* time */
 #include <unistd.h> /* sleep */
 
-#include "../include/task.h"
+#include "task.h"
 
 #define TEST_EQUAL(res, expected) \
 printf("\ttest %lu: expected: %d, got: %d\n",\

@@ -9,7 +9,7 @@
 #include <assert.h> /* assert */
 #include <errno.h>  /* perror */
 
-#include "../include/cbuf.h" /* header file */
+#include "cbuf.h" /* header file */
 
 struct CBUF
 {

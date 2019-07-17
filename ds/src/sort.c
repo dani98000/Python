@@ -10,7 +10,7 @@
 #include <stdio.h> /* perror */
 #include <assert.h> /* assert */
 
-#include "../include/sort.h" /* sorting.h header */
+#include "sort.h" /* sorting.h header */
 
 size_t my_ktn(const void *value, const void *args);
 

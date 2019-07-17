@@ -9,7 +9,7 @@
 #include <sys/types.h> /* ssize_t */
 #include <stdio.h> /*debug */
 
-#include "../include/avl.h"/* AVL Header file */
+#include "avl.h"/* AVL Header file */
 
 enum children{LEFT, RIGHT};
 

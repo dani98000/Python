@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "../include/recursion.h"
+
+#include "recursion.h"
+#include "stack.h"
 
 #define UNUSED(x) (void)(x)
 

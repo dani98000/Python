@@ -10,7 +10,7 @@
 #include <stdio.h>  /* size_t */
 #include <assert.h> /* assert */
 
-#include "../include/dvec.h"
+#include "dvec.h"
 
 static int DVECSizeUp(dvec_t *dvec);
 static int DVECSizeDown(dvec_t *dvec);
@@ -29,11 +29,11 @@ dvec_t *DVECCreate(size_t size_of_element,size_t num_elements)
 	assert(num_elements > 0);
 	
 	dvec = (dvec_t *)malloc(sizeof(dvec_t));
-
 	if (NULL == dvec)
 	{
 		return NULL;
 	}
+
 	dvec->arr = (void *)malloc(size_of_element * num_elements);
 	if (NULL == dvec->arr)
 	{
@@ -65,10 +65,11 @@ void *DVECGetItemAddress(dvec_t *dvec, size_t index)
 
 int DVECPushBack(dvec_t *dvec, const void *element)
 {
-	void *dest = 0;
+	void *dest = NULL;
+
 	assert(NULL != dvec);
 	
-	if(dvec->capacity-1 <= dvec->num_elements) 
+	if(dvec->capacity - 1 <= dvec->num_elements) 
 	{
 		DVECSizeUp(dvec);
 	}
@@ -76,6 +77,7 @@ int DVECPushBack(dvec_t *dvec, const void *element)
 	dest = (char *)(dvec->arr) + dvec->num_elements * dvec->size_of_element;
 	memcpy(dest, element, dvec->size_of_element);
 	++(dvec->num_elements);
+	dest = NULL;
 	
 	return 0;
 }
@@ -108,8 +110,8 @@ static int DVECSizeUp(dvec_t *dvec)
 {
 		void *temp = NULL;
 		size_t new_size = dvec->capacity * 2;
+
 		temp = realloc(dvec->arr, new_size * dvec->size_of_element);
-		
         if(NULL == temp)
         {
             return 1;
@@ -125,8 +127,8 @@ static int DVECSizeDown(dvec_t *dvec)
 {
 		void *temp = NULL;
 		size_t new_size = dvec->capacity / 2;
+
 		temp = realloc(dvec->arr, new_size * dvec->size_of_element);
-		
         if(NULL == temp)
         {
             return 1;

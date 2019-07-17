@@ -7,7 +7,7 @@
 #include <stdlib.h> /* malloc */
 #include <assert.h> /* assert */
 
-#include "../include/srtl.h" /* it_t */
+#include "srtl.h" /* it_t */
 
 struct srtl
 {

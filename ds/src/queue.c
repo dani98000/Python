@@ -10,8 +10,8 @@
 #include <stdio.h>  /* size_t */
 #include <assert.h> /* assert */
 									   /*************/
-#include "../include/queue.h" /* My Header */
-#include "../include/sll.h"	   /*   Files   */
+#include "queue.h" /* My Header */
+#include "sll.h"	   /*   Files   */
 									   /*************/
 struct queue
 {

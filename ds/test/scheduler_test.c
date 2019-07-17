@@ -2,7 +2,7 @@
 #include <unistd.h>
 #include <time.h>
 
-#include "../include/scheduler.h"
+#include "scheduler.h"
 
 #define UNUSED(x) (void)(x)
 
