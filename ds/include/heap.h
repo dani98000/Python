@@ -30,7 +30,7 @@ typedef struct heap heap_t;
    data1 < data2, respectively. Compare must not be NULL.
    Create returns an initialized heap on success
    and NULL on failure */
-heap_t *HeapCreate(int (*Compare)(const void *data1, const void *data2));
+heap_t *HeapCreate(int (*IsData2BeforeData1)(const void *data1, const void *data2, const void *params));
 
 /* heap must not be null */
 void HeapDestroy(heap_t *heap);
@@ -51,8 +51,8 @@ void HeapPop(heap_t *heap);
 /* heap must not be NULL. Compare function returns
    1 if data needs to be removed, Otherwise returns
    0. Compare must not be NULL. */
-void Remove(heap_t *heap, 
-            int (*Compare)(const void *data, const void *args),
+void HeapRemove(heap_t *heap, 
+            int (*ShouldRemove)(const void *data, const void *args),
             void *args);
             
 /* heap must not be NULL */

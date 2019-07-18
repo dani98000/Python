@@ -42,41 +42,21 @@ size_t g_total_tests = 0;
 size_t g_total_success = 0;
 size_t g_total_failed = 0;
 
-static int cmp(const void *data1, const void *data2);
+static int cmp(const void *data1, const void *data2, const void *params);
+static int ShouldRemove(const void *data, const void *args);
+static int IsSorted(heap_t *heap);
+
 int Test_Push();
 int Test_Pop();
+int Test_Remove();
+int Test_Remove2();
 
 int main()
 {
-	/*heap_t *heap = HeapCreate(cmp);
-	int a = 5;
-	int b = 10;
-	int c = 8;
-	int n = 0;
-
-	HeapPush(heap, &a);
-	n = *(int *)HeapPeek(heap); 
-	printf("%d\n", n);
-
-	HeapPush(heap, &b);
-	n = *(int *)HeapPeek(heap); 
-	printf("%d\n", n);	
-
-	HeapPush(heap, &c);
-	n = *(int *)HeapPeek(heap); 
-	printf("%d\n", n);
-
-	HeapPop(heap);
-
-	n = *(int *)HeapPeek(heap); 
-	printf("%d\n", n);*/
-
 	RUN_TEST(Test_Push);
 	RUN_TEST(Test_Pop);
-
-
-
-
+	RUN_TEST(Test_Remove);
+	RUN_TEST(Test_Remove2);
 
 
 	/*TEST_SUMMARY(g_total_tests, g_total_success, g_total_failed);*/
@@ -91,7 +71,7 @@ int Test_Push()
 	size_t test_no = 0;
 	int i = 0;
 	int n = 0;
-	int arr[] = {5, 20, 8, 16, 1, 10, 21, 31, 17, 20, 13};
+	int arr[] = {5, 20, 8, 16, 1, 10, 21, 31, 17, 3, 13};
 	int arr_length = sizeof(arr) / sizeof(int);
 	
 	heap_t *heap = HeapCreate(cmp);
@@ -154,8 +134,127 @@ int Test_Pop()
 	return result;		
 }
 
-static int cmp(const void *data1, const void *data2)
+int Test_Remove()
 {
-	return(*(int *)data1 - *(int *)data2);
+	int result = 1;
+	int res = 0;
+	size_t test_no = 0;
+	int i = 0;
+	int n = 0;
+	int arr[] = {5, 20, 8, 16, 1, 10, 21, 31, 17, 20, 13};
+	int arr_length = sizeof(arr) / sizeof(int);
+	
+	heap_t *heap = HeapCreate(cmp);
+
+	for(; i < arr_length; ++i)
+	{
+		HeapPush(heap, &arr[i]);
+	}
+
+	/*TEST1*/
+	res = HeapSize(heap);
+	TEST_EQUAL(res, arr_length);
+
+	/*TEST2*/
+	res = *(int *)HeapPeek(heap); 
+	TEST_EQUAL(res, 31);
+
+	HeapRemove(heap, ShouldRemove, &arr[1]); /*remove 20*/
+
+	/*TEST3*/
+	res = HeapSize(heap);
+	TEST_EQUAL(res, arr_length - 1);
+
+
+	/*IsSorted(heap);*/
+	printf("\n");
+	HeapDestroy(heap);
+
+	return result;		
 }
 
+int Test_Remove2()
+{
+	int result = 1;
+	int res = 0;
+	size_t test_no = 0;
+	int i = 0;
+	int n = 0;
+	int arr[] = {100, 36, 93, 2, 7, 90, 92};
+	int arr_length = sizeof(arr) / sizeof(int);
+	
+	heap_t *heap = HeapCreate(cmp);
+
+	for(; i < arr_length; ++i)
+	{
+		HeapPush(heap, &arr[i]);
+	}
+
+	/*TEST1*/
+	res = HeapSize(heap);
+	TEST_EQUAL(res, arr_length);
+
+	/*TEST2*/
+	res = *(int *)HeapPeek(heap); 
+	TEST_EQUAL(res, 100);
+
+	HeapRemove(heap, ShouldRemove, &arr[4]); /*remove 7*/
+
+	/*TEST3*/
+	res = HeapSize(heap);
+	TEST_EQUAL(res, arr_length - 1);
+
+	/*TEST4*/
+	res = IsSorted(heap);
+	TEST_EQUAL(res, 1);
+
+	HeapDestroy(heap);
+
+	return result;		
+}
+
+static int cmp(const void *data1, const void *data2, const void *params)
+{
+	(void)params;
+
+	return(*(int *)data1 > *(int *)data2);
+}
+
+static int ShouldRemove(const void *data, const void *args)
+{
+	return(*(int *)data == *(int *)args);
+}
+
+static int IsSorted(heap_t *heap)
+{
+	int i = 0;
+	int temp[100] = {0};
+	int res = 1;
+	heap_t *temp_heap = HeapCreate(cmp);
+	int size = HeapSize(heap); 
+
+	for(; i < size; ++i)
+	{
+		temp[i] = *(int *)HeapPeek(heap);
+		HeapPop(heap);
+		HeapPush(temp_heap, &temp[i]);	
+	}
+	for(i = 0; i < size; ++i)
+	{
+		if(temp[i+1] < temp[i])
+		{
+			res *= 1;
+		}
+		else
+		{
+			res = 0;
+		}
+	}
+	for(i = 0; i < size; ++i)
+	{
+		temp[i] = *(int *)HeapPeek(temp_heap);
+		HeapPop(temp_heap);
+		HeapPush(heap, &temp[i]);	
+	}
+	return res;
+}
