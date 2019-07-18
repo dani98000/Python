@@ -1,4 +1,5 @@
 #include "heap.h" /* My header file */
+#include "dvec.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -43,13 +44,14 @@ size_t g_total_success = 0;
 size_t g_total_failed = 0;
 
 static int cmp(const void *data1, const void *data2, const void *params);
-static int ShouldRemove(const void *data, const void *args);
+static int ShouldRemove(const void *data, const void *key, const void *params);
 static int IsSorted(heap_t *heap);
 
 int Test_Push();
 int Test_Pop();
 int Test_Remove();
 int Test_Remove2();
+int Test_Debugging();
 
 int main()
 {
@@ -57,6 +59,7 @@ int main()
 	RUN_TEST(Test_Pop);
 	RUN_TEST(Test_Remove);
 	RUN_TEST(Test_Remove2);
+	RUN_TEST(Test_Debugging);
 
 
 	/*TEST_SUMMARY(g_total_tests, g_total_success, g_total_failed);*/
@@ -217,12 +220,14 @@ static int cmp(const void *data1, const void *data2, const void *params)
 {
 	(void)params;
 
-	return(*(int *)data1 > *(int *)data2);
+	return(*(int *)data1 < *(int *)data2);
 }
 
-static int ShouldRemove(const void *data, const void *args)
+static int ShouldRemove(const void *data, const void *key, const void *params)
 {
-	return(*(int *)data == *(int *)args);
+	(void)(params);
+
+	return(*(int *)data == *(int *)key);
 }
 
 static int IsSorted(heap_t *heap)
@@ -257,4 +262,51 @@ static int IsSorted(heap_t *heap)
 		HeapPush(heap, &temp[i]);	
 	}
 	return res;
+}
+
+typedef struct
+{
+    char *name;
+    int serial;
+}dog_t;
+
+int CompareDogTags(const void *dog1, const void *dog2, const void *nothing)
+{
+    (void)nothing;    
+    return ((dog_t *)dog2)->serial > ((dog_t* )dog1)->serial;
+}
+
+int Test_Debugging()
+{
+    int flag = 1;
+    int evaluation = 0;
+    int test_num = 0;
+    dog_t dog1, dog2, tempdog;
+    heap_t *heap = NULL;    heap = HeapCreate(CompareDogTags);
+
+    if (NULL == heap)
+    {
+        return 0;
+    }    
+
+    dog1.name = "boshy";
+    dog2.name = "kiril";
+    dog1.serial = 2;
+    dog2.serial = 2;    /* 1 */
+
+    HeapPush(heap, &dog1);
+    HeapPush(heap, &dog2);
+
+    tempdog = *(dog_t* )HeapPeek(heap);    
+    printf("%s\n", tempdog.name);    HeapPop(heap);
+
+    HeapPush(heap, &tempdog);
+    tempdog = *(dog_t* )HeapPeek(heap);    
+
+    printf("%s\n", tempdog.name);    /* cleanup */
+
+    HeapDestroy(heap);    (void)evaluation;
+    (void)test_num;
+
+    return flag;
 }

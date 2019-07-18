@@ -51,10 +51,9 @@ void HeapPop(heap_t *heap);
 /* heap must not be NULL. Compare function returns
    1 if data needs to be removed, Otherwise returns
    0. Compare must not be NULL. */
-void HeapRemove(heap_t *heap, 
-            int (*ShouldRemove)(const void *data, const void *args),
-            void *args);
-            
+int HeapRemove(heap_t *heap, 
+            int (*ShouldRemove)(const void *data, const void *key, const void *params), const void *key);
+
 /* heap must not be NULL */
 size_t HeapSize(const heap_t *heap);
 

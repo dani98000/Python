@@ -26,7 +26,8 @@ static void PrintHeap(heap_t *heap);
 static void DownwordHeapify(heap_t *heap, int index);
 static void UpwordHeapify(heap_t *heap, int index);
 static void Swap(void **x, void **y);
-static int Check_Largest_Child(heap_t *heap, int i);
+static int Check_Largest_Child(heap_t *heap, unsigned i);
+static int HasChildren(const heap_t *heap, size_t index);
 
 heap_t *HeapCreate(int (*IsData2BeforeData1)(const void *data1, const void *data2, const void *params))
 {
@@ -57,8 +58,8 @@ void HeapDestroy(heap_t *heap)
 {
    assert(heap);
 
-   PrintHeap(heap);
-   printf("\n");
+   /*PrintHeap(heap);
+   printf("\n");*/
    DVECDestroy(heap->vector);
    free(heap);
 }
@@ -71,12 +72,14 @@ int HeapPush(heap_t *heap, void *data)
 
    status = DVECPushBack(heap->vector, &data);
 
-   if(HeapSize(heap) > 0)
+   if(status != 0)
    {
-      UpwordHeapify(heap ,HeapSize(heap) - 1);
+      return 1;
    }
 
-   return status;
+   UpwordHeapify(heap ,HeapSize(heap) - 1);
+
+   return 0;
 }
 
 /* returns the root of the heap.
@@ -103,56 +106,37 @@ void HeapPop(heap_t *heap)
    DownwordHeapify(heap, 0);
 }
 
-/* heap must not be NULL. IsData2BeforeData1 function returns
-   1 if data needs to be removed, Otherwise returns
-   0. IsData2BeforeData1 must not be NULL. */
-
 int HeapRemove(heap_t *heap, int (*ShouldRemove)(const void *data, const void *key, const void *params), const void *key)
 {
    void *current = NULL;
    void *last_element = NULL;
-   void *parent = NULL;
    int res = 0;
    int i = 0;
    int size = 0;
-   int flag = 0;
 
    assert(heap);
    assert(ShouldRemove);
 
-   size = HeapSize(heap) - 1;
-   last_element = DVECGetItemAddress(heap->vector, size);
+   size = HeapSize(heap);
+   last_element = DVECGetItemAddress(heap->vector, size - 1);
 
-   while(flag == 0)
+   while (i < size)
    {
       current = DVECGetItemAddress(heap->vector, i);
-      res = ShouldRemove(key, *(void **)current, NULL);
-
+      res = ShouldRemove(*(void **)current, key, NULL);
       if (res)
       {
          Swap(current, last_element);
          DVECPopBack(heap->vector);
-         parent = DVECGetItemAddress(heap->vector, PARENT(i));
+         DownwordHeapify(heap, i);
+         UpwordHeapify(heap, i);
 
-         if(heap->IsData2BeforeData1(*(void **)current, *(void **)parent, NULL))
-         {
-            UpwordHeapify(heap, i);
-         }
-         else
-         {
-            DownwordHeapify(heap, i);
-         }
-         flag = 1;
-
-         return 1;
+         return 0;
       }
-      else
-      {
-         ++i;
-      }
+      ++i;
    }
 
-   return 0;
+   return 1;
 }
             
 size_t HeapSize(const heap_t *heap)
@@ -169,18 +153,12 @@ int HeapIsEmpty(const heap_t *heap)
 
 static void DownwordHeapify(heap_t *heap, int index)
 {
-   int l_index = 0;
-   int r_index = 0;
-   int largest = index;
-   int res= 0;
-   void *left_child = NULL;
-   void *right_child = NULL;
-   void *current = NULL;
-   size_t i = index;
+   unsigned largest = index;
+   unsigned i = index;
 
    assert(heap);
    
-   while (i < HeapSize(heap))
+   while (HasChildren(heap, i))
    {
       largest = Check_Largest_Child(heap, i);
       if(largest != i)
@@ -197,7 +175,6 @@ static void DownwordHeapify(heap_t *heap, int index)
 
 static void UpwordHeapify(heap_t *heap, int index)
 {
-   int side = 0;
    int res = 0;
    void *child = NULL;
    void *parent = NULL;
@@ -207,9 +184,9 @@ static void UpwordHeapify(heap_t *heap, int index)
    while(i > 0 && flag == 0)
    {
       child = DVECGetItemAddress(heap->vector, i);
-      parent = DVECGetItemAddress(heap->vector, PARENT(i));
+      parent = DVECGetItemAddress(heap->vector, (size_t)PARENT(i));
 
-      res = heap->IsData2BeforeData1(*(void **)child, *(void **)parent, NULL);
+      res = heap->IsData2BeforeData1(*(void **)parent, *(void **)child, NULL);
       if (res > 0)
       {
          Swap(child, parent);
@@ -218,7 +195,7 @@ static void UpwordHeapify(heap_t *heap, int index)
       {
          flag = 1;
       }
-      i = PARENT(i);
+      i = (size_t)PARENT(i);
    }
 }
 
@@ -237,29 +214,29 @@ static void PrintHeap(heap_t *heap)
 
    assert(heap);
 
-   size = HeapSize(heap) - 1;
+   size = HeapSize(heap);
 
-   for(; i <= size; ++i)
+   for(; i < size; ++i)
    {
       current = DVECGetItemAddress(heap->vector, i);
       printf("%d->",**(int **)current);
    }
 }
 
-static int Check_Largest_Child(heap_t *heap, int i)
+static int Check_Largest_Child(heap_t *heap, unsigned i)
 {
    void *current = DVECGetItemAddress(heap->vector, i);   
    void *left_child = NULL;
    void *right_child = NULL;
-   int l_index = LEFT(i);
-   int r_index = RIGHT(i);
-   int largest = i;
+   unsigned l_index = LEFT(i);
+   unsigned r_index = RIGHT(i);
+   unsigned largest = i;
    int res = 0;
 
    if(l_index < HeapSize(heap))
    {
       left_child = DVECGetItemAddress(heap->vector, l_index);
-      res = heap->IsData2BeforeData1(*(void **)left_child, *(void **)current, NULL);
+      res = heap->IsData2BeforeData1(*(void **)current, *(void **)left_child, NULL);
       if(res > 0 )
       {
          largest = l_index;
@@ -270,12 +247,27 @@ static int Check_Largest_Child(heap_t *heap, int i)
    if(r_index < HeapSize(heap))
    {
       right_child = DVECGetItemAddress(heap->vector, r_index);
-      res = heap->IsData2BeforeData1(*(void **)right_child, *(void **)current, NULL);
-      if(res > 0 && heap->IsData2BeforeData1(*(void **)right_child, *(void **)left_child, NULL))
+      res = heap->IsData2BeforeData1(*(void **)current, *(void **)right_child, NULL);
+      if(res > 0 && heap->IsData2BeforeData1(*(void **)left_child, *(void **)right_child, NULL))
       {
          largest = r_index;
       }
    }
 
    return largest;
+}
+
+static int HasChildren(const heap_t *heap, size_t index)
+{
+   size_t left_index = 0, right_index = 0;
+
+   left_index = LEFT(index);
+   right_index = RIGHT(index);
+
+   if (left_index > HeapSize(heap) && left_index > HeapSize(heap))
+   {
+      return 0;
+   }
+
+   return 1;
 }

@@ -8,6 +8,7 @@
 #include <assert.h> /* assert */
 
 #include "pq.h" /* it_t */
+#include "srtl.h" /* it_t */
 
 struct pq
 {
