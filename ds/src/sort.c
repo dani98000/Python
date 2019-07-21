@@ -12,7 +12,11 @@
 
 #include "sort.h" /* sorting.h header */
 
-size_t my_ktn(const void *value, const void *args);
+static size_t my_ktn(const void *value, const void *args);
+static void heapify(int *arr, int n_elements, int index, enum direction direction);
+static int GetPartition(int arr[], int start,int end, enum direction direction);
+static int partition(int arr[], int start,int end, enum direction direction);
+static void IntSwap(int *x, int *y);
 
 typedef struct info
 {
@@ -182,16 +186,16 @@ int CountingSort(void *base, size_t num_of_members, size_t element_size, key_to_
 	}
 	
 	for(i = num_of_members - 1; i >= 0; --i)
-    { 
-    	index = ktn((runner_base + i * element_size), args); 
-        memcpy(runner_output + (count[index] - 1) * element_size, runner_base + i * element_size, element_size);
-        count[index] -= 1; 
-    } 
-    
+	{ 
+		index = ktn((runner_base + i * element_size), args); 
+		memcpy(runner_output + (count[index] - 1) * element_size, runner_base + i * element_size, element_size);
+		count[index] -= 1; 
+	} 
+	
 	memcpy(base, output, element_size * num_of_members);
 	free(output);
 	
-    return 0;
+	return 0;
 }
 
 int RadixSort(void *base, size_t num_of_members, size_t element_size, key_to_num ktn, const void *args, size_t num_of_bytes)
@@ -228,61 +232,156 @@ int RadixSort(void *base, size_t num_of_members, size_t element_size, key_to_num
 
 int MergeSort(void *base, size_t n_elements, size_t element_size, cmp_f Compare)
 {
-    size_t n1 = n_elements / 2;
-    size_t n2 = n_elements - n1;
+	size_t n1 = n_elements / 2;
+	size_t n2 = n_elements - n1;
 
-    char *b1 = base;
-    char *b2 = (char *)base + (n1 * element_size);
-    void *temp_arr = (void *)malloc(element_size * n_elements);
-    char *tmp = temp_arr;
-    
+	char *b1 = base;
+	char *b2 = (char *)base + (n1 * element_size);
+	void *temp_arr = (void *)malloc(element_size * n_elements);
+	char *tmp = temp_arr;
+	
 	if(n_elements <= 1)
 	{
-        return 0;     /* Already sorted */
+		return 0;     /* Already sorted */
 	}
-    if(temp_arr == NULL)
-    {
-        return - 1;
-    }
+	if(temp_arr == NULL)
+	{
+		return - 1;
+	}
 
-    MergeSort(b1, n1, element_size, Compare);
-    MergeSort(b2, n2, element_size, Compare);
+	MergeSort(b1, n1, element_size, Compare);
+	MergeSort(b2, n2, element_size, Compare);
 
 
 
-    while (n1 > 0 && n2 > 0)
-    {
-        if ((Compare)(b1, b2) <= 0)
-        {
-            memcpy(tmp, b1, element_size);
-            tmp += element_size;
-            b1 += element_size;
-            --n1;
-        }
-        else
-        {
-            memcpy(tmp, b2, element_size);
-            tmp += element_size;
-            b2 += element_size;
-            --n2;
-        }
-    }
-    if (n1 > 0)
-    {
-        memcpy(tmp, b1, n1 * element_size);
-    }
-    else if (n2 > 0)
-    {
-        memcpy(tmp, b2, n2 * element_size);
-    }
-    
-    memcpy(base, temp_arr, n_elements * element_size);
-    free(temp_arr);
-    
-    return 0;
+	while (n1 > 0 && n2 > 0)
+	{
+		if ((Compare)(b1, b2) <= 0)
+		{
+			memcpy(tmp, b1, element_size);
+			tmp += element_size;
+			b1 += element_size;
+			--n1;
+		}
+		else
+		{
+			memcpy(tmp, b2, element_size);
+			tmp += element_size;
+			b2 += element_size;
+			--n2;
+		}
+	}
+	if (n1 > 0)
+	{
+		memcpy(tmp, b1, n1 * element_size);
+	}
+	else if (n2 > 0)
+	{
+		memcpy(tmp, b2, n2 * element_size);
+	}
+	
+	memcpy(base, temp_arr, n_elements * element_size);
+	free(temp_arr);
+	
+	return 0;
 }
 
-size_t my_ktn(const void *value, const void *args)
+void HeapSort(int arr[], size_t n, enum direction direction)
+{
+	int i = 0;
+	for(i = n / 2 - 1; i >= 0; --i)
+	{
+		heapify(arr, n, i, direction);
+	}
+		for (i = n - 1; i >= 0; --i)
+		{
+			IntSwap(&arr[0], &arr[i]);
+			heapify(arr, i, 0, direction);			
+		}
+}
+
+void QuickSort(int arr[], size_t n, enum direction direction)
+{
+	int start = 0;
+	int end = n - 1;
+	int pivot_loc = 0;
+	if(start < end)
+	{
+		pivot_loc= GetPartition(arr,start,end, direction);
+		QuickSort(arr + start,pivot_loc - start, direction);
+		QuickSort(arr + pivot_loc,end - pivot_loc + 1, direction);
+	}
+}
+
+static int GetPartition(int arr[], int start,int end, enum direction direction)
+{
+	int size = end - start + 1;
+	int i = rand() % (size) + start;
+	IntSwap(&arr[end], &arr[i]);
+
+	return partition(arr,start,end, direction);
+}
+
+static int partition(int arr[], int start,int end, enum direction direction)
+{
+	int pivot,i,j,temp;
+	pivot = arr[end]; 
+	i= start-1;
+	for(j = start; j<= end-1; ++j)
+	{
+		if((arr[j] <= pivot && direction == ASC) || (arr[j] >= pivot && direction == DSC)) 
+		{
+			i++;
+			IntSwap(&arr[j], &arr[i]);
+		}
+	}
+	IntSwap(&arr[end], &arr[i+1]);
+
+	return i+1;
+}
+
+static void heapify(int *arr, int n_elements, int index, enum direction direction)
+{
+	int largest = index;
+	int l = 2 * index + 1;
+	int r = 2 * index + 2;
+	while(l < n_elements || r < n_elements)
+	{
+		l = 2 * index + 1;
+		r = 2 * index + 2;
+	
+		if (l < n_elements && (arr[l] > arr[largest] && direction == ASC || 
+							   arr[l] < arr[largest] && direction == DSC))
+		{
+			largest = l;
+		}
+
+		if (r < n_elements && (arr[r] > arr[largest] && direction == ASC || 
+							   arr[r] < arr[largest] && direction == DSC))
+		{
+			largest = r;
+		}
+
+		if (largest != index)
+		{
+			IntSwap(&arr[index], &arr[largest]);
+			index = largest;
+		}
+		else
+		{
+			break;
+		}
+	}
+}
+
+static void IntSwap(int *x, int *y)
+{
+	int temp = *x;
+	*x = *y;
+	*y = temp;
+}
+
+static size_t my_ktn(const void *value, const void *args)
 {
 	info_t *info = (info_t *)args;
 	

@@ -72,6 +72,8 @@ int Test_SelectionSort();
 int Test_CountingSort();
 int Test_RadixSort();
 int Test_MergeSort();
+int Test_HeapSort();
+int Test_QuickSort();
 
 int main()
 {
@@ -81,6 +83,8 @@ int main()
 	RUN_TEST(Test_CountingSort);	
 	RUN_TEST(Test_RadixSort);
 	RUN_TEST(Test_MergeSort);
+	RUN_TEST(Test_HeapSort);
+	RUN_TEST(Test_QuickSort);
 	
 	TEST_SUMMARY(g_total_tests, g_total_success, g_total_failed);
 	
@@ -433,6 +437,78 @@ int Test_MergeSort()
  	printf("\tOn Average it takes "CYAN"[%f ms]"CLEAR" to MergeSort an array of 5000 integers.\n", (total_time * 1000/ 3));
  	 
 	return result;   
+}
+
+
+int Test_HeapSort()
+{
+	clock_t start_t, end_t;
+	double seconds = 0.0;
+	double total_time = 0.0;
+    int my_array[5000];
+	int result = 1;
+	int res = 0;
+	size_t test_no = 0;
+
+
+	/* test1 */
+	ArrayInit(my_array);
+	
+ 	start_t = clock();	
+	HeapSort((int *)my_array, 5000, ASC);
+ 	end_t = clock();
+ 	
+	seconds = (double)(end_t - start_t) / CLOCKS_PER_SEC;
+	total_time += seconds;
+	printf( "\tsorted in " CYAN"[%.3f ms]\n" CLEAR, seconds * 1000);
+	
+	res = IsSorted(my_array);	
+ 	TEST_EQUAL(res, 1);
+ 	
+	/* test2 */
+	ArrayInit(my_array);
+	
+ 	start_t = clock();	
+	HeapSort((int *)my_array, 5000, ASC);
+ 	end_t = clock();
+ 	
+	seconds = (double)(end_t - start_t) / CLOCKS_PER_SEC;
+	total_time += seconds;
+	printf( "\tsorted in " CYAN"[%f ms]\n" CLEAR, seconds * 1000);
+	
+	res = IsSorted(my_array);	
+ 	TEST_EQUAL(res, 1);
+ 	
+	/* test3 */
+	ArrayInit(my_array);
+	
+ 	start_t = clock();	
+	HeapSort((int *)my_array, 5000, ASC);
+ 	end_t = clock();
+ 	
+	seconds = (double)(end_t - start_t) / CLOCKS_PER_SEC;
+	total_time += seconds;
+	printf( "\tsorted in " CYAN"[%f ms]\n" CLEAR, seconds * 1000);
+	
+	res = IsSorted(my_array);	
+ 	TEST_EQUAL(res, 1);	
+ 	
+ 	printf("\tOn Average it takes "CYAN"[%f ms]"CLEAR" to HeapSort an array of 5000 integers.\n", (total_time * 1000/ 3));
+ 	 
+	return result;   
+}
+
+int Test_QuickSort()
+{
+	int arr[] = {1, 5, 6, 0,20,5,3,2};
+	int arr_length = sizeof(arr) / sizeof(arr[0]);
+	int i = 0;
+	QuickSort(arr, arr_length, DSC);
+
+	for(; i < arr_length; ++i)
+	{
+		printf("%d, ", arr[i]);
+	}
 }
 
 

@@ -6,6 +6,11 @@ Sorting algorithms iterative implementation
 #ifndef SORTS_H
 #define SORTS_H
 
+enum direction
+{
+	ASC, DSC
+};
+
 /*
 Compare < 0 *data1 goes before *data2
 Compare == 0 *data1 is equivalent to *data2
@@ -44,5 +49,14 @@ int RadixSort(void *base, size_t num_of_members, size_t element_size,
 					key_to_num ktn, const void *args, size_t num_of_bytes);
 					
 int MergeSort(void *base, size_t n_elements, size_t element_size, cmp_f Compare);
+
+void HeapSort(int arr[], size_t n, enum direction direction);
+
+void QuickSort(int arr[], size_t n, enum direction direction);
+
+/* returns 1 if found, and updates index with the found index, 0 otherwise. */
+int BinarySearch(const int arr[], int key, size_t n, size_t *index);
+
+int JumpSearch(const int arr[], int key, size_t n, size_t *index);
 
 #endif
