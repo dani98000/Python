@@ -9,15 +9,16 @@
 #include <errno.h> /* errno */
 #include <stdio.h> /* perror */
 #include <assert.h> /* assert */
+#include <math.h> /* sqrt */
 
 #include "sort.h" /* sorting.h header */
 
 static size_t my_ktn(const void *value, const void *args);
-static void heapify(int *arr, int n_elements, int index, enum direction direction);
+static void Heapify(int *arr, int n_elements, int index, enum direction direction);
 static int GetPartition(int arr[], int start,int end, enum direction direction);
-static int partition(int arr[], int start,int end, enum direction direction);
+static int Partition(int arr[], int start,int end, enum direction direction);
 static void IntSwap(int *x, int *y);
-
+static int RecurBinarySearch(const int arr[], int key, size_t left, size_t right, size_t *index);
 typedef struct info
 {
 	key_to_num ktn;
@@ -242,10 +243,14 @@ int MergeSort(void *base, size_t n_elements, size_t element_size, cmp_f Compare)
 	
 	if(n_elements <= 1)
 	{
+		free(temp_arr);
+
 		return 0;     /* Already sorted */
 	}
 	if(temp_arr == NULL)
 	{
+		free(temp_arr);
+
 		return - 1;
 	}
 
@@ -281,6 +286,7 @@ int MergeSort(void *base, size_t n_elements, size_t element_size, cmp_f Compare)
 	}
 	
 	memcpy(base, temp_arr, n_elements * element_size);
+
 	free(temp_arr);
 	
 	return 0;
@@ -289,14 +295,17 @@ int MergeSort(void *base, size_t n_elements, size_t element_size, cmp_f Compare)
 void HeapSort(int arr[], size_t n, enum direction direction)
 {
 	int i = 0;
+
+	assert(arr);
+
 	for(i = n / 2 - 1; i >= 0; --i)
 	{
-		heapify(arr, n, i, direction);
+		Heapify(arr, n, i, direction);
 	}
 		for (i = n - 1; i >= 0; --i)
 		{
 			IntSwap(&arr[0], &arr[i]);
-			heapify(arr, i, 0, direction);			
+			Heapify(arr, i, 0, direction);			
 		}
 }
 
@@ -305,6 +314,9 @@ void QuickSort(int arr[], size_t n, enum direction direction)
 	int start = 0;
 	int end = n - 1;
 	int pivot_loc = 0;
+
+	assert(arr);
+
 	if(start < end)
 	{
 		pivot_loc= GetPartition(arr,start,end, direction);
@@ -313,16 +325,86 @@ void QuickSort(int arr[], size_t n, enum direction direction)
 	}
 }
 
+int BinarySearch(const int arr[], int key, size_t n, size_t *index)
+{		
+	assert(arr);
+
+	return RecurBinarySearch(arr, key, 0, n-1,index);
+}
+
+int JumpSearch(const int arr[], int key, size_t n, size_t *index)
+{
+	int step = sqrt(n);
+	int left = 0;
+	int right = 0;
+	int i = 0;
+
+	assert(arr);
+
+	while(left < n && arr[right] <= key)
+	{
+		right = n - 1;
+
+		if(arr[left] <= key && arr[right] >= key)
+		{
+			break;
+		}
+
+		left += step;
+	}
+
+	for(; i < right; ++i)
+	{
+		if(arr[i] == key)
+		{
+			*index = i;
+
+			return 1;
+		}
+	}
+
+	return 0;
+}
+
+static int RecurBinarySearch(const int arr[], int key, size_t left, size_t right, size_t *index)
+{
+	int mid = 0;
+
+	if(right >= left)
+	{
+		mid = left + (right - left) / 2;
+
+		if(arr[mid] == key)
+		{
+			*index = mid;
+
+			return 1;
+		}
+
+		if(arr[mid] > key)
+		{
+			return RecurBinarySearch(arr, key,left, mid - 1, index);
+		}
+
+		if(arr[mid] < key)
+		{
+			return RecurBinarySearch(arr, key,mid + 1, right, index);	
+		}
+	}
+
+	return 0;
+}
+
 static int GetPartition(int arr[], int start,int end, enum direction direction)
 {
 	int size = end - start + 1;
 	int i = rand() % (size) + start;
 	IntSwap(&arr[end], &arr[i]);
 
-	return partition(arr,start,end, direction);
+	return Partition(arr,start,end, direction);
 }
 
-static int partition(int arr[], int start,int end, enum direction direction)
+static int Partition(int arr[], int start,int end, enum direction direction)
 {
 	int pivot,i,j,temp;
 	pivot = arr[end]; 
@@ -340,11 +422,12 @@ static int partition(int arr[], int start,int end, enum direction direction)
 	return i+1;
 }
 
-static void heapify(int *arr, int n_elements, int index, enum direction direction)
+static void Heapify(int *arr, int n_elements, int index, enum direction direction)
 {
 	int largest = index;
 	int l = 2 * index + 1;
 	int r = 2 * index + 2;
+
 	while(l < n_elements || r < n_elements)
 	{
 		l = 2 * index + 1;

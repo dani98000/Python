@@ -66,6 +66,7 @@ size_t g_total_failed = 0;
 
 static int IsSorted(int *arr);
 static void ArrayInit(int *arr);
+
 int Test_BubbleSort();
 int Test_InsertionSort();
 int Test_SelectionSort();
@@ -74,17 +75,21 @@ int Test_RadixSort();
 int Test_MergeSort();
 int Test_HeapSort();
 int Test_QuickSort();
+int Test_BinarySearch();
+int Test_JumpSort();
 
 int main()
 {
-	RUN_TEST(Test_BubbleSort);
+	/*RUN_TEST(Test_BubbleSort);
 	RUN_TEST(Test_InsertionSort);
 	RUN_TEST(Test_SelectionSort);
 	RUN_TEST(Test_CountingSort);	
-	RUN_TEST(Test_RadixSort);
+	RUN_TEST(Test_RadixSort);*/
 	RUN_TEST(Test_MergeSort);
-	RUN_TEST(Test_HeapSort);
+	/*RUN_TEST(Test_HeapSort);
 	RUN_TEST(Test_QuickSort);
+	RUN_TEST(Test_BinarySearch);
+	RUN_TEST(Test_JumpSort);*/
 	
 	TEST_SUMMARY(g_total_tests, g_total_success, g_total_failed);
 	
@@ -93,10 +98,10 @@ int main()
 
 int Test_BubbleSort()
 {
-	clock_t start_t, end_t;
+	clock_t start_t = 0, end_t = 0;
 	double seconds = 0.0;
 	double total_time = 0.0;
-    int my_array[5000];
+    int my_array[5000] = {0};
 	int result = 1;
 	int res = 0;
 	size_t test_no = 0;
@@ -151,10 +156,10 @@ int Test_BubbleSort()
 
 int Test_InsertionSort()
 {	
-	clock_t start_t, end_t;
+	clock_t start_t = 0, end_t = 0;
 	double seconds = 0.0;
 	double total_time = 0.0;
-    int my_array[5000];
+    int my_array[5000] = {0};
 	int result = 1;
 	int res = 0;
 	size_t test_no = 0;
@@ -209,10 +214,10 @@ int Test_InsertionSort()
 
 int Test_SelectionSort()
 {
-	clock_t start_t, end_t;
+	clock_t start_t = 0, end_t = 0;
 	double seconds = 0.0;
 	double total_time = 0.0;
-    int my_array[5000];
+    int my_array[5000] = {0};
 	int result = 1;
 	int res = 0;
 	size_t test_no = 0;
@@ -267,10 +272,10 @@ int Test_SelectionSort()
 
 int Test_CountingSort()
 {
-	clock_t start_t, end_t;
+	clock_t start_t = 0, end_t = 0;
 	double seconds = 0.0;
 	double total_time = 0.0;
-    int my_array[5000];
+    int my_array[5000] = {0};
 	int result = 1;
 	int res = 0;
 	size_t test_no = 0;
@@ -325,10 +330,10 @@ int Test_CountingSort()
 
 int Test_RadixSort()
 {
-	clock_t start_t, end_t;
+	clock_t start_t = 0, end_t = 0;
 	double seconds = 0.0;
 	double total_time = 0.0;
-    int my_array[5000];
+    int my_array[5000] = {0};
 	int result = 1;
 	int res = 0;
 	size_t test_no = 0;
@@ -383,16 +388,16 @@ int Test_RadixSort()
 
 int Test_MergeSort()
 {
-	clock_t start_t, end_t;
+	clock_t start_t = 0, end_t = 0;
 	double seconds = 0.0;
 	double total_time = 0.0;
-    int my_array[5000];
+    int my_array[5000] = {0};
 	int result = 1;
 	int res = 0;
 	size_t test_no = 0;
 
 
-	/* test1*/
+	/* test1 */
 	ArrayInit(my_array);
 	
  	start_t = clock();	
@@ -406,7 +411,7 @@ int Test_MergeSort()
 	res = IsSorted(my_array);	
  	TEST_EQUAL(res, 1);
  	
-	/* test2*/
+	/* test2 */
 	ArrayInit(my_array);
 	
  	start_t = clock();	
@@ -420,7 +425,7 @@ int Test_MergeSort()
 	res = IsSorted(my_array);	
  	TEST_EQUAL(res, 1);
  	
-	/* test3*/
+	/* test3 */
 	ArrayInit(my_array);
 	
  	start_t = clock();	
@@ -442,10 +447,10 @@ int Test_MergeSort()
 
 int Test_HeapSort()
 {
-	clock_t start_t, end_t;
+	clock_t start_t = 0, end_t = 0;
 	double seconds = 0.0;
 	double total_time = 0.0;
-    int my_array[5000];
+    int my_array[5000] = {0};
 	int result = 1;
 	int res = 0;
 	size_t test_no = 0;
@@ -469,7 +474,7 @@ int Test_HeapSort()
 	ArrayInit(my_array);
 	
  	start_t = clock();	
-	HeapSort((int *)my_array, 5000, ASC);
+	HeapSort((int *)my_array, 5000, DSC);
  	end_t = clock();
  	
 	seconds = (double)(end_t - start_t) / CLOCKS_PER_SEC;
@@ -477,7 +482,7 @@ int Test_HeapSort()
 	printf( "\tsorted in " CYAN"[%f ms]\n" CLEAR, seconds * 1000);
 	
 	res = IsSorted(my_array);	
- 	TEST_EQUAL(res, 1);
+ 	TEST_EQUAL(res, 0);
  	
 	/* test3 */
 	ArrayInit(my_array);
@@ -500,17 +505,109 @@ int Test_HeapSort()
 
 int Test_QuickSort()
 {
-	int arr[] = {1, 5, 6, 0,20,5,3,2};
-	int arr_length = sizeof(arr) / sizeof(arr[0]);
-	int i = 0;
-	QuickSort(arr, arr_length, DSC);
+	clock_t start_t = 0, end_t = 0;
+	double seconds = 0.0;
+	double total_time = 0.0;
+    int my_array[5000] = {0};
+	int result = 1;
+	int res = 0;
+	size_t test_no = 0;
 
-	for(; i < arr_length; ++i)
-	{
-		printf("%d, ", arr[i]);
-	}
+
+	/* test1 */
+	ArrayInit(my_array);
+	
+ 	start_t = clock();	
+	QuickSort((int *)my_array, 5000, ASC);
+ 	end_t = clock();
+ 	
+	seconds = (double)(end_t - start_t) / CLOCKS_PER_SEC;
+	total_time += seconds;
+	printf( "\tsorted in " CYAN"[%.3f ms]\n" CLEAR, seconds * 1000);
+	
+	res = IsSorted(my_array);	
+ 	TEST_EQUAL(res, 1);
+ 	
+	/* test2 */
+	ArrayInit(my_array);
+	
+ 	start_t = clock();	
+	QuickSort((int *)my_array, 5000, DSC);
+ 	end_t = clock();
+ 	
+	seconds = (double)(end_t - start_t) / CLOCKS_PER_SEC;
+	total_time += seconds;
+	printf( "\tsorted in " CYAN"[%f ms]\n" CLEAR, seconds * 1000);
+	
+	res = IsSorted(my_array);	
+ 	TEST_EQUAL(res, 0);
+ 	
+	/* test3 */
+	ArrayInit(my_array);
+	
+ 	start_t = clock();	
+	QuickSort((int *)my_array, 5000, ASC);
+ 	end_t = clock();
+ 	
+	seconds = (double)(end_t - start_t) / CLOCKS_PER_SEC;
+	total_time += seconds;
+	printf( "\tsorted in " CYAN"[%f ms]\n" CLEAR, seconds * 1000);
+	
+	res = IsSorted(my_array);	
+ 	TEST_EQUAL(res, 1);	
+ 	
+ 	printf("\tOn Average it takes "CYAN"[%f ms]"CLEAR" to QuickSort an array of 5000 integers.\n", (total_time * 1000/ 3));
+ 	 
+	return result;   
 }
 
+int Test_BinarySearch()
+{
+	int result = 1;
+	int res = 0;
+	size_t test_no = 0;
+	int arr[] = {5, 8, 10, 15, 20, 25, 50};
+	int arr_length = sizeof(arr) / sizeof(int);
+	size_t index = 0;
+	int key = 10;
+
+	/* TEST1 */	
+	res = BinarySearch(arr, key, arr_length, &index);
+	TEST_EQUAL(res, 1);
+	
+	/* TEST2 */
+	TEST_EQUAL(2, index);
+
+	/* TEST3 */
+	res = BinarySearch(arr, 17, arr_length, &index);
+	TEST_EQUAL(res, 0);
+
+	return result;
+}
+
+int Test_JumpSort()
+{
+	int result = 1;
+	int res = 0;
+	size_t test_no = 0;
+	int arr[] = {5, 8, 10, 15, 20, 25, 50};
+	int arr_length = sizeof(arr) / sizeof(int);
+	size_t index = 0;
+	int key = 25;
+
+	/* TEST1 */
+	res = JumpSearch(arr,key,arr_length,&index); 	
+	TEST_EQUAL(res, 1);
+
+	/* TEST2 */
+	TEST_EQUAL(5, index);
+
+	/* TEST3 */
+	res = JumpSearch(arr,17,arr_length,&index); 	
+	TEST_EQUAL(res, 0);
+
+	return result;
+}
 
 void ArrayInit(int *arr)
 {
