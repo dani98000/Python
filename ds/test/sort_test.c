@@ -80,16 +80,16 @@ int Test_JumpSort();
 
 int main()
 {
-	/*RUN_TEST(Test_BubbleSort);
+	RUN_TEST(Test_BubbleSort);
 	RUN_TEST(Test_InsertionSort);
 	RUN_TEST(Test_SelectionSort);
 	RUN_TEST(Test_CountingSort);	
-	RUN_TEST(Test_RadixSort);*/
+	RUN_TEST(Test_RadixSort);
 	RUN_TEST(Test_MergeSort);
-	/*RUN_TEST(Test_HeapSort);
+	RUN_TEST(Test_HeapSort);
 	RUN_TEST(Test_QuickSort);
 	RUN_TEST(Test_BinarySearch);
-	RUN_TEST(Test_JumpSort);*/
+	RUN_TEST(Test_JumpSort);
 	
 	TEST_SUMMARY(g_total_tests, g_total_success, g_total_failed);
 	

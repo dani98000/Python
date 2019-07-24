@@ -9,18 +9,6 @@ void HeapifyDown(int arr[], size_t n, size_t index,
 size_t GetMinMaxChild(int arr[], size_t n, size_t index,
                      int (*IsData2AboveData)(int data1, int data2));
 
-
-
-int IsNum2Bigger(int num1, int num2)
-{
-    return num2 > num1;
-}
-
-int IsNum2Smaller(int num1, int num2)
-{
-    return num2 < num1;
-}
-
 void HeapSort(int arr[], size_t n, enum direction direction)
 {
     ssize_t cur_parent = n / 2 - 1; /* set as last parent */
