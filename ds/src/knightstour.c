@@ -1,6 +1,7 @@
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
+#include <stdio.h>/* printf */
+#include <string.h>/* memset */
+#include <stdlib.h>/* malloc */
+#include <time.h>/* clock */
 
 #include "barr.h"
 
@@ -24,7 +25,8 @@ static size_t LUT[64] = {0};
 static int IsValid(int i, int next_step);
 static void LUTInit();
 static void PrintBoard(size_t board);
- static void GetNext(size_t board, int current, int arr[9]);
+static void GetNext(size_t board, int current, int arr[9]);
+static int IsSolved(int *arr);
 
 static void PrintArr(size_t *arr)
 {
@@ -69,6 +71,7 @@ static void LUTInit()
 	int i = 0;
 	int j = 0;
 	int is_valid = 0;
+	int counter = 0;
 
 	for (i = 0; i < BOARD_SIZE; ++i)
 	{
@@ -89,12 +92,9 @@ static void LUTInit()
 			{
 				LUT[i] = BARRSetOn(LUT[i], possible_steps[j]);
 			}
-			/*if(i == 7 && is_valid)
-			{
-				printf("%d,", possible_steps[j]);
-			}*/
 		}
 	}
+
 }
 
 static int RecSolveKnightsTour(size_t board, int index, int *arr, int path_ind)
@@ -109,7 +109,7 @@ static int RecSolveKnightsTour(size_t board, int index, int *arr, int path_ind)
 	board = BARRSetOn(board, current);	
 	arr[path_ind] = current;
 
-	if (0xFFFFFFFFFFFFFFFF == board)
+	if (0XFFFFFFFFFFFFFFFF == board)
 	{
 		return 1;
 	}
@@ -118,7 +118,7 @@ static int RecSolveKnightsTour(size_t board, int index, int *arr, int path_ind)
 	next = possible_steps[i];
 	while(-1 != next )
 	{
-		++i;	
+		++i;
 
 		if(RecSolveKnightsTour(board, next, arr, path_ind + 1) == 1)
 		{
@@ -137,24 +137,24 @@ static void GetNext(size_t board, int current, int arr[9])
 	int mask = 0;
 	int next = 0;
 	int i = 0; 
+	int counter = 0;
 
 	while(mask < 64)
 	{
-		if(BARRIsOn(options, mask))
+		if(BARRIsOn(options, mask) && counter < 2)
 		{
 			arr[i] = mask;
 			++i;
+			++counter;
 		}
 		++mask;
-		
 	}
 
 	arr[i] = -1;
 }
 
-int KnightsTour(int *arr)
+int KnightsTour(int *arr, int index)
 {
-	int index = 2;
 	size_t board = 0x0;
 
 	LUTInit();
@@ -165,19 +165,46 @@ int main()
 {
 	int arr[64];
 	int i = 0;
+	int res = 0;
+	int j = 0;
+	clock_t start,end;
 	memset(&arr,0,sizeof(int)*BOARD_SIZE);
-	KnightsTour(arr);
-
-	for(; i < BOARD_SIZE; ++i)
+	for(; j < 64; ++j)
 	{
-		printf("%d,",arr[i]);
+		if(j == 13 || j == 29 || j == 30 || j == 39 || j == 46 || j == 47 || j == 51 || j == 58)
+		{
+			goto daniel;
+		}
+		printf("running index %d: \n", j);
+		start = clock();
+		KnightsTour(arr, j);
+		end = clock();
+		printf("took: %f seconds to finish.\n", ((double)end - start) / CLOCKS_PER_SEC);
+
+		for(i = 0; i < BOARD_SIZE; ++i)
+		{
+			printf("%d,",arr[i]);
+		}
+
+		printf("\n");
+		
+		res = IsSolved(arr);
+		if(res)
+		{
+			printf("\x1B[32m""SUCCESS\n""\x1B[0m");
+		}
+		else
+		{
+			printf("\x1B[31m""FAIL\n""\x1B[0m");
+
+		}
+		daniel:
+
+		printf("\n");
 	}
-
-
 
 	return 0;
 }
-
 
 static void PrintBoard(size_t board)
 {
@@ -197,19 +224,28 @@ static void PrintBoard(size_t board)
 	printf("--------------------\n");
 }
 
-int IsSolved(int *arr)
+static int IsSolved(int *arr)
 {
 	int LUT[64] = {0};
 	int i = 0;
-	for (int i = 0; i < 64; ++i)
+	int counter = 0;
+	for (i = 0; i < 64; ++i)
 	{
-		LUT[arr[i]] = 1; 
-		if(LUT[i] == 1)
+		if(LUT[arr[i]] == 1)
 		{
-			printf("FAILLLLLLLLLLL\n");
 			return 0;
+		}
+
+		LUT[arr[i]] = 1; 
+	}
+		
+	for (i = 0; i < 64; ++i)
+	{
+		if (LUT[i] == 1)
+		{
+			++counter;
 		}
 	}
 
-	return 1;
+	return (counter == 64);
 }
