@@ -4,9 +4,11 @@
 #include <time.h>/* clock */
 
 #include "barr.h"
+#include "sort.h"
 
 #define BOARD_SIZE 64
 #define BASE 8
+#define ISFULLBOARD(x) ((x) == 0XFFFFFFFFFFFFFFFF) 
 
 #define NNW(i) i - 17
 #define NNE(i) i - 15
@@ -27,8 +29,10 @@ static void LUTInit();
 static void PrintBoard(size_t board);
 static void GetNext(size_t board, int current, int arr[9]);
 static int IsSolved(int *arr);
+static size_t my_ktn(const void *value, const void *args);
+static int CountOptionsForNext(int pos);
 
-static void PrintArr(size_t *arr)
+/*static void PrintArr(size_t *arr)
 {
     int i =0, j = 0;
     
@@ -37,8 +41,7 @@ static void PrintArr(size_t *arr)
         printf(CYAN" %lu\n", arr[i]);
         printf("\n");
     }
-}
-
+}*/
 
 static int IsValid(int i, int next_step)
 {
@@ -60,18 +63,12 @@ static int IsValid(int i, int next_step)
 	return 0;
 }
 
-static size_t GetOptinoalSteps(int i, size_t board)
-{
-	return (LUT[i] & board) ^ LUT[i];
-}
-
 static void LUTInit()
 {
 	int possible_steps[8];
 	int i = 0;
 	int j = 0;
 	int is_valid = 0;
-	int counter = 0;
 
 	for (i = 0; i < BOARD_SIZE; ++i)
 	{
@@ -84,7 +81,6 @@ static void LUTInit()
 		possible_steps[6] = WWN(i);
 		possible_steps[7] = NNW(i);
 
-	
 		for (j = 0,LUT[i] = 0; j < BASE; ++j)
 		{
 			is_valid = IsValid(i, possible_steps[j]);
@@ -94,22 +90,19 @@ static void LUTInit()
 			}
 		}
 	}
-
 }
 
 static int RecSolveKnightsTour(size_t board, int index, int *arr, int path_ind)
 {
 	int current = index;
 	int next = 0;
-	size_t counter = 0;
-	int possible_steps[9] = {0, 0, 0, 0, 0, 0, 0, 0, 0};
-	int mask = 0;
 	int i = 0;
+	int possible_steps[9] = {0, 0, 0, 0, 0, 0, 0, 0, 0};
 	
 	board = BARRSetOn(board, current);	
 	arr[path_ind] = current;
 
-	if (0XFFFFFFFFFFFFFFFF == board)
+	if (ISFULLBOARD(board))
 	{
 		return 1;
 	}
@@ -135,13 +128,12 @@ static void GetNext(size_t board, int current, int arr[9])
 {
 	size_t options = (LUT[current] & board) ^ LUT[current];
 	int mask = 0;
-	int next = 0;
 	int i = 0; 
 	int counter = 0;
 
 	while(mask < 64)
 	{
-		if(BARRIsOn(options, mask) && counter < 2)
+		if(BARRIsOn(options, mask))
 		{
 			arr[i] = mask;
 			++i;
@@ -150,7 +142,21 @@ static void GetNext(size_t board, int current, int arr[9])
 		++mask;
 	}
 
+	CountingSort(arr, i, sizeof(int), my_ktn, NULL, 63);
 	arr[i] = -1;
+
+}
+
+static size_t my_ktn(const void *value, const void *args)
+{	
+	(void)(args);
+
+	return (CountOptionsForNext(*(int *)value));
+}
+
+static int CountOptionsForNext(int pos)
+{
+	return BARRCountOnLUT(LUT[pos]);
 }
 
 int KnightsTour(int *arr, int index)
@@ -158,6 +164,7 @@ int KnightsTour(int *arr, int index)
 	size_t board = 0x0;
 
 	LUTInit();
+
 	return RecSolveKnightsTour(board, index, arr, 0);
 }
 
@@ -169,12 +176,10 @@ int main()
 	int j = 0;
 	clock_t start,end;
 	memset(&arr,0,sizeof(int)*BOARD_SIZE);
+
 	for(; j < 64; ++j)
 	{
-		if(j == 13 || j == 29 || j == 30 || j == 39 || j == 46 || j == 47 || j == 51 || j == 58)
-		{
-			goto daniel;
-		}
+
 		printf("running index %d: \n", j);
 		start = clock();
 		KnightsTour(arr, j);
@@ -198,7 +203,6 @@ int main()
 			printf("\x1B[31m""FAIL\n""\x1B[0m");
 
 		}
-		daniel:
 
 		printf("\n");
 	}

@@ -341,7 +341,7 @@ int JumpSearch(const int arr[], int key, size_t n, size_t *index)
 
 	assert(arr);
 
-	while(left < n && arr[right] <= key)
+	while(left < (int)n && arr[right] <= key)
 	{
 		right = n - 1;
 
@@ -406,7 +406,7 @@ static int GetPartition(int arr[], int start,int end, enum direction direction)
 
 static int Partition(int arr[], int start,int end, enum direction direction)
 {
-	int pivot,i,j,temp;
+	int pivot,i,j;
 	pivot = arr[end]; 
 	i= start-1;
 	for(j = start; j<= end-1; ++j)
