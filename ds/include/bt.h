@@ -10,11 +10,9 @@ bt_t *BTCreate(size_t num_bits);
 
 void BTDestroy(bt_t *bt);
 
-int BTInsert(bt_t *bt, uint32_t data);
+enum status BTInsert(bt_t *bt, uint32_t data, uint32_t *ins_data);
 
 int BTRemove(bt_t *bt, uint32_t key);
-
-int BTFind(bt_t *bt, uint32_t key);
 
 size_t BTCount(const bt_t *bt);
 

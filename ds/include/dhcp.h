@@ -11,6 +11,7 @@
 *             Exersice: DHCP              *
 ******************************************/
 #include "stdio.h"
+#include <stdint.h> /* uint32_t */
 
 #ifndef OL69_DHCP_H
 #define OL69_DHCP_H
@@ -35,7 +36,8 @@ enum status
 {
 	OK, /* user got IP he asked for */
 	ADDR_TAKEN, /* user got IP, not one he asked for */
-	NO_FREE_ADDR /* user didn't get an IP */
+	NO_FREE_ADDR, /* user didn't get an IP */
+	E_ALLOC /* couldn't allocate memory */
 };
 
 typedef struct dhcp dhcp_t;

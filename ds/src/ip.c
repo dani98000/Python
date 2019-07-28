@@ -6,20 +6,17 @@
 } ip_t;*/
 #include "ip.h"
 
-ip_t IPNumToIpv4(uint32_t ip_num)
+ip_t IPNumToIpv4(uint32_t ip_number)
 {
+
 	ip_t ip;
-	ip ==={  
-		{
-			(char)(ip_num >> 24),
-			(char)((ip_num << 8) >> 24),
-			(char)((ip_num << 16) >> 24),
-			(char)((ip_num << 24) >> 24)
-		};
-	};
 
-
-	return ip;
+	ip.ip_addr[0] = (char)(ip_number >> 24);
+	ip.ip_addr[1] = (char)((ip_number << 8) >> 24);
+	ip.ip_addr[2] = (char)((ip_number << 16) >> 24);
+	ip.ip_addr[3] = (char)((ip_number << 24) >> 24);
+	
+    return ip;
 }
 
 uint32_t IPIpv4ToNum(ip_t ip)

@@ -1,7 +1,8 @@
-#include "bt.h"
 #include "dhcp.h"
+#include "bt.h"
+#include "ip.h"
 
-
+#include <stdint.h> /* uint32_t */
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h> /* malloc */
@@ -44,63 +45,70 @@ size_t g_total_tests = 0;
 size_t g_total_success = 0;
 size_t g_total_failed = 0;
 
-int Test_BTCreate();
-int Test_BTInsert();
+int Test_DHCPCreate();
+int Test_GetAddress();
 
 int main()
 {
-	RUN_TEST(Test_BTCreate);
-	RUN_TEST(Test_BTInsert);
+	RUN_TEST(Test_DHCPCreate);
+	RUN_TEST(Test_GetAddress);
 
 	return 0;
 }
 
-int Test_BTCreate()
+int Test_DHCPCreate()
 {
-	bt_t *bt = NULL;
-	bt = BTCreate(8);
-	BTDestroy(bt);
-
+	dhcp_t *dhcp = NULL;
+	uint32_t subnet_mask = 0XFFFFFF00;
+	ip_t net_add = 
+	{
+		{
+			10,1,5,0
+		}
+	};
+	dhcp = DHCPCreate(net_add, subnet_mask);
+	DHCPDestroy(dhcp);
 	return 1;
 }
 
-int Test_BTInsert()
+int Test_GetAddress()
 {
-	uint32_t x = 0, y = 0, res1 = 0;
-	int result = 1;
-	int res = 0;
-	size_t test_no = 0;
-	bt_t *bt = NULL;
-	bt = BTCreate(8);
+	dhcp_t *dhcp = NULL;
+	ip_t ip_res, ip_res2;
+	uint32_t res = 0;
+	uint32_t res2 = 0;
 
-	/* TEST1 */
-	x = 8;
-	BTInsert(bt, x, &res1);
-	res = BTCount(bt);
-	TEST_EQUAL(res, 1);
-	printf("%x", res1);
+	uint32_t subnet_mask = 0XFFFFFF00;
+	ip_t net_add = 
+	{
+		{
+			10,1,5,0
+		}
+	};
+	ip_t ip_req;
+	ip_req.ip_addr[0] = 10;
+	ip_req.ip_addr[1] = 1;
+	ip_req.ip_addr[2] =	5;
+	ip_req.ip_addr[3] = 8;
+	dhcp = DHCPCreate(net_add, subnet_mask);
 	
-	/* TEST2 */
-	y = 9;
-	BTInsert(bt, y, &res1);
-	res = BTCount(bt);
-	TEST_EQUAL(res, 2);
-		printf("%x", res1);
+	GetAddress(dhcp, ip_req, &ip_res);
+	res = IPIpv4ToNum(ip_res);
+	printf("%x\n", res);
+
+	GetAddress(dhcp, ip_req, &ip_res2);
+	res2 = IPIpv4ToNum(ip_res2);
+	printf("%x\n", res2);
+
+	FreeAddr(dhcp, ip_res);
+
+	GetAddress(dhcp, ip_req, &ip_res);
+	res = IPIpv4ToNum(ip_res);
+	printf("%x\n", res);
+
+	DHCPDestroy(dhcp);
 
 
-	/* TEST3 */
-	res = BTCountFree(bt);
-	TEST_EQUAL(res, 252);
+	return 1;
 
-	/* TEST 4*/
-	BTRemove(bt, x);
-	res = BTCount(bt);
-	TEST_EQUAL(res, 1);
-
-
-
-	BTDestroy(bt);
-
-	return result;
 }
-

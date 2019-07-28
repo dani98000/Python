@@ -90,6 +90,10 @@ int Test_IPNumToIpv4()
 
 	ip1 = IPNumToIpv4(x);
 	printf("%u",ip1.ip_addr[0]);
+	printf("%u",ip1.ip_addr[1]);
+	printf("%u",ip1.ip_addr[2]);
+	printf("%u",ip1.ip_addr[3]);
+
 
 	return result;
 }
