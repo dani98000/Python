@@ -1,11 +1,24 @@
+/******************************************
+*                _____  __     _   ___    *
+*               (  _  )(  )   / ) / _ \   *
+*    |\---/|     )(_)(  )(__ / _ \\_  /   *
+*    | ,_, |    (_____)(____)\___/ (_/    *
+*     \_`_/-..----.                       *
+*  ___/ `   ' ,""+ \                      *
+* (__...'   __\    |`.___.';              *
+*  (_,...'(_,.`__)/'.....+                *
+*            *********************        *
+*            -Exersice: DHCP  	  		  *
+*			 -Name: Daniel Maizel         *
+*			 -Reviewer: Roi 	          *
+******************************************/
 #include <stdint.h> /* uint32_t */
-#include <stdlib.h>
-#include <assert.h>
+#include <stdlib.h> /* malloc */
+#include <assert.h> /* assert */
 
 #include "dhcp.h"
 #include "bt.h"
 #include "ip.h"
-
 
 struct dhcp
 {
@@ -19,23 +32,21 @@ static enum status PoolInit(dhcp_t *dhcp);
 dhcp_t *DHCPCreate(ip_t network_addr, uint32_t subnet_mask)
 {
 	int num_of_bits = 0;
-	int i = 0;
 	uint32_t net = IPIpv4ToNum(network_addr);
+	dhcp_t *dhcp = NULL;
 
 	assert((net & subnet_mask) == net);
 
-	dhcp_t *dhcp = (dhcp_t *)malloc(sizeof(*dhcp));
+	dhcp = (dhcp_t *)malloc(sizeof(*dhcp));
 	if(NULL == dhcp)
 	{
 		return NULL;
 	}
 
-	while(((0x1 << i) & subnet_mask) == 0)
+	while(((0x1 << num_of_bits) & subnet_mask) == 0)
 	{
-		++i;
+		++num_of_bits;
 	}
-
-	num_of_bits = i;
 
 	dhcp->ip_pool = BTCreate(num_of_bits);
 	if(NULL == dhcp->ip_pool)
@@ -61,11 +72,8 @@ dhcp_t *DHCPCreate(ip_t network_addr, uint32_t subnet_mask)
 
 static enum status PoolInit(dhcp_t *dhcp)
 {
-	uint32_t res;
-	uint32_t net = 0X00;/*IPIpv4ToNum(dhcp->network_addr)*/;
-	/*printf("net%x\n",net);*/
-	uint32_t bro = 0XFF;/*(~(dhcp->subnet_mask) & net);*/
-		/*printf("bro%x\n",bro);*/
+	uint32_t net = 0X0;
+	uint32_t bro = ~0X0;		
 
 	enum status status = OK;
 
@@ -96,21 +104,23 @@ void DHCPDestroy(dhcp_t *dhcp)
 	dhcp = NULL;
 }
 
-/* undefined behavior for NULL parameter,
-user is assumed to have passed ip_req of the correct subnet */
 enum status GetAddress(dhcp_t *dhcp, ip_t ip_req, ip_t *ip_res)
 {
+	uint32_t network_addr = 0;
+	uint32_t data = 0;
+	uint32_t given_ip = 0;
+	uint32_t wanted_ip = IPIpv4ToNum(ip_req);
+
+	enum status status = OK;
+
 	assert(dhcp);
 
-	uint32_t network_addr = IPIpv4ToNum(dhcp->network_addr);
-	uint32_t wanted_ip = IPIpv4ToNum(ip_req);
-	uint32_t data = (wanted_ip ^ network_addr);
-	uint32_t given_ip = 0;
-	enum status status = OK;
+	network_addr = IPIpv4ToNum(dhcp->network_addr);
+	data = (wanted_ip ^ network_addr);
 
 	status = BTInsert(dhcp->ip_pool, data, &given_ip);
 
-	if(ADDR_TAKEN != status || status != E_ALLOC)
+	if(NO_FREE_ADDR != status || status != E_ALLOC)
 	{
 		*ip_res = IPNumToIpv4(given_ip | network_addr);
 	}
@@ -118,17 +128,15 @@ enum status GetAddress(dhcp_t *dhcp, ip_t ip_req, ip_t *ip_res)
 	return status;
 }
 
-/* undefined behavior for NULL parameter,
-return status: 0 if found and removed IP */
 int FreeAddr(dhcp_t *dhcp, ip_t ip_addr)
 {
-	assert(dhcp);
 	uint32_t ip = IPIpv4ToNum(ip_addr);
+	
+	assert(dhcp);
 
 	return BTRemove(dhcp->ip_pool, ip);
 }
 
-/* undefined behavior for NULL parameter */
 size_t DHCPCountFree(const dhcp_t *dhcp)
 {
 	assert(dhcp);

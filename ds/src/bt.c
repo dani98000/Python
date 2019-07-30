@@ -1,12 +1,26 @@
-#include <assert.h>
-#include <stdlib.h>
-#include <math.h>
+/******************************************
+*                _____  __     _   ___    *
+*               (  _  )(  )   / ) / _ \   *
+*    |\---/|     )(_)(  )(__ / _ \\_  /   *
+*    | ,_, |    (_____)(____)\___/ (_/    *
+*     \_`_/-..----.                       *
+*  ___/ `   ' ,""+ \                      *
+* (__...'   __\    |`.___.';              *
+*  (_,...'(_,.`__)/'.....+                *
+*            *********************        *
+*            -Exersice: DHCP  	  		  *
+*			 -Name: Daniel Maizel         *
+*			 -Reviewer: Roi 	          *
+******************************************/
+#include <assert.h> /* assert */
+#include <stdlib.h> /* malloc */
+#include <math.h> /* pow */
 
 #include "bt.h"
 #include "dhcp.h"
 
-
 enum side{LEFT,RIGHT};
+enum mode{REM, INS};
 
 typedef struct bt_node
 {
@@ -25,8 +39,7 @@ static void RecurDestroy(bt_node_t *node);
 static enum status RecInsert(bt_node_t *node, int floor, int num_of_bits, uint32_t data, uint32_t *ins_data);
 static int RecCount(bt_node_t *node, int floor, int num_of_bits);
 static int ChildrenTest(bt_node_t *node);
-static void UpdateIsFull(bt_node_t *node);
-static void UpdateIsFull2(bt_node_t *node);
+static void UpdateIsFull(bt_node_t *node, enum mode);
 static int RecRemove(bt_node_t *node, int floor, int num_of_bits, uint32_t data);
 
 
@@ -67,16 +80,22 @@ void BTDestroy(bt_t *bt)
 
 enum status BTInsert(bt_t *bt, uint32_t data, uint32_t *ins_data)
 {
+	enum status status = OK;
+
 	assert(bt);
 
-	enum status status= RecInsert(bt->root, 0, bt->num_of_bits, data, ins_data);
+	if(!bt->root->is_full)
+	{
+		status= RecInsert(bt->root, 0, bt->num_of_bits, data, ins_data);
+	}
+	else
+	{
+		return NO_FREE_ADDR;
+	}
+
 	if(*ins_data != data)
 	{
 		return ADDR_TAKEN;
-	}
-	else if(bt->root->is_full == 1)
-	{
-		return NO_FREE_ADDR;
 	}
 
 	return status;
@@ -91,11 +110,15 @@ int BTRemove(bt_t *bt, uint32_t key)
 
 size_t BTCount(const bt_t *bt)
 {
+	assert(bt);
+
 	return RecCount(bt->root, 0, bt->num_of_bits) - 2; /* -2 Because of broadcast address and network address */
 }
 
 size_t BTCountFree(const bt_t *bt)
 {
+	assert(bt);
+
 	return (pow(2, bt->num_of_bits) - BTCount(bt) - 2) ; /* -2 Because of broadcast address and network address */
 }
 
@@ -121,7 +144,6 @@ static int RecRemove(bt_node_t *node, int floor, int num_of_bits, uint32_t key)
 	int shift = 0;
 	bt_node_t *child = NULL;
 
-
 	if(floor == num_of_bits)
 	{
 		return 0;
@@ -138,8 +160,8 @@ static int RecRemove(bt_node_t *node, int floor, int num_of_bits, uint32_t key)
 
 	result = RecRemove(child,floor + 1, num_of_bits, key);
 
-	UpdateIsFull2(child);
-	UpdateIsFull2(node);
+	UpdateIsFull(child, REM);
+	UpdateIsFull(node, REM);
 
 	return result;
 }
@@ -149,7 +171,6 @@ static enum status RecInsert(bt_node_t *node, int floor, int num_of_bits, uint32
 {
 	int bit = 0, shift = 0;
 	bt_node_t *child = NULL;
-	int other_side = 0;
 	int result = 0;
 
 	if(floor == num_of_bits)
@@ -160,7 +181,6 @@ static enum status RecInsert(bt_node_t *node, int floor, int num_of_bits, uint32
 	shift = num_of_bits - floor - 1;
 	bit = ((0x1 << shift) & data) >> shift;
 	child = node->children[bit];
-	other_side = (bit == LEFT) ? RIGHT : LEFT;
 
 	if (NULL == child)
 	{
@@ -182,15 +202,14 @@ static enum status RecInsert(bt_node_t *node, int floor, int num_of_bits, uint32
 
 	result = RecInsert(child,floor + 1, num_of_bits, data, ins_data);
 
-	UpdateIsFull(child);
-	UpdateIsFull(node);
+	UpdateIsFull(child, INS);
+	UpdateIsFull(node, INS);
 
 	return result;
 }
 
-static void UpdateIsFull(bt_node_t *node) 
+static void UpdateIsFull(bt_node_t *node, enum mode mode) 
 {
-
 	if (ChildrenTest(node) == 2)
 	{ 
 		if (node->children[LEFT]->is_full == 1 && node->children[RIGHT]->is_full == 1)
@@ -206,30 +225,15 @@ static void UpdateIsFull(bt_node_t *node)
 	{
 		node->is_full = 0;
 	}
-	else
+	else if(mode == INS)
 	{
 		node->is_full = 1;
 	}
-}
-
-static void UpdateIsFull2(bt_node_t *node)
-{
-
-	if (ChildrenTest(node) == 2)
-	{ 
-		if (node->children[LEFT]->is_full == 0 || node->children[RIGHT]->is_full == 0)
-		{
-			node->is_full = 0;
-		}
-	}
-	else if (ChildrenTest(node) == 1 || ChildrenTest(node) == 0)
-	{
-			node->is_full = 0;
-	}
-	else
+	else if(mode == REM)
 	{
 		node->is_full = 0;
 	}
+
 }
 
 static bt_node_t *CreateNode()

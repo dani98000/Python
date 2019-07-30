@@ -1,5 +1,5 @@
 #include "dhcp.h"
-#include "bt.h"
+#include "trie.h"
 #include "ip.h"
 
 #include <stdint.h> /* uint32_t */
@@ -99,7 +99,7 @@ int Test_GetAddress()
 	
 	/*test1*/
 	GetAddress(dhcp, ip_req, &ip_res);
-	res1 = IPIpv4ToNum(ip_res);
+	res1 = CharToIPv(ip_res);
 	TEST_EQUAL(res1, 167838984);
 
 	/*test2*/
@@ -109,7 +109,7 @@ int Test_GetAddress()
 	/*test3*/
 	res = GetAddress(dhcp, ip_req, &ip_res2);
 	TEST_EQUAL(res, 1);	
-	res2 = IPIpv4ToNum(ip_res2);
+	res2 = CharToIPv(ip_res2);
 	TEST_EQUAL(res2, 167838985);
 
 	/*test4*/
@@ -124,7 +124,7 @@ int Test_GetAddress()
 
 	/*test5*/
 	GetAddress(dhcp, ip_req, &ip_res);
-	res1 = IPIpv4ToNum(ip_res);
+	res1 = CharToIPv(ip_res);
 	TEST_EQUAL(res1, 167838984);
 
 	

@@ -4,6 +4,7 @@
 #include <stdint.h> /* uint32_t */
 #include <stdio.h> /* size_t */
 
+#include <dhcp.h>
 typedef struct bt bt_t;
 
 bt_t *BTCreate(size_t num_bits);
