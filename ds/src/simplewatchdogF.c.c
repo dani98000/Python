@@ -21,5 +21,7 @@ int main()
         	sleep(1);
         	wait(NULL);
         }
-    } 
+    }
+
+    return 0;
 }

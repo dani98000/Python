@@ -1,77 +1,79 @@
 #include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <sys/wait.h>
-#include <sys/types.h>
-#include <string.h>
-#include <unistd.h>
-
-#include <limits.h>
+#include <stdlib.h>/* malloc */
+#include <sys/wait.h> /* wait */
+#include <string.h>/* strtok */
+#include <unistd.h>/* fork */
 
 #define BUFFER 100
+#define NUM_ARGS 20
 
-char **get_input(char *input) 
+int main()
 {
-    char **command = malloc(8 * sizeof(char *));
-    char *separator = " ";
-    char *parsed;
-    int index = 0;
+    int pid = 0;
+    char *input = NULL;
+    int i = 0;
 
-    parsed = strtok(input, separator);
-    while (parsed != NULL) {
-        command[index] = parsed;
-        index++;
-
-        parsed = strtok(NULL, separator);
+    char **argv = (char **)calloc(NUM_ARGS, sizeof(*argv));
+    if(NULL == argv)
+    {
+        return -1;
     }
 
-    command[index] = NULL;
-    return command;
-}
+    input = malloc(BUFFER * sizeof(*input));
+    if (!input)
+    {        
+        return -1;
+    }  
 
-int main(int argc, char **argv)
-{
-    char line[BUFFER];
-    char program[20];
-    char command[50];
-    char cwd[50];
-    char* path = "/bin/"/*getcwd(cwd, sizeof(cwd))*/;
-    int pid = 0;
+    printf("--------------------------------------------------------------------------------------------------\n");
+    printf("-----------------------------WELCOME TO THE BEST SHELL YOU HAVE EVER SEEN-------------------------\n");
+    printf("----------------------------------It’s not about how hard you can hit!----------------------------\n");
+    printf("----------------------------------it’s about how hard you can get hit-----------------------------\n");
+    printf("-----------------------------------------and keep moving forward.---------------------------------\n");
+    printf("--------------------------------------------------------------------------------------------------\n");
+    printf("--------------------------------------------Rocky Balboa, Rocky-----------------------------------\n");
 
     while(1)
     {
+        i = 0;
+
         printf("$ ");
 
-        if(!fgets(line, BUFFER, stdin))
+        if(!fgets(input, (BUFFER) * sizeof(*input), stdin))
         {
             break;
         }
 
-        memset(command,0,sizeof(command));
-        memset(program,0,sizeof(program));
-    
-
-        if(strncmp(line, "exit", (strlen(line)-1))==0)
+        argv[i] = strtok(input,  " \n");
+        do
         {
-            break;
+            ++i;
+            argv[i] = strtok(NULL, " \n");
         }
-
-        strncpy(command,line,(strlen(line)-1));
-        strcpy(program, path);
-        strcat(program,command);
-
-        printf("command: %s\n", command);
-        printf("line: %s\n", line);
-        printf("program: %s\n", program); 
+        while(argv[i]);
+        
+        if(NULL == argv[0])
+        {
+            continue;
+        }
+        
+        if (0 == strcmp("exit", argv[0]))
+        {
+            return 0;
+        }
 
         pid = fork();            
 
         if(0 == pid)
         {               
-            execl(program,command,NULL);
+            execvp(argv[0],argv);
             exit(0);
         }
+
+        wait(NULL);
     }
+
+    free(input);
 
     return 0;
 }
