@@ -7,15 +7,14 @@
 
   
 void my_handler2(int signum);
-void my_handler(int signum);
 
 int main() 
 { 
     pid_t pid;
+    pid_t parent_pid = getpid(); 
     struct sigaction action;
+    char *args[] = {"./hello", NULL};
 
-	action.sa_handler = my_handler;
-    sigaction(SIGUSR1, &action, NULL);	
 	action.sa_handler = my_handler2;
     sigaction(SIGUSR2, &action, NULL);
 
@@ -30,17 +29,11 @@ int main()
     
     if (pid == 0) 
     { /* child */
-    	printf("\nChild %d: sending SIGUSR2 to parent %d\n\n", getpid(), getppid()); 
-
-    	while(1)
-    	{
-			kill(getppid(), SIGUSR2);
-	    	pause();
-    	}
+    	execv(args[0], args);
     }
     else /* parent */
     {
-    	/*wait(NULL);*/
+    	wait(NULL);
         
         printf("\nPARENT %d: sending SIGUSR1 to child %d\n\n", getpid(), pid); 
         
@@ -54,14 +47,6 @@ int main()
     return 0; 
 } 
 
-void my_handler(int signum)
-{
-    if (signum == SIGUSR1)
-    {
-        printf("I am child [%d] and i Received SIGUSR1!\n", getpid());
-        sleep(1);
-    }
-}
 
 void my_handler2(int signum)
 {
