@@ -1,3 +1,9 @@
+/********************************
+*    Author  : Daniel Maizel    *
+*    Date    : 01/08/2019       *
+*    Reviewer: Sandra           *
+*                               *
+*********************************/
 #include <signal.h> /* sigaction */
 #include <stdio.h>  /* printf */
 #include <stdlib.h> /* exit */
@@ -30,5 +36,5 @@ void my_handler(int sig, siginfo_t *info, void *context)
     signalPid = info->si_pid;
 
     printf("Ping\n");
-    sleep(1);
+    sleep(1);/* Just to make sure its working properly */
 }

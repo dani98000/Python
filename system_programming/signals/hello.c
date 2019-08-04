@@ -1,3 +1,9 @@
+/********************************
+*    Author  : Daniel Maizel    *
+*    Date    : 01/08/2019       *
+*    Reviewer: Sandra           *
+*                               *
+*********************************/
 #include <signal.h> /* sigaction */
 #include <stdio.h>  /* printf */
 #include <stdlib.h> /* exit */
@@ -20,6 +26,7 @@ int main()
 		kill(getppid(), SIGUSR2);
 	   	pause();
     }
+
 	return 0;
 }
 

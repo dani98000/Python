@@ -1,10 +1,14 @@
+/********************************
+*    Author  : Daniel Maizel    *
+*    Date    : 01/08/2019       *
+*    Reviewer: Sandra           *
+*                               *
+*********************************/
 #include <signal.h> /* sigaction */
 #include <stdio.h>  /* printf */
 #include <stdlib.h> /* exit */
 #include <unistd.h> /* sleep */
 #include <sys/types.h> /* wait */
-#include <sys/wait.h>
-
   
 void my_handler2(int signum);
 void my_handler(int signum);
