@@ -12,7 +12,7 @@ int IsFound(char *arr, char key)
 int main()
 {
 	char *arr = "daniel";
-	char key = 'f';
+	char key = 'd';
 	printf("%d\n",IsFound(arr, key));
 
 	return 0;

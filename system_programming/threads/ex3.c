@@ -2,19 +2,19 @@
 #include <stdlib.h>/* malloc */ 
 #include <unistd.h> /* sleep */
 #include <stdio.h>/* printf */
-#include <omp.h>
+#include <omp.h>/* openMP */
 
-size_t num = 800000000; 
+const int NUM = 800000000;
 
 int main()
 {	
-	size_t i = 0;
+	int i = 0;
 	int sum = 0;
 
-    #pragma omp parallel for
-	for(i = 1; i <= num; ++i) 
+    #pragma omp parallel for reduction(+:sum)
+	for(i = 1; i <= NUM; ++i) 
 	{
-		if((num % i) == 0)
+		if((NUM % i) == 0)
 		{
 			sum += i;	
 		}
