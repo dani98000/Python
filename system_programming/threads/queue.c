@@ -10,13 +10,13 @@
 #include <stdio.h>  /* size_t */
 #include <assert.h> /* assert */
 
-#include "queue.h" /* My Header */
 #include "sll.h"	   /*   Files   */
+#include "queue.h"
 
-typedef struct queue
+struct queue
 {
 	sll_t *list;
-} queue_t;
+};
 
 queue_t *QueueCreate()
 {
