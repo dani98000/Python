@@ -16,7 +16,7 @@
 
 #define BUFFER_SIZE 256
 #define NUM_VALUES 1000
-#define NUM_CONSUMERS 1000
+#define NUM_CONSUMERS 5
 #define NUM_PRODUCERS 1
 
 char buffer[BUFFER_SIZE];
@@ -28,7 +28,7 @@ int g_cons_counter = 0;
 void Produce()
 {		
 	printf("Producing...\n");
-	strcpy(buffer,"Holla, My name is Daniel!");
+	strcpy(buffer,"Holla, My name is Danil!");
 }
 
 void Consume()
@@ -38,7 +38,7 @@ void Consume()
 	++g_cons_counter;
 }
 
-void *producer(void *data)
+void *Producer(void *data)
 {
 	(void)data;
 
@@ -52,15 +52,17 @@ void *producer(void *data)
 			sem_wait(&max_counter);        /*variable.                */
 		}
 
-		sem_wait(&max_counter);
 		Produce();
-		pthread_cond_broadcast(&consume_add);		
+
+		pthread_mutex_lock(&lock);
+		pthread_cond_broadcast(&consume_add);	
+		pthread_mutex_unlock(&lock);	
 	}
 
 	return NULL;
 }
 
-void *consumer(void *data)
+void *Consumer(void *data)
 {
 	int value = 0;
 	(void)data;
@@ -72,15 +74,14 @@ void *consumer(void *data)
 
 		sem_post(&max_counter);  
 		if(0 == pthread_cond_wait(&consume_add, &lock))
-		Consume();
+		{
+			Consume();
+		}
+		
 		pthread_mutex_unlock(&lock);
 
-	
-		if(g_cons_counter == NUM_CONSUMERS)
-		{
-		   	sem_post(&max_counter);
-			g_cons_counter = 0;
-		}
+
+
 	}
 
 	return NULL;
@@ -95,12 +96,12 @@ int main()
 	pthread_t *consumers_id = (pthread_t *)malloc(sizeof(pthread_t) * NUM_CONSUMERS);
 	pthread_t *producers_id = (pthread_t *)malloc(sizeof(pthread_t) * NUM_PRODUCERS);
 
-	sem_init(&max_counter, 0, 1);
+	sem_init(&max_counter, 0, 0);
 
 
 	for(i = 0; i < NUM_PRODUCERS; ++i)
 	{
-		ret = pthread_create(&producers_id[i], NULL, producer, NULL);
+		ret = pthread_create(&producers_id[i], NULL, Producer, NULL);
 		if(ret != 0) 
 		{
 			perror("error: \n");
@@ -109,7 +110,7 @@ int main()
 
 	for(i = 0; i < NUM_CONSUMERS; ++i)
 	{
-		ret = pthread_create(&consumers_id[i], NULL, consumer, NULL);
+		ret = pthread_create(&consumers_id[i], NULL, Consumer, NULL);
 		if(ret != 0) 
 		{
 			perror("error: \n");

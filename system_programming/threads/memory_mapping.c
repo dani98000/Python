@@ -1,29 +1,34 @@
-int i;
-
-int main()
-{
-	static int x;
-	static int y = 5;
-	int a = 5;
-	printf("BSS: %p\n", &i);
-	printf("BSS: %p\n", &x);
-	printf("Data segment: %p\n", &y);
-	printf("Stack: %p\n", &a);
-
-	return 0;
-}
+#include <stdio.h>
+#include <pthread.h>
+#include <stdlib.h>
 
 void *thread1_func(void *data)
 {
 	(void)data;
-	
+	int i = 2;
+	int h;
+	static int a = 5;
+	int *arr = (int *)malloc(5 * sizeof(*arr));
+	printf("Stack [Thread1]: %p\n", &i);
+	printf("Data segment [Thread1]: %p\n", &a);	
+	printf("BSS [Thread1]: %p\n", &h);
+	printf("Heap [Thread1]: %p\n", &arr);	
+
 
 	return NULL;
 }
 
-void *thread1_func(void *data)
+void *thread2_func(void *data)
 {
 	(void)data;
+	int i = 3;
+	int h;
+	static int a = 5;
+	int *arr = (int *)malloc(5 * sizeof(*arr));
+	printf("Stack [Thread2]: %p\n", &i);
+	printf("Data segment [Thread2]: %p\n", &a);
+	printf("BSS [Thread2]: %p\n", &h);	
+	printf("Heap [Thread1]: %p\n", &arr);	
 
 
 	return NULL;
@@ -49,13 +54,13 @@ int main()
 	}
 
 
-	ret = pthread_join(&thread1_id, NULL);
+	ret = pthread_join(thread1_id, NULL);
 	if(ret != 0) 
 	{
 		perror("error: \n");
 	}
 
-	ret = pthread_join(&thread1_id, NULL);
+	ret = pthread_join(thread2_id, NULL);
 	if(ret != 0) 
 	{
 		perror("error: \n");
