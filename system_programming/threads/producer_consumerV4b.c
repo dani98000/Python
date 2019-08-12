@@ -11,17 +11,19 @@
 #include <assert.h>
 #include <semaphore.h>  
 
-#include "queue.h"
-#include "sll.h"
+#include "circular_queue.h"
 
 #define QUEUE_SIZE 1000
 #define NUM_VALUES 1000
 #define NUM_CONSUMERS 5
 #define NUM_PRODUCERS 5
 
-queue_t *queue = NULL;
+c_queue_t *queue = NULL;
 pthread_mutex_t lock; 
+pthread_mutex_t lock2; 
+
 sem_t queue_counter;
+sem_t max_counter;
 
 int g_busy = 0;
 int g_is_full = 0;
@@ -33,10 +35,8 @@ void Produce()
 	int data = 5;
 
 	printf("Producing...\n");
-	QueueEnqueue(queue, &data);	
-	counter = QueueSize(queue);
-/*	sleep(1);
-*/}
+	QueueEnqueue(queue, data);	
+}
 
 void Consume()
 {
@@ -45,9 +45,8 @@ void Consume()
 	printf("Consuming...\n");
 	printf("queue size: %d\n", QueueSize(queue));
 
-	data = *(int *)QueuePeek(queue);
+	data = QueuePeek(queue);
 	QueueDequeue(queue);
-	--counter;
 
 	printf("data: %d\n", data);
 }
@@ -58,18 +57,17 @@ void *producer(void *data)
 
 	while(1)
 	{
-		sleep(1);
+		/*sleep(1);*/
 
 		/*Critical Section*/	
-		pthread_mutex_lock(&lock);
+		sem_wait(&max_counter);
+
+		pthread_mutex_lock(&lock2);
 		{
-			if(counter < 1000)
-			{
-				Produce();
-			}
+			Produce();
 	    	sem_post (&queue_counter);  
 		}
-		pthread_mutex_unlock(&lock);
+		pthread_mutex_unlock(&lock2);
 
 
 	}
@@ -88,10 +86,8 @@ void *consumer(void *data)
 
 		pthread_mutex_lock(&lock);
 		{
-			if(!QueueIsEmpty(queue))
-			{
-				Consume();
-			}
+			Consume();
+		    sem_post (&max_counter);  
 		}
 		pthread_mutex_unlock(&lock);	
 	}
@@ -109,10 +105,13 @@ int main()
 	pthread_t *producers_id = (pthread_t *)malloc(sizeof(pthread_t) * NUM_PRODUCERS);
 
 	pthread_mutex_init(&lock, NULL);
+	pthread_mutex_init(&lock2, NULL);
+
 	
 	sem_init(&queue_counter, 0, 0);
+	sem_init(&max_counter, 0, QUEUE_SIZE);
 
-	queue = QueueCreate();
+	queue = QueueCreate(QUEUE_SIZE);
 
 	for(i = 0; i < NUM_PRODUCERS; ++i)
 	{
@@ -151,6 +150,7 @@ int main()
 	}
 
     pthread_mutex_destroy(&lock);
+    sem_destroy(&queue_counter); 
     QueueDestroy(queue);
 
   	return 0;

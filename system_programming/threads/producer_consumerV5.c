@@ -10,46 +10,32 @@
 #include <stdio.h>/* printf */
 #include <assert.h>
 #include <semaphore.h>  
+#include <string.h>
 
-#include "queue.h"
-#include "sll.h"
+#include "circular_queue.h"
 
-#define QUEUE_SIZE 1000
+#define BUFFER_SIZE 256
 #define NUM_VALUES 1000
-#define NUM_CONSUMERS 5
-#define NUM_PRODUCERS 5
+#define NUM_CONSUMERS 1000
+#define NUM_PRODUCERS 1
 
-queue_t *queue = NULL;
-pthread_mutex_t lock; 
-sem_t queue_counter;
-
-int g_busy = 0;
-int g_is_full = 0;
-int counter = 0;
-
+char buffer[BUFFER_SIZE];
+pthread_cond_t consume_add;
+pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER; 
+sem_t max_counter;
+int g_cons_counter = 0;
 
 void Produce()
 {		
-	int data = 5;
-
 	printf("Producing...\n");
-	QueueEnqueue(queue, &data);	
-	counter = QueueSize(queue);
-/*	sleep(1);
-*/}
+	strcpy(buffer,"Holla, My name is Daniel!");
+}
 
 void Consume()
 {
-	int data = 0;
-
 	printf("Consuming...\n");
-	printf("queue size: %d\n", QueueSize(queue));
-
-	data = *(int *)QueuePeek(queue);
-	QueueDequeue(queue);
-	--counter;
-
-	printf("data: %d\n", data);
+	printf("data: %s\n", buffer);
+	++g_cons_counter;
 }
 
 void *producer(void *data)
@@ -58,20 +44,17 @@ void *producer(void *data)
 
 	while(1)
 	{
-		sleep(1);
-
+		int value = 0;
+		int i = 0;
 		/*Critical Section*/	
-		pthread_mutex_lock(&lock);
-		{
-			if(counter < 1000)
-			{
-				Produce();
-			}
-	    	sem_post (&queue_counter);  
+		for(i = 0; i < NUM_CONSUMERS; ++i) /*Making sure each consumer*/
+		{                                  /*Has Reached the condition*/ 
+			sem_wait(&max_counter);        /*variable.                */
 		}
-		pthread_mutex_unlock(&lock);
 
-
+		sem_wait(&max_counter);
+		Produce();
+		pthread_cond_broadcast(&consume_add);		
 	}
 
 	return NULL;
@@ -79,21 +62,25 @@ void *producer(void *data)
 
 void *consumer(void *data)
 {
+	int value = 0;
 	(void)data;
 
 	while(1)
 	{
 		/*Critical Section*/
-		sem_wait(&queue_counter);
-
 		pthread_mutex_lock(&lock);
+
+		sem_post(&max_counter);  
+		if(0 == pthread_cond_wait(&consume_add, &lock))
+		Consume();
+		pthread_mutex_unlock(&lock);
+
+	
+		if(g_cons_counter == NUM_CONSUMERS)
 		{
-			if(!QueueIsEmpty(queue))
-			{
-				Consume();
-			}
+		   	sem_post(&max_counter);
+			g_cons_counter = 0;
 		}
-		pthread_mutex_unlock(&lock);	
 	}
 
 	return NULL;
@@ -108,11 +95,8 @@ int main()
 	pthread_t *consumers_id = (pthread_t *)malloc(sizeof(pthread_t) * NUM_CONSUMERS);
 	pthread_t *producers_id = (pthread_t *)malloc(sizeof(pthread_t) * NUM_PRODUCERS);
 
-	pthread_mutex_init(&lock, NULL);
-	
-	sem_init(&queue_counter, 0, 0);
+	sem_init(&max_counter, 0, 1);
 
-	queue = QueueCreate();
 
 	for(i = 0; i < NUM_PRODUCERS; ++i)
 	{
@@ -151,7 +135,7 @@ int main()
 	}
 
     pthread_mutex_destroy(&lock);
-    QueueDestroy(queue);
+    sem_destroy(&max_counter); 
 
   	return 0;
 }
