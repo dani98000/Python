@@ -7,24 +7,27 @@
 #include <time.h>
 #include <unistd.h>
 #include <stdio.h>
+#include <pthread.h>
 
 #include "uid.h"
 
 const unid_t bad_uid;
+pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER; 
 
 unid_t UIDCreate()
 {
 	unid_t uid;
 	static size_t counter = 0;
-
 	uid.pid = getpid();
 	if(-1 == gettimeofday(&uid.time, NULL))
 	{
 		return bad_uid;
 	}
 	
+	pthread_mutex_lock(&lock);
 	uid.counter = ++counter;
-	
+	pthread_mutex_unlock(&lock);
+
 	return uid;
 }
 

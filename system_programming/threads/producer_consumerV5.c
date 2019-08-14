@@ -8,14 +8,11 @@
 #include <stdlib.h>/* malloc */ 
 #include <unistd.h> /* sleep */
 #include <stdio.h>/* printf */
-#include <assert.h>
+#include <assert.h>/* assert */
 #include <semaphore.h>  
 #include <string.h>
 
-#include "circular_queue.h"
-
 #define BUFFER_SIZE 256
-#define NUM_VALUES 1000
 #define NUM_CONSUMERS 5
 #define NUM_PRODUCERS 1
 
@@ -44,9 +41,8 @@ void *Producer(void *data)
 
 	while(1)
 	{
-		int value = 0;
 		int i = 0;
-		/*Critical Section*/	
+
 		for(i = 0; i < NUM_CONSUMERS; ++i) /*Making sure each consumer*/
 		{                                  /*Has Reached the condition*/ 
 			sem_wait(&max_counter);        /*variable.                */
@@ -64,24 +60,19 @@ void *Producer(void *data)
 
 void *Consumer(void *data)
 {
-	int value = 0;
 	(void)data;
 
 	while(1)
 	{
-		/*Critical Section*/
 		pthread_mutex_lock(&lock);
 
-		sem_post(&max_counter);  
+		sem_post(&max_counter);
 		if(0 == pthread_cond_wait(&consume_add, &lock))
 		{
 			Consume();
 		}
 		
 		pthread_mutex_unlock(&lock);
-
-
-
 	}
 
 	return NULL;
@@ -89,8 +80,6 @@ void *Consumer(void *data)
 
 int main()
 {
-	pthread_t producer_thr;
-	pthread_t consumer_thr;
 	int ret = 0;
 	int i = 0;
 	pthread_t *consumers_id = (pthread_t *)malloc(sizeof(pthread_t) * NUM_CONSUMERS);
