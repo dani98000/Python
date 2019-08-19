@@ -35,15 +35,13 @@ int main()
     wait_op.sem_op = -1;
 
     sem_id = semget(sem_key, 2, IPC_CREAT | IPC_EXCL | 0600);
-
-    init_semaphore(sem_id, 0, 1);
-
     if (sem_id == -1) 
     {
         perror("semget");
         exit(EXIT_FAILURE); 
     }
 
+    init_semaphore(sem_id, 0, 1);
     
     printf("ping\n"); 
     sleep(6);
