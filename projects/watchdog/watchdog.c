@@ -23,7 +23,7 @@ static void SignalsInit();
 static void sigusr1_handler(int signum);
 static void sigusr2_handler(int signum);
 static int SemInit(char **argv);
-static void ReviveApp(char *argv[]);
+static int ReviveApp(char *argv[]);
 
 int main(int argc, char *argv[])
 {
@@ -40,7 +40,7 @@ int main(int argc, char *argv[])
     action2.sa_handler = sigusr2_handler;
     sigaction(SIGUSR2, &action2, NULL);
 
-	/*SignalsInit();*/
+	SignalsInit();
 
 	g_sem_id = SemInit(argv);
 	printf("sem id: %d\n", g_sem_id);
@@ -51,14 +51,12 @@ int main(int argc, char *argv[])
 
 	if (semop(g_sem_id, &wd_ready, 1) == -1) 
     {
-    	perror("semop(wd_ready)");
-    	return 0;
+    	return WD_E_SEM;
     }
 
     if (semop(g_sem_id, &app_ready, 1) == -1) 
     {
-    	perror("semop(app_ready)");
-    	return 0;
+    	return WD_E_SEM;
     }
 
     ScdRun(scheduler);
@@ -70,7 +68,6 @@ static long HeartBeat(void *params)
 	
 	if(!g_should_stop)
 	{
-		printf("%d\n", g_target_pid);
 		kill(g_target_pid, SIGUSR1);
 	}
 
@@ -91,8 +88,10 @@ static long CheckApp(void *params)
 	{
 		if(lives == 0 && !g_got_signal)
 		{
-			ReviveApp((char **) params);
-			lives =  3;
+			if(!ReviveApp((char **) params))/*If Revived successfully reset lives*/
+			{
+				lives =  3;
+			}
 		}
 		else if(g_got_signal)
 		{
@@ -107,7 +106,7 @@ static long CheckApp(void *params)
 	return 0;			
 }
 
-static void ReviveApp(char *argv[])
+static int ReviveApp(char *argv[])
 {
 	struct sembuf app_ready = {1,-1,0};
 
@@ -119,9 +118,10 @@ static void ReviveApp(char *argv[])
 
 	if (semop(g_sem_id, &app_ready, 1) == -1) 
     {
-  		perror("semop(app_ready)");
-    	return;
+    	return WD_E_SEM;
     }
+
+    return 0;
 }
 
 static void SignalsInit()
@@ -157,15 +157,13 @@ static int SemInit(char *argv[])
 
 	if ((sem_key = ftok(argv[2], proj_id)) == (key_t) -1) 
     {
-        perror("IPC error: ftok"); 
-        exit(EXIT_FAILURE);
+    	return WD_E_SEM;
     }
      
     g_sem_id = semget(sem_key, 2, 0600);
     if (g_sem_id == -1) 
     {
-        perror("semget(watchdog)");
-        exit(EXIT_FAILURE); 
+    	return WD_E_SEM;
     }
 
     return g_sem_id;

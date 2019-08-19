@@ -31,20 +31,22 @@ static char **MakeArgv(char *argv[], int argc, int proj_id);
 static long HeartBeat(void *params);
 static long CheckWatchDog(void *params);
 static void *SchedulerRun(void *scheduler);
-static void RunThreads(scd_t *scheduler);
+static int RunThread(scd_t *scheduler);
 static int SemInit(int proj_id, char **argv);
 static void sigusr1_handler(int signum);
 static void sigusr2_handler(int signum);
 static void SignalsInit();
-static void ReviveWD(char *argv[]);
+static int ReviveWD(char *argv[]);
+static int SemDestroy(int g_sem_id);
 
 int WDStart(int argc, char *argv[], int proj_id)
 {
 	key_t sem_key;
-    struct sembuf wd_ready = {0,1,0};
+    struct sembuf wd_ready = {0,-1,0};
     struct sembuf app_ready = {1,1,0};
 	char **new_argv = NULL;
 	scd_t *scheduler = ScdCreate();
+	int status = 0;
 
 	struct sigaction action1;
 	struct sigaction action2;
@@ -57,53 +59,50 @@ int WDStart(int argc, char *argv[], int proj_id)
 
 	/*SignalsInit();*/
 	g_sem_id = SemInit(proj_id, argv);
-	printf("sem id: %d\n", g_sem_id);
+	if(-1 == g_sem_id)
+	{
+		return WD_E_SEM;
+	}
 
 	new_argv = MakeArgv(argv, argc, proj_id);
-	printf("wd_ready value :%d\n", GetSemVal(g_sem_id, 0));
+
     if(0 == GetSemVal(g_sem_id, 0))
     {
     	if ((g_wd_pid = fork()) < 0) 
     	{ 
-        	perror("fork"); 
-       		exit(EXIT_FAILURE); 
+    		return WD_E_EXEC;
     	}
     	if(g_wd_pid == 0)
     	{
     		if(-1 == execv(new_argv[0], new_argv))
     		{
-    			perror("exec");
-    			exit(EXIT_FAILURE);
+    			return WD_E_EXEC;
     		}
+    	}
+    	if (semop(g_sem_id, &wd_ready, 1) == -1) 
+    	{
+			return WD_E_SEM;
     	}
     }
     else
     {
     	g_wd_pid = getppid();
-    	printf("helloooooo\n");
-    	if (semop(g_sem_id, &wd_ready, 1) == -1) 
-    	{
-        	perror("semop(wd_ready)");
-        	return 0;
-    	}
     }
 
     ScdAdd(scheduler, 1, HeartBeat, NULL);
 	ScdAdd(scheduler, 1, CheckWatchDog, new_argv);
-    RunThreads(scheduler);
+    status = RunThread(scheduler);
+    if(!status)
+    {
+    	return status;
+    }
 
     if (semop(g_sem_id, &app_ready, 1) == -1) 
     {
-        perror("semop(app_ready)");
-       	return 0;
+		return WD_E_SEM;
     }
 
-    wd_ready.sem_op = -1;
-    if (semop(g_sem_id, &wd_ready, 1) == -1) 
-    {
-        perror("semop(wd_ready)");
-       	return 0;
-    }
+    return 0;
 }
 
 static long HeartBeat(void *params)
@@ -112,7 +111,6 @@ static long HeartBeat(void *params)
 	
 	if(!g_should_stop)
 	{
-		printf("%d\n", g_wd_pid);
 		kill(g_wd_pid, SIGUSR1);
 	}
 
@@ -127,7 +125,6 @@ static long CheckWatchDog(void *params)
 	if(lives == 0 && !g_got_signal)
 	{
 		ReviveWD((char **)params);
-		printf("revive watchdog\n");
 		lives = 3;
 	}
 	else if(g_got_signal)
@@ -143,72 +140,79 @@ static long CheckWatchDog(void *params)
 	return 0;			
 }
 
-static void ReviveWD(char *argv[])
+static int ReviveWD(char *argv[])
 {
 	struct sembuf wd_ready = {0,-1,0};
 	struct sembuf app_ready = {1,1,0};
 
 	if (semop(g_sem_id, &wd_ready, 1) == -1) 
     {
-  		perror("semop(wd_ready)");
-    	return;
+		return WD_E_SEM;
     }
 
 	g_wd_pid = fork();
-	if(g_wd_pid == 0)
+	if (g_wd_pid < 0) 
+    { 
+    	return WD_E_EXEC;
+    }
+	else if(g_wd_pid == 0)
 	{
 		execv(argv[0], argv);
 	}
 
 	if (semop(g_sem_id, &app_ready, 1) == -1) 
     {
-  		perror("semop(wd_ready)");
-    	return;
+		return WD_E_SEM;
     }
 
     wd_ready.sem_op = -1;
     if (semop(g_sem_id, &wd_ready, 1) == -1) 
     {
-  		perror("semop(wd_ready)");
-    	return;
+		return WD_E_SEM;
     }
+
+    return 0;
 }
 
-static void RunThreads(scd_t *scheduler)
+static int RunThread(scd_t *scheduler)
 {
 	pthread_t thread;
 
     if (0 != pthread_create(&thread, NULL, SchedulerRun, scheduler))
     {
-        printf("failed to create thread.\n");
-        exit(EXIT_FAILURE);
+		return WD_E_THREAD;
     }
     
 	if (pthread_detach(thread) != 0) 
 	{
-		perror("pthread_detach() error");
-		exit(EXIT_FAILURE);
+		return WD_E_THREAD;
 	}
+
+	return 0;
 }
 
 static void *SchedulerRun(void *scheduler)
 {
 	ScdRun((scd_t *)scheduler);
+
+	return NULL;
 }
 
 static int GetSemVal(int g_sem_id, int semnum)
 {
-	union semun arg;    
+	union semun arg;  
+
     return semctl(g_sem_id, semnum, GETVAL, arg);
 }
 
-static void SemDestroy(int g_sem_id)
+static int SemDestroy(int g_sem_id)
 {
 	if(-1 == semctl(g_sem_id, 0, IPC_RMID))
 	{
-		perror("failed to desroy semaphore");
-		exit(EXIT_FAILURE);
+		return WD_E_SEM;
 	}
+
+	return 0;
 }
 
 static char **MakeArgv(char *argv[], int argc, int proj_id)
@@ -247,8 +251,7 @@ static int SemInit(int proj_id, char **argv)
 
 	if ((sem_key = ftok(argv[0], proj_id)) == (key_t) -1) 
     {
-        perror("IPC error: ftok"); 
-        exit(EXIT_FAILURE);
+    	return WD_E_SEM;
     }
 
     g_sem_id = semget(sem_key, 2, IPC_CREAT | IPC_EXCL | 0600);
