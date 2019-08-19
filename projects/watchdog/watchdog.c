@@ -24,6 +24,7 @@ static void sigusr1_handler(int signum);
 static void sigusr2_handler(int signum);
 static int SemInit(char **argv);
 static int ReviveApp(char *argv[]);
+static int SemDestroy(int g_sem_id);
 
 int main(int argc, char *argv[])
 {
@@ -46,7 +47,7 @@ int main(int argc, char *argv[])
 	printf("sem id: %d\n", g_sem_id);
 	g_target_pid = getppid();
 
-	ScdAdd(scheduler, 1, HeartBeat, NULL);
+	ScdAdd(scheduler, 1, HeartBeat, scheduler);
     ScdAdd(scheduler, 1, CheckApp, argv);
 
 	if (semop(g_sem_id, &wd_ready, 1) == -1) 
@@ -70,8 +71,23 @@ static long HeartBeat(void *params)
 	{
 		kill(g_target_pid, SIGUSR1);
 	}
+	else
+	{
+		kill(g_target_pid, SIGUSR2);
+		ScdDestroy((scd_t *) params);
+	}
 
 	return 0;			
+}
+
+static int SemDestroy(int g_sem_id) /*TODO : Think if sem id should be global...*/
+{
+	if(-1 == semctl(g_sem_id, 0, IPC_RMID))
+	{
+		return WD_E_SEM;
+	}
+
+	return 0;
 }
 
 static long CheckApp(void *params)
@@ -145,8 +161,7 @@ static void sigusr1_handler(int signum)
 static void sigusr2_handler(int signum)
 {
 	UNUSED(signum);
-
-	g_got_signal = 1;
+	g_should_stop = 1;
 }
 
 static int SemInit(char *argv[])
