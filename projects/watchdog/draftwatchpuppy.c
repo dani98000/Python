@@ -14,7 +14,6 @@
 
 #define WD_PATH "./wd"
 #define UNUSED(X) (void)(X)
-#define FREQUENCY 1
 
 union semun
 {
@@ -25,12 +24,12 @@ union semun
 };
 
 pthread_t thread;
+
 int g_wd_pid = -1;
 int g_sem_id = 0;
 char **new_argv = NULL;
 volatile sig_atomic_t g_got_signal = 0;
-volatile sig_atomic_t g_got_usr2 = 0;
-int g_should_stop = 0;
+volatile sig_atomic_t g_should_stop = 0;
 
 static int GetSemVal(int semnum);
 static char **MakeArgv(char *argv[], int argc, int proj_id, int *status);
@@ -45,7 +44,6 @@ static void SignalsInit();
 static int ReviveWD(char *argv[]);
 static int SemDestroy();
 static void DestroyArgv(char *argv[]);
-static int CreateWatchDogIfNeeded();
 
 int WDStart(int argc, char *argv[], int proj_id)
 {
@@ -55,68 +53,30 @@ int WDStart(int argc, char *argv[], int proj_id)
 	scd_t *scheduler = ScdCreate();
 	int status = 0;
 
-	assert(argv);
-	assert(argc > 0);
-
 	SignalsInit();
 	if(SemInit(proj_id, argv) == WD_E_SEM)
 	{
+		assert(1);
 		return WD_E_SEM;
 	}
-
 	new_argv = MakeArgv(argv, argc, proj_id, &status);
 
-    ScdAdd(scheduler, FREQUENCY, HeartBeat, NULL);
-	ScdAdd(scheduler, FREQUENCY, CheckWatchDog, new_argv);
+    ScdAdd(scheduler, 1, HeartBeat, NULL);
+	ScdAdd(scheduler, 1, CheckWatchDog, new_argv);
 
     if (semop(g_sem_id, &app_ready, 1) == -1) 
     {
 		return WD_E_SEM;
     }	
 
-	status = CreateWatchDogIfNeeded();
-	if(status)
+	if(-1 == g_sem_id)
 	{
-		return status;
+		return WD_E_SEM;
 	}
 
-    status = RunThread(scheduler);
-    if(status)
+    if(0 == GetSemVal(0))
     {
-    	return status;
-    }
-
-    return status;
-}
-
-void WDStop()
-{
-	g_should_stop = 1;
-	int times = 5;
-
-	while(times && !g_got_usr2)
-	{
-		kill(g_wd_pid, SIGUSR2);
-		sleep(1);
-		--times;
-
-    }
-    kill(g_wd_pid, SIGKILL);
-
-    DestroyArgv(new_argv);
-    SemDestroy(g_sem_id);
-
-	pthread_join(thread, NULL);
-}
-
-static int CreateWatchDogIfNeeded()
-{
-	struct sembuf wd_ready = {0,-1,0};
-
-	if(0 == GetSemVal(0))
-    {
-    	g_wd_pid = fork();
-    	if (g_wd_pid < 0) 
+    	if ((g_wd_pid = fork()) < 0) 
     	{ 
     		return WD_E_EXEC;
     	}
@@ -126,16 +86,29 @@ static int CreateWatchDogIfNeeded()
     		{
     			return WD_E_EXEC;
     		}
-    		exit(0);
     	}
-
     	if (semop(g_sem_id, &wd_ready, 1) == -1) 
     	{
 			return WD_E_SEM;
     	}
     }
 
+
+    status = RunThread(scheduler);
+    if(status)
+    {
+    	return status;
+    }
+
     return 0;
+}
+
+void WDStop()
+{
+	kill(g_wd_pid, SIGUSR2);
+    DestroyArgv(new_argv);
+
+	pthread_join(thread, NULL);
 }
 
 static long HeartBeat(void *params)
@@ -203,7 +176,7 @@ static int ReviveWD(char *argv[])
 	else if(g_wd_pid == 0)
 	{
 		execv(argv[0], argv);
-		exit(0);
+		exit(1);
 	}
 
     if (semop(g_sem_id, &wd_ready, 1) == -1) 
@@ -216,7 +189,6 @@ static int ReviveWD(char *argv[])
 
 static int RunThread(scd_t *scheduler)
 {
-	assert(scheduler);
 
     if (0 != pthread_create(&thread, NULL, SchedulerRun, scheduler))
     {
@@ -228,10 +200,10 @@ static int RunThread(scd_t *scheduler)
 
 static void *SchedulerRun(void *scheduler)
 {
-	assert(scheduler);
-
 	ScdRun((scd_t *)scheduler);
 	ScdDestroy(scheduler);
+	printf("SchedDestroy\n");
+	SemDestroy(g_sem_id);
 
 	return NULL;
 }
@@ -256,18 +228,8 @@ static int SemDestroy()
 static char **MakeArgv(char *argv[], int argc, int proj_id, int *status)
 {
 	int i = 0;
-	char **buffer = NULL;
-	char *num_buffer = NULL;
-
-	assert(argv);
-
-	num_buffer = (char *)malloc(sizeof(*num_buffer) * 8);
-	if(NULL == num_buffer)
-	{
-		*status = WD_E_MEM;
-	}
-
-	buffer = (char **)malloc((argc + 3) * sizeof(*buffer));
+	char *num_buffer = (char *)malloc(sizeof(*num_buffer) * 8);
+	char **buffer = (char **)malloc((argc + 3) * sizeof(*buffer));
 	if(NULL == buffer)
 	{
 		*status = WD_E_MEM;
@@ -290,17 +252,15 @@ static char **MakeArgv(char *argv[], int argc, int proj_id, int *status)
 
 static void DestroyArgv(char *argv[])
 {
-	assert(argv);
-
 	free(argv[1]);
 	free(argv);
+	printf("heythere\n");
 }
 
 static int SemInit(int proj_id, char **argv)
 {
 	int sem_key = 0;
-
-	assert(argv);
+	int g_sem_id = 0;
 
 	if ((sem_key = ftok(argv[0], proj_id)) == (key_t) -1) 
     {
@@ -314,7 +274,7 @@ static int SemInit(int proj_id, char **argv)
     }
 }
 
-static void SignalsInit()
+static void SignalsInit()/*TODO DELETE ALL SEM_ID IN FUNCTIONS DECLARATIONS AND DEFINITIONS*/
 {
 	struct sigaction action1;
 	struct sigaction action2;
@@ -346,5 +306,28 @@ static void Sigusr1_handler(int sig, siginfo_t *info, void *context)
 static void Sigusr2_handler(int signum)
 {
 	UNUSED(signum);
-	g_got_usr2 = 1;
+	g_should_stop = 1;
+}
+
+int main(int argc, char *argv[])
+{
+	WDStart(argc, argv, 50);
+	static int counter = 0;
+
+	while(1)
+	{
+		printf("%d\n", ++counter);
+		sleep(1);
+	}
+
+	WDStop();
+	/*counter = 0;
+	while(counter < 10)
+	{
+		printf("finished!!!!\n");
+		++counter;
+		sleep(1);
+	}*/
+
+	return 0;
 }
