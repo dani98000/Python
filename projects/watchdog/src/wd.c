@@ -61,6 +61,8 @@ int main(int argc, char *argv[])
 	scheduler = InitScheduler(argv);
 	if(NULL == scheduler)
 	{
+		SemDestroy(g_sem_id);	
+
 		return WD_E_MEM;
 	}
 

@@ -62,6 +62,7 @@ static int SemInit(int proj_id, char **argv);
 static int SignalsInit();
 static int Init(int argc, char *argv[], int proj_id);
 static scd_t *InitScheduler(char **arg_buffer);
+static int IsWatchDogAlive();
 
 int WDStart(int argc, char *argv[], int proj_id)
 {
@@ -82,6 +83,8 @@ int WDStart(int argc, char *argv[], int proj_id)
 	scheduler = InitScheduler(new_argv);
 	if(NULL == scheduler)
 	{
+		DestroyArgv(new_argv);
+
 		return WD_E_MEM;
 	}
 
@@ -93,39 +96,15 @@ int WDStart(int argc, char *argv[], int proj_id)
 	status = CreateWatchDogIfNeeded();
 	if(status != WD_OK)
 	{
+		DestroyArgv(new_argv);
+    	SemDestroy(g_sem_id);
+    	
 		return status;
 	}
 
     status = RunThread(scheduler);
 
     return status;
-}
-
-static scd_t *InitScheduler(char **arg_buffer)
-{
-    unid_t task_send_sig;
-    unid_t task_check_sig;
-    scd_t *scheduler = NULL;
-
-    assert(arg_buffer);
-
-    scheduler = ScdCreate();
-    if (!scheduler)
-    {
-        return NULL;
-    }  
-
-    task_send_sig = ScdAdd(scheduler, FREQUENCY, HeartBeat, NULL);
-	task_check_sig = ScdAdd(scheduler, FREQUENCY, CheckWatchDog, new_argv);
-    
-    if (UIDIsBad(task_send_sig) || UIDIsBad(task_check_sig))
-    {
-        ScdDestroy(scheduler);  
-         
-        return NULL;
-    }
-    
-    return scheduler;
 }
 
 void WDStop()
@@ -170,17 +149,51 @@ static int Init(int argc, char *argv[], int proj_id)
 	status = MakeArgv(argv, argc, proj_id);
 	if(status != WD_OK)
 	{
+		SemDestroy(g_sem_id);
+
 		return status;
 	}
 
 	return WD_OK;
 }
 
+static scd_t *InitScheduler(char **arg_buffer)
+{
+    unid_t task_send_sig;
+    unid_t task_check_sig;
+    scd_t *scheduler = NULL;
+
+    assert(arg_buffer);
+
+    scheduler = ScdCreate();
+    if (!scheduler)
+    {
+        return NULL;
+    }  
+
+    task_send_sig = ScdAdd(scheduler, FREQUENCY, HeartBeat, NULL);
+	task_check_sig = ScdAdd(scheduler, FREQUENCY, CheckWatchDog, new_argv);
+    
+    if (UIDIsBad(task_send_sig) || UIDIsBad(task_check_sig))
+    {
+        ScdDestroy(scheduler);  
+         
+        return NULL;
+    }
+    
+    return scheduler;
+}
+
+static int IsWatchDogAlive()
+{
+    return (semctl(g_sem_id, 0, GETVAL) != 0);
+}
+
 static int CreateWatchDogIfNeeded()
 {
 	struct sembuf wd_ready = {0,-1,0};
 
-	if(0 == GetSemVal(0))
+	if(!IsWatchDogAlive())
     {
     	g_wd_pid = fork();
     	if (g_wd_pid < 0) 
@@ -230,23 +243,22 @@ static long CheckWatchDog(void *params)
 	{
 		return -1;
 	}
+
+	if(0 == lives && !g_got_signal)
+	{
+		ReviveWD((char **)params);
+		lives = NUM_LIVES;
+	}
+	else if(g_got_signal)
+	{
+		lives = NUM_LIVES;
+		g_got_signal = 0;
+	}
 	else
 	{
-		if(lives == 0 && !g_got_signal)
-		{
-			ReviveWD((char **)params);
-			lives = NUM_LIVES;
-		}
-		else if(g_got_signal)
-		{
-			lives = NUM_LIVES;
-			g_got_signal = 0;
-		}
-		else
-		{
-			--lives;
-		}
+		--lives;
 	}
+	
 	return WD_OK;			
 }
 
@@ -295,13 +307,6 @@ static void *SchedulerRun(void *scheduler)
 	ScdDestroy(scheduler);
 
 	return NULL;
-}
-
-static int GetSemVal(int semnum)
-{
-	union semun arg;  
-
-    return semctl(g_sem_id, semnum, GETVAL, arg);
 }
 
 static int SemDestroy()
