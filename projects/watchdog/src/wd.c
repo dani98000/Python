@@ -208,11 +208,8 @@ static int ReviveApp(char *argv[])
 
 static int SignalsInit()
 {
-	struct sigaction action1;
-	struct sigaction action2;
-
-    memset(&action1,0,sizeof(struct sigaction));
-    memset(&action2,0,sizeof(struct sigaction));
+	struct sigaction action1 = {0};
+	struct sigaction action2 = {0};
 
     action1.sa_handler = Sigusr1_handler;
     if(-1 == sigaction(SIGUSR1, &action1, NULL))
@@ -243,10 +240,10 @@ static void Sigusr2_handler(int signum)
 
 static int SemInit(char *argv[])
 {
-	int sem_key = 0;
+	key_t sem_key = 0;
 	int proj_id = atoi(argv[1]);
 
-	if ((sem_key = ftok(argv[2], proj_id)) == (key_t) -1) 
+	if ((sem_key = ftok(argv[2], proj_id)) == -1) 
     {
     	return WD_E_SEM;
     }

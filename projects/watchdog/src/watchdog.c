@@ -61,13 +61,12 @@ static int MakeArgv(char *argv[], int argc, int proj_id);
 static int SemInit(int proj_id, char **argv);
 static int SignalsInit();
 static int Init(int argc, char *argv[], int proj_id);
-static scd_t *InitScheduler(char **arg_buffer);
+static scd_t *InitScheduler();
 static int IsWatchDogAlive();
 
 int WDStart(int argc, char *argv[], int proj_id)
 {
 	key_t sem_key = 0;
-    struct sembuf app_ready = {1,1,0};
 	scd_t *scheduler = NULL;
 	int status = 0;
 
@@ -80,18 +79,13 @@ int WDStart(int argc, char *argv[], int proj_id)
 		return status;
 	}
 
-	scheduler = InitScheduler(new_argv);
+	scheduler = InitScheduler();
 	if(NULL == scheduler)
 	{
 		DestroyArgv(new_argv);
 
 		return WD_E_MEM;
 	}
-
-    if (semop(g_sem_id, &app_ready, 1) == -1) 
-    {
-		return WD_E_SEM;
-    }	
 
 	status = CreateWatchDogIfNeeded();
 	if(status != WD_OK)
@@ -119,7 +113,11 @@ void WDStop()
 		--times;
 
     }
-    kill(g_wd_pid, SIGKILL);
+
+    if(!g_got_usr2)
+    {
+    	kill(g_wd_pid, SIGKILL);
+    }
 
     DestroyArgv(new_argv);
     SemDestroy(g_sem_id);
@@ -131,7 +129,6 @@ static int Init(int argc, char *argv[], int proj_id)
 {
 	int status = 0;
 
-	assert(argc);
 	assert(argv);
 
 	status = SignalsInit();
@@ -157,13 +154,11 @@ static int Init(int argc, char *argv[], int proj_id)
 	return WD_OK;
 }
 
-static scd_t *InitScheduler(char **arg_buffer)
+static scd_t *InitScheduler()
 {
     unid_t task_send_sig;
     unid_t task_check_sig;
     scd_t *scheduler = NULL;
-
-    assert(arg_buffer);
 
     scheduler = ScdCreate();
     if (!scheduler)
@@ -192,6 +187,7 @@ static int IsWatchDogAlive()
 static int CreateWatchDogIfNeeded()
 {
 	struct sembuf wd_ready = {0,-1,0};
+    struct sembuf app_ready = {1,1,0};
 
 	if(!IsWatchDogAlive())
     {
@@ -213,6 +209,13 @@ static int CreateWatchDogIfNeeded()
     	{
 			return WD_E_SEM;
     	}
+    }
+    else
+    {
+	    if (semop(g_sem_id, &app_ready, 1) == -1) 
+		{
+			return WD_E_SEM;
+		}	
     }
 
     return WD_OK;
@@ -259,7 +262,7 @@ static long CheckWatchDog(void *params)
 		--lives;
 	}
 	
-	return WD_OK;			
+	return 0;			
 }
 
 static int ReviveWD(char *argv[])
@@ -363,19 +366,19 @@ static void DestroyArgv(char *argv[])
 
 static int SemInit(int proj_id, char **argv)
 {
-	int sem_key = 0;
+	key_t sem_key = 0;
 
 	assert(argv);
 
-	if ((sem_key = ftok(argv[0], proj_id)) == (key_t) -1) 
+	if ((sem_key = ftok(argv[0], proj_id)) == -1) 
     {
     	return WD_E_SEM;
     }
 
-    g_sem_id = semget(sem_key, SEM_PERMS, IPC_CREAT | IPC_EXCL | SEM_PERMS);
+    g_sem_id = semget(sem_key, NUM_SEMS, IPC_CREAT | IPC_EXCL | SEM_PERMS);
     if (errno == EEXIST)
     {
-    	g_sem_id = semget(sem_key, 2, 0600);
+    	g_sem_id = semget(sem_key, NUM_SEMS, 0600);
     	if(-1 == g_sem_id)
     	{
     		return WD_E_SEM;
@@ -387,11 +390,8 @@ static int SemInit(int proj_id, char **argv)
 
 static int SignalsInit()
 {
-	struct sigaction action1;
-	struct sigaction action2;
-
-    memset(&action1,0,sizeof(struct sigaction));
-    memset(&action2,0,sizeof(struct sigaction));
+	struct sigaction action1 = {0};
+	struct sigaction action2 = {0};
 
 	action1.sa_flags = SA_SIGINFO;
     action1.sa_sigaction = Sigusr1_handler;
