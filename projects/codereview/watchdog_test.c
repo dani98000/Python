@@ -4,13 +4,18 @@ int main(int argc, char *argv[])
 
 	WDStart(argc, argv, 60);
 
-	while(counter < 10)
+	/*while(counter < 10)
 	{
 		printf("%d\n", ++counter);
 		sleep(1);
 	}
-	WDStop();
+	WDStop();*/
 
+	while(1)
+	{
+		printf("%d\n", ++counter);
+		sleep(1);
+	}
 
 	return 0;
 }

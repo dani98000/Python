@@ -35,7 +35,9 @@ static void Sigusr1_handler(int signum);
 static void Sigusr2_handler(int signum);
 
 static int SignalsInit();
-static int SemInit(char **argv);
+static int SemInit(char *argv[]);
+static int Init(char *argv[]);
+static scd_t *InitScheduler(char **arg_buffer);
 
 static int ReviveApp(char *argv[]);
 static int SemDestroy(int g_sem_id);
@@ -44,7 +46,66 @@ int main(int argc, char *argv[])
 {
 	struct sembuf wd_ready = {0,2,0};
 	int status = 0;
-	scd_t *scheduler = ScdCreate();
+	scd_t *scheduler = NULL;
+
+	assert(argv);
+
+	status = Init(argv);
+	if(status != WD_OK)
+	{
+		return status;
+	}
+
+	g_target_pid = getppid();
+
+	scheduler = InitScheduler(argv);
+	if(NULL == scheduler)
+	{
+		return WD_E_MEM;
+	}
+
+	if (semop(g_sem_id, &wd_ready, 1) == -1) 
+    {
+    	return WD_E_SEM;
+    }
+
+    ScdRun(scheduler);
+    ScdDestroy(scheduler);
+    SemDestroy(g_sem_id);
+
+    return WD_OK;
+}
+
+static scd_t *InitScheduler(char **argv)
+{
+    unid_t task_send_sig;
+    unid_t task_check_sig;
+    scd_t *scheduler = NULL;
+
+    assert(argv);
+
+    scheduler = ScdCreate();
+    if (!scheduler)
+    {
+        return NULL;
+    }  
+
+    task_send_sig = ScdAdd(scheduler, FREQUENCY, HeartBeat, NULL);
+	task_check_sig = ScdAdd(scheduler, FREQUENCY, CheckApp, argv);
+    
+    if (UIDIsBad(task_send_sig) || UIDIsBad(task_check_sig))
+    {
+        ScdDestroy(scheduler);  
+         
+        return NULL;
+    }
+    
+    return scheduler;
+}
+
+static int Init(char *argv[])
+{
+	int status = 0;
 
 	assert(argv);
 
@@ -60,21 +121,7 @@ int main(int argc, char *argv[])
 		return status;
 	}
 
-	g_target_pid = getppid();
-
-	ScdAdd(scheduler, FREQUENCY, HeartBeat, NULL);
-    ScdAdd(scheduler, FREQUENCY, CheckApp, argv);
-
-	if (semop(g_sem_id, &wd_ready, 1) == -1) 
-    {
-    	return WD_E_SEM;
-    }
-
-    ScdRun(scheduler);
-    ScdDestroy(scheduler);
-    SemDestroy(g_sem_id);
-
-    return WD_OK;
+	return status;
 }
 
 static long HeartBeat(void *params)
