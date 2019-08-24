@@ -5,3 +5,6 @@
 !*.c
 !*.mk
 !*makefile
+!*.java
+!*.class
+!*.jar
