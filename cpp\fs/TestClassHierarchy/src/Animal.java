@@ -6,35 +6,26 @@ public class Animal {
 
 	private int noOfLegs;
 
-	public Animal(){}
-
-	public Animal(boolean veg, String food, int legs){
-		this.vegetarian = veg;
-		this.eats = food;
-		this.noOfLegs = legs;
+	// Instance Initialization Block 
+    {  
+        System.out.println("First instance block of superclass"); 
+    } 
+	
+    // Constructor
+	public Animal(){
+		this.vegetarian = true;
+		this.eats = "meat";
+		this.noOfLegs = 5;
+        System.out.println("Constructor of superclass called"); 		
 	}
-
-	public boolean isVegetarian() {
-		return vegetarian;
+	
+    // Static block
+	static {
+    System.out.println("static block of superclass called "); 
 	}
-
-	public void setVegetarian(boolean vegetarian) {
-		this.vegetarian = vegetarian;
-	}
-
-	public String getEats() {
-		return eats;
-	}
-
-	public void setEats(String eats) {
-		this.eats = eats;
-	}
-
-	public int getNoOfLegs() {
-		return noOfLegs;
-	}
-
-	public void setNoOfLegs(int noOfLegs) {
-		this.noOfLegs = noOfLegs;
-	}
+	
+	// Instance Initialization Block 
+    {  
+        System.out.println("Second instance block of superclass"); 
+    } 
 }

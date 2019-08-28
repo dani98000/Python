@@ -2,22 +2,25 @@
 public class Dog extends Animal{
 	private String color;
 
-	public Dog(boolean veg, String food, int legs) {
-		super(veg, food, legs);
+	// Instance Initialization Block 
+    {  
+        System.out.println("First instance block of subclass"); 
+    } 
+	
+    // Constructor 
+	public Dog() {
+		super();
 		this.color="White";
+        System.out.println("Constructor of subclass called"); 		
 	}
-
-	public Dog(boolean veg, String food, int legs, String color){
-		super(veg, food, legs);
-		this.color=color;
+	
+	// Instance Initialization Block 
+    {  
+        System.out.println("Second instance block of subclass"); 
+    } 
+	
+    // Static block
+	static {
+	    System.out.println("static block of subclass called "); 
 	}
-
-	public String getColor() {
-		return color;
-	}
-
-	public void setColor(String color) {
-		this.color = color;
-	}
-
 }
