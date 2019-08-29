@@ -1,19 +1,18 @@
 
 public class SinglyLinkedList {
 	public Node head;
-	private int size;
 	
 	public SinglyLinkedList(){
 		this.head = null;
-		this.size = 0;
 	}
 	
-	public Node begin() {
-		return head;
+	public Iterator begin() {
+        Iterator iter = new ListIteratorImp(head); 
+		return iter;
 	}
 	
 	public boolean isEmpty() {
-		if(size == 0)
+		if(this.getSize() == 0)
 		{
 			return true;
 		}
@@ -24,12 +23,10 @@ public class SinglyLinkedList {
 	public void pushFront(Object data) {
 		Node new_node = new Node(data, this);		
 		head = new_node;
-		++size;
 	}
 	
 	public void popFront() {
 		head = head.next;
-		--size;
 	}
 	
 	public Iterator find(Object data) {
@@ -48,8 +45,17 @@ public class SinglyLinkedList {
         return null;
 	}
 
-	public int getSize(SinglyLinkedList list) {
-		return this.size;
+	public int getSize() {
+		Iterator iter = new ListIteratorImp(head);
+
+		int size = 0;
+		
+		while (iter.hasNext()) {
+			++size;
+			iter.next();
+        }
+		
+		return size;
 	}
 	
 	public class Node{
@@ -57,7 +63,7 @@ public class SinglyLinkedList {
 		Node next;
 		
 		public Node(Object data, SinglyLinkedList list) {
-			this.next = list.begin();
+			this.next = list.head;
 			this.data = data;
 		}
 		
@@ -73,14 +79,14 @@ public class SinglyLinkedList {
 	
 	private class ListIteratorImp implements Iterator{
 		
-		Node next;
+		Node currNode;
 		
-		public ListIteratorImp(Node next) {
-			this.next = next;
+		public ListIteratorImp(Node currNode) {
+			this.currNode = currNode;
 		}
 		
 		public boolean hasNext() {
-			if(next == null)
+			if(currNode == null)
 			{
 				return false;
 			}
@@ -89,8 +95,8 @@ public class SinglyLinkedList {
 		}
 
 		public Object next() {
-			Object retVal = next.data;
-			next = next.next;
+			Object retVal = currNode.data;
+			currNode = currNode.next;
 			
 			return retVal;
 		}
