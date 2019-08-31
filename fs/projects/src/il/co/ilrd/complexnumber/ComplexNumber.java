@@ -1,14 +1,14 @@
 package il.co.ilrd.complexnumber;
 
 public class ComplexNumber implements Comparable <ComplexNumber> {
-	double real;
-	double imaginary;
+	private double real;
+	private double imaginary;
 	
 	ComplexNumber(){
 		this(0, 0);
 	}
 	
-	ComplexNumber(double real, double imaginary){
+	public  ComplexNumber(double real, double imaginary){
 		this.real = real;
 		this.imaginary =imaginary;
 	}
@@ -78,12 +78,12 @@ public class ComplexNumber implements Comparable <ComplexNumber> {
 	
 	public ComplexNumber divide(ComplexNumber other) {
 		double newReal = real;
-
-		imaginary = (-other.imaginary * real + imaginary * other.real) /
-				(Math.pow(other.real, 2) + Math.pow(other.imaginary, 2));
-		
 		newReal = ((other.real * real + other.imaginary * imaginary) /
 				(Math.pow(other.real, 2) + Math.pow(other.imaginary, 2)));
+
+		imaginary = (imaginary * other.real - other.imaginary * real) /
+				(Math.pow(other.real, 2) + Math.pow(other.imaginary, 2));
+		
 		real = newReal;
 		
 		return this;

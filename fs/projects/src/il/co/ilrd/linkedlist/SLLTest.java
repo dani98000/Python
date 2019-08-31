@@ -38,16 +38,20 @@ public class SLLTest {
 	public void test2() {
 		int res = 0;
 		SinglyLinkedList list = new SinglyLinkedList();
-
-		for(int i = 0 ; i < 10; ++i) {
+		Iterator current = list.begin();
+		
+		for(int i = 0 ; i < 10 ; ++i) {
 			list.pushFront(i);
 		}
 		
 		res = list.getSize();
 		assertEquals(res, 10);
 		
-		for(int i = 0; i < 10; ++i) {
-		assertNotEquals(list.find(i), i);
+		int i = 0;
+		while(current.hasNext()) {
+			assertNotEquals(list.find(i), i);
+			++i;
+			current.next();
 		}
 		
 		assertEquals(res, 10);

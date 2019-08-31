@@ -1,12 +1,11 @@
 package il.co.ilrd.linkedlist;
 
+/** Creates a Singly linked list which works as a stack.*/
 public class SinglyLinkedList {
 	private Node head;
 	
 	public Iterator begin() {
-        Iterator iter = new ListIteratorImp(head); 
-        
-		return iter;
+		return new ListIteratorImp(head);
 	}
 	
 	public boolean isEmpty() {
@@ -14,22 +13,25 @@ public class SinglyLinkedList {
 	}
 	
 	public void pushFront(Object data) {
-		Node new_node = new Node(data, head);		
-		head = new_node;
+		head = new Node(data, head);
 	}
 	
 	public void popFront() {
 		head = head.next;
 	}
-	
-	public Iterator find(Object data) {
+
+	/**
+	 * Finds an object in the list.
+	 * @param obj - this is the object being searched, compared using the function "equals".
+	 * @return the iterator if found,else null.
+	 */
+	public Iterator find(Object obj) {
 		
         Iterator currentIter = new ListIteratorImp(head); 
         Iterator prevIter = new ListIteratorImp(head);
 		
         while (currentIter.hasNext()) {
-        	if(currentIter.next() == data) {
-   
+        	if(obj.equals(currentIter.next())) {
         		return prevIter;
         	}
         	prevIter.next();
@@ -64,14 +66,16 @@ public class SinglyLinkedList {
 	private class ListIteratorImp implements Iterator {
 		Node currNode;
 		
-		public ListIteratorImp(Node currNode) {
+		private ListIteratorImp(Node currNode) {
 			this.currNode = currNode;
 		}
 		
+		/** Returns true if the current iterator exists in the list. */
 		public boolean hasNext() {
 			return (currNode != null);
 		}
 
+		/** next returns the current object in the list */
 		public Object next() {
 			Object retVal = currNode.data;
 			currNode = currNode.next;
