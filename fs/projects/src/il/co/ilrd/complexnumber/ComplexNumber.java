@@ -51,7 +51,12 @@ public class ComplexNumber implements Comparable <ComplexNumber> {
 	@Override
 	public int hashCode() {
 		int result = 0;
-		result = (int) (imaginary + real);
+		BigDecimal bdImg = new BigDecimal(imaginary);
+		BigDecimal bdReal = new BigDecimal(real);
+		
+		bdReal = bdReal.setScale(3, BigDecimal.ROUND_HALF_DOWN);
+        bdImg = bdImg.setScale(3, BigDecimal.ROUND_HALF_DOWN);
+		result = (bdImg.add(bdReal)).intValue();
 		
 		return result;
 	}
