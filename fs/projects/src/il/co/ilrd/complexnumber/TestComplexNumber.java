@@ -31,7 +31,7 @@ public class TestComplexNumber {
 	public void testDivide() {
 		ComplexNumber num1 = new ComplexNumber(4,7);
 		ComplexNumber num2 = new ComplexNumber(5,3);
-		ComplexNumber res = new ComplexNumber(1.2058823529411764, 0.6764705882352942);
+		ComplexNumber res = new ComplexNumber(1.206, 0.676);
 				
 		Assertions.assertTrue(res.equals(num1.divide(num2)), getLineNumber(new Exception()));
 	}
