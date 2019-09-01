@@ -42,10 +42,16 @@ public class ComplexNumber implements Comparable <ComplexNumber> {
 	
 	@Override
     public boolean equals(Object other) { 
-        ComplexNumber num = (ComplexNumber)other;
+		final double ALMOST_ZERO = 0.001;
+        ComplexNumber num = null;
         
-        return 0.001 >= Math.abs(this.real - num.real) &&
-               0.001 >= Math.abs(this.imaginary - num.imaginary);
+		if(!(other instanceof ComplexNumber)) {
+			return false;
+		}
+        num = (ComplexNumber)other;
+        
+        return ALMOST_ZERO >= Math.abs(this.real - num.real) &&
+        	   ALMOST_ZERO >= Math.abs(this.imaginary - num.imaginary);
 	}
     
 	@Override
