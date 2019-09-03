@@ -6,7 +6,9 @@ public class VendingMachine {
 	private States stateVM;
 	private int balance;
 	private Monitor monitor;
-	private int timeOut;
+	private static final int TIMEOUT = 10;
+	private int counter;
+	private boolean threadShouldStop;
 	
     HashMap<Integer, Product> hmap = new HashMap<Integer, Product>();
 	
@@ -26,10 +28,20 @@ public class VendingMachine {
 	    hmap.put(Sandwich.getName().hashCode(), Sandwich);
 	}
 	
+	public boolean ThreadShouldStop() {
+		return threadShouldStop;
+	}
+	
+	public States getState() {
+		return stateVM;
+	}
+	
+	public States setState(States newState) {
+		return stateVM;
+	}
+	
 	public void insertMoney(int amount) {
 		stateVM.insertMoney(amount, this);
-		  MyThread myThread = new MyThread(this);
-		  myThread.start();
 	}
 	
 	public void chooseProduct(String productName){
@@ -83,6 +95,21 @@ public class VendingMachine {
 		}
 	}
 	
+	private boolean checkCounter() {
+		if (this.counter > 0) {
+			--this.counter;
+			
+			return false;
+		}
+		
+		return true;
+	}
+	
+	private void resetCounter() { 
+		counter = TIMEOUT;
+		threadShouldStop = false;
+	}
+
 	public enum States{	
 		INIT{
 			@Override
@@ -119,21 +146,21 @@ public class VendingMachine {
 			@Override
 			public void insertMoney(int money, VendingMachine vm) {
 				vm.addToBalance(money);
+				MyThread myThread = new MyThread(vm);
+				vm.resetCounter();
+				vm.threadShouldStop = false;
+				myThread.start();
 				vm.stateVM = WAITING_CHOICE;
 			}
-
 			
-		}, WAITING_CHOICE{
-			@Override
-			public void checkTimeOut(VendingMachine VM) {
-				
-			}
-			
+		}, WAITING_CHOICE{			
 			@Override
 			public void chooseProduct(String product, VendingMachine vm) {
 				//key exists
 				if (vm.hmap.containsKey(product.hashCode())) {
 		            Product someProduct = vm.hmap.get(product.hashCode());
+		            vm.threadShouldStop = false;
+		            
 					if(someProduct.getPrice() <= vm.getBalance()) {
 						vm.monitor.print("Congratz you got yourself a " + product);
 						vm.subtractFromBalance(someProduct.getPrice());
@@ -165,10 +192,20 @@ public class VendingMachine {
 			vm.monitor.print("\t\t\tGoodBye =]");
 			vm.monitor.print("===================================================================\n");
 			
+			vm.threadShouldStop = true;
+			vm.resetBalance();
 			vm.stateVM = INIT;
 		}
 		
-		public void checkTimeOut(VendingMachine VM) {}
+		public void checkTimeOut(VendingMachine vm) {
+			if(vm.checkCounter()) {
+				vm.threadShouldStop = true;
+				vm.monitor.print("Timeout!");
+				vm.returnChange();
+				vm.resetBalance();
+				vm.setState(WAITING_MONEY);
+			}
+		}
 		public void start(VendingMachine vm) {}
 		public abstract void insertMoney(int money, VendingMachine vm);
 		public abstract void chooseProduct(String product, VendingMachine vm);

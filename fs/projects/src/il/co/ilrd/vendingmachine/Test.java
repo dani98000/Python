@@ -55,7 +55,12 @@ public class Test {
 		vm.insertMoney(2);
 		vm.chooseProduct("Tank");
 	}
-	
+	public static void TestTimeOut() throws InterruptedException {
+		VendingMachine vm = new VendingMachine();
+		vm.start();
+		vm.insertMoney(5);
+	}
+
 	
 }
 

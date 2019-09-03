@@ -1,13 +1,20 @@
 package il.co.ilrd.vendingmachine;
 
 public class MyThread extends Thread {
-	int sec;
+	VendingMachine vm;
 	
 	MyThread(VendingMachine vm){
-		this.sec = vm.
+		this.vm = vm;
 	}
 	
-    public void run(){
-       System.out.println("MyThread running");
-    }
+    public void run(){			
+			while (!vm.ThreadShouldStop()) {
+				try {
+					Thread.sleep(1000);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+				vm.getState().checkTimeOut(vm);
+			}
+	}
   }
