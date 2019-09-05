@@ -1,6 +1,6 @@
 package il.co.ilrd.vendingmachineV2;
 
-public class Product {
+class Product {
 	private int price;
 	private String name;
 

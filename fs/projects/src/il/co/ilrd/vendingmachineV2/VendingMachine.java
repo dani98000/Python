@@ -2,8 +2,6 @@ package il.co.ilrd.vendingmachineV2;
 
 import java.util.HashMap;
 
-import il.co.ilrd.vendingmachine.Product;
-
 public class VendingMachine {
 	private States stateVM;
 	private int balance;
@@ -18,6 +16,7 @@ public class VendingMachine {
 		hmap = new HashMap<>();
 		stateVM = States.INIT;
 		monitor = new MonitorImpel();
+		controller = new VMController();
 		timerThread = new Thread(new TimeOutThread());
 	}
 	
@@ -57,6 +56,10 @@ public class VendingMachine {
 			VendingMachine.this.balance = balance;
 		}
 		
+		public HashMap<Integer, Product> getProducts(){
+			return hmap;
+		}
+		
 		public void returnChange() {
 			VendingMachine.this.monitor.print("returning change: " + VendingMachine.this.balance);
 			VendingMachine.this.balance = 0;
@@ -68,6 +71,10 @@ public class VendingMachine {
 		
 		public void setTimer(int numSec) {
 			VendingMachine.this.timeOutCounter = numSec;
+		}
+		
+		public int getTimer() {
+			return VendingMachine.this.timeOutCounter;
 		}
 		
 		public Monitor getMonitor() {
@@ -106,10 +113,14 @@ public class VendingMachine {
 		return balance;
 	}
 
-	public void addProduct(Product prod) {
-		monitor.print("adding the product: " + prod.getName());
+	public void addProduct(Product shoko) {
+		monitor.print("adding the product: " + shoko.getName());
 		monitor.print("Products list:");
-		hmap.put(prod.getName().hashCode(), prod);
+		hmap.put(shoko.getName().hashCode(), shoko);
 		controller.displayProducts();
+	}
+	
+	final public void timeOut() {
+		stateVM.checkTimeOut(controller);
 	}
 }

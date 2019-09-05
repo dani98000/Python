@@ -1,9 +1,5 @@
 package il.co.ilrd.vendingmachineV2;
 
-import il.co.ilrd.vendingmachine.Product;
-import il.co.ilrd.vendingmachine.TimeOutThread;
-import il.co.ilrd.vendingmachine.VendingMachine;
-
 public enum States {
 		INIT {
 			@Override
@@ -40,7 +36,7 @@ public enum States {
 			@Override
 			protected void insertMoney(int money, VendingMachineController vm) {
 				vm.setBalance(vm.getBalance() + money);
-				vm.setTimer(0);
+				vm.setTimer(5);
 				vm.setState(WAITING_CHOICE);
 			}
 
@@ -48,10 +44,13 @@ public enum States {
 		WAITING_CHOICE {
 			@Override
 			protected void checkTimeOut(VendingMachineController vm) {
-				if (vm.checkCounter()) {
+				if (vm.getTimer() <= 0) {
 					vm.getMonitor().print("Timeout!");
 					vm.returnChange();
 					vm.setState(WAITING_MONEY);
+				}else
+				{
+					vm.setTimer(vm.getTimer() - 1);
 				}
 			}
 			
@@ -61,9 +60,9 @@ public enum States {
 				
 				// key exists
 				if (vm.getProducts().containsKey(product.hashCode())) {
-					Product someProduct = vm.getProducts().get(product.hashCode());
+					Product currpProduct = vm.getProducts().get(product.hashCode());
 
-					if (someProduct.getPrice() <= vm.getBalance()) {
+					if (currpProduct.getPrice() <= vm.getBalance()) {
 						vm.getMonitor().print("Congratz you got yourself a " + product);
 						vm.returnChange();
 					} else {
@@ -90,7 +89,6 @@ public enum States {
 		protected void stop(VendingMachineController vm) {
 			vm.getMonitor().print("\t\t\tGoodBye =]");
 			vm.getMonitor().print("===================================================================\n");
-			vm.timerThread.interrupt();		
 			vm.setTimer(0);
 			vm.setBalance(0);
 			vm.setState(INIT);
