@@ -49,9 +49,17 @@ public class ClassAnalayzer {
             // get method with specific name and parameters
             Method oneMethod = FooObj.getMethod("getAge");
             System.out.println("Method is: " + oneMethod);
- 
-   
-            Foo fooInstance1 = new Foo(18,318820131);
+             
+            Object fooInstance1 = FooObj.getConstructor(Integer.TYPE, Integer.TYPE).newInstance(15,318820131);
+            
+            Constructor<?>[] constructorsArray = FooObj.getConstructors();
+            for (Constructor ctr : constructorsArray) {
+                // get public field name
+                System.out.println("constructor is: " + ctr.getName());
+                System.out.println(": " + ctr.toGenericString());
+
+            }
+            
             oneMethod.invoke(fooInstance1);
  
             Class<?>[] parameterTypes = oneMethod.getParameterTypes();
@@ -103,6 +111,12 @@ public class ClassAnalayzer {
             e.printStackTrace();
         } catch (InvocationTargetException e) {
             e.printStackTrace();
-        }
+        } catch (InstantiationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (SecurityException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
     }
 }
