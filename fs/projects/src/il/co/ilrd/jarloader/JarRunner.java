@@ -1,42 +1,67 @@
 package il.co.ilrd.jarloader;
 
 import java.io.File;
-import java.net.MalformedURLException;
+import java.io.IOException;
+import java.net.JarURLConnection;
 import java.net.URL;
+import java.net.URLClassLoader;
+import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.List;
+import java.util.jar.JarEntry;
+
 
 public class JarRunner {
-	public static void main(String[] args) {
-	    if (args.length < 1) {
-	        System.out.println("Not enough args");
-	    }
-	    URL url = null;
-	    try {
-	    	 url = new File(args[0]).toURI().toURL();
-	    } catch (MalformedURLException e) {
-	        System.out.println("Invalid URL: " + "jar:" + args[0]);
-	    }
-	    String interfaceName = args[1];
+		private URL url;
+		private String interfaceName;
+		private List<String> classesToLoad;
+		private JarClassLoader cl;
+		
+		public JarRunner(String pathName, String interfaceName) throws IOException{
+			url = new File(pathName).toURI().toURL();
+			this.interfaceName = interfaceName;			
+			cl = new JarClassLoader(url);
+			classesToLoad = cl.getClassList();
+		}
 	    
-	    JarClassLoader cl = new JarClassLoader(url);
-
-	    List<String> classesToLoad = cl.getClassList();
-	    
-	    for(String clazz : classesToLoad) {
-	    	Class<?> curr = null;
-	    	try {
-	    		curr = cl.loadClass(clazz.replaceAll(".class","").replaceAll("/", "."));
-	    		Class<?>[] interfaces = curr.getInterfaces();
-	    		for(Class<?> currInterface : interfaces) {
-	    			if(currInterface.getSimpleName().equals(interfaceName));{
-	    				System.out.println(curr.getSimpleName());
-	    			}
-	    		}
-			} catch (ClassNotFoundException e) {
-				e.printStackTrace();
+		public void dynamicallyLoadClasses() throws Exception {
+		    for(String clazz : classesToLoad) {
+		    	Class<?>curr = cl.loadClass(clazz);
+		    	Class<?>[] interfaces = curr.getInterfaces();
+		    	for(Class<?> currInterface : interfaces) {
+		    		if(currInterface.getSimpleName().equals(interfaceName)){
+			    		System.out.println(curr.getSimpleName());
+		    		}
+		    	}
 			}
-	    }
+		}
+
+	private class JarClassLoader extends URLClassLoader{
+		private URL jarUrl;
+		
+		public JarClassLoader(URL url) {
+			super(new URL[] { url });
+			this.jarUrl = url;
+		}
+		
+		public List<String> getClassList() throws IOException{
+			URL u = new URL("jar", "", jarUrl + "!/");
+			
+		    JarURLConnection uc = null;
+			uc = (JarURLConnection)u.openConnection();
 	
 
+			List<String> classes = new ArrayList<>();
+			Enumeration<JarEntry> entries = null;
+			entries = uc.getJarFile().entries();
+			
+			while(entries.hasMoreElements()) {
+				Object obj = entries.nextElement();
+				if(obj.toString().endsWith(".class")) {
+					classes.add(obj.toString() .replaceAll(".class","").replaceAll("/", "."));
+				}
+			}
+		    return classes;
+		}
 	}
 }
