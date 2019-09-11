@@ -1,4 +1,4 @@
-package il.co.ilrd.test;
+package il.co.ilrd.reflection;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;

@@ -9,18 +9,19 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 
 
 public class JarRunner {
-		private URL url;
 		private String interfaceName;
 		private List<String> classesToLoad;
 		private JarClassLoader cl;
+		private String pathName;
 		
 		public JarRunner(String pathName, String interfaceName) throws IOException{
-			url = new File(pathName).toURI().toURL();
-			this.interfaceName = interfaceName;			
-			cl = new JarClassLoader(url);
+			this.interfaceName = interfaceName;	
+			this.pathName = pathName;
+			cl = new JarClassLoader(new File(pathName).toURI().toURL());
 			classesToLoad = cl.getClassList();
 		}
 	    
@@ -37,30 +38,23 @@ public class JarRunner {
 		}
 
 	private class JarClassLoader extends URLClassLoader{
-		private URL jarUrl;
-		
 		public JarClassLoader(URL url) {
 			super(new URL[] { url });
-			this.jarUrl = url;
 		}
 		
 		public List<String> getClassList() throws IOException{
-			URL u = new URL("jar", "", jarUrl + "!/");
-			
-		    JarURLConnection uc = null;
-			uc = (JarURLConnection)u.openConnection();
-	
-
+			JarFile myFile = new JarFile(pathName);
 			List<String> classes = new ArrayList<>();
-			Enumeration<JarEntry> entries = null;
-			entries = uc.getJarFile().entries();
+			Enumeration<JarEntry> entries = myFile.entries();
 			
 			while(entries.hasMoreElements()) {
-				Object obj = entries.nextElement();
-				if(obj.toString().endsWith(".class")) {
-					classes.add(obj.toString() .replaceAll(".class","").replaceAll("/", "."));
+				JarEntry obj = entries.nextElement();
+				if(obj.getName().endsWith(".class")) {
+					classes.add(obj.getName().replaceAll(".class","").replaceAll("/", "."));
 				}
 			}
+			myFile.close();
+			
 		    return classes;
 		}
 	}

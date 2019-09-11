@@ -1,4 +1,4 @@
-package il.co.ilrd.test;
+package il.co.ilrd.reflection;
 
 public class Foo {		 
     private int age;
