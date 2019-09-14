@@ -3,11 +3,10 @@ package il.co.ilrd.test;
 public class Animal {
 	
 	public Animal() {
-		System.out.println("super is called.");
-		foo();
+		System.out.println("Animal constructor.");
 	}
 	
-	private void foo() {
+	protected void foo() {
 		System.out.println("I am an Animal!");
 	}
 }
