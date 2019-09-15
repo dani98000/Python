@@ -10,7 +10,7 @@
 *            *********************        *
 *            -Exersice: Java2C 			  *
 *			 -Name: Daniel Maizel         *
-*			 -Reviewer: Eldad 	          *
+*			 -Reviewer: Roi 	          *
 ******************************************/
 #include <stdio.h> /* printf */
 #include <stdlib.h> /* malloc */
@@ -29,7 +29,6 @@ int g_animal_flag = 0;
 int g_dog_flag = 0;
 int g_cat_flag = 0;
 int g_legenderyanimal_flag = 0;
-int g_cat_ctor = 0;
 
 struct Class
 {
@@ -166,7 +165,7 @@ void AnimalCtor1(Animal *animal)
 	fp((Object *)animal);
 	showCounter();
 	fp = GetVirtualMethod((Object *)animal, TO_STRING);
-	printf("%s\n",((char *(*)(void *))fp)(animal) );/*toString();*/
+	printf("%s\n",((char *(*)(void *))fp)(animal) );
 	fp = GetSuperMethod(&Animal_metadata ,TO_STRING);
 	printf("%s\n",((char *(*)(void *))fp)(animal));
 }
@@ -314,20 +313,14 @@ metadata Cat_metadata = {"Cat",
 
 void CatCtor2(Cat *cat, char *color)
 {
-	if(!g_cat_ctor)
-	{
-		AnimalCtor1((Animal *)cat);
-	}
+	AnimalCtor1((Animal *)cat);
 	cat->colors = color;
 	printf("Cat Ctor with color: %s\n", cat->colors);
 }
 
 void CatCtor1(Cat *cat)
 {
-	g_cat_ctor = 1;
-	AnimalCtor1((Animal *)cat);
 	CatCtor2(cat, "black");
-	g_cat_ctor = 0;
 	printf("Cat Ctor\n");
 	cat->num_masters = 2;
 }
@@ -417,8 +410,9 @@ void LegendaryStaticInitializers()
 	g_legenderyanimal_flag = 1;
 }
 
-void LegendaryCtor()
+void LegendaryCtor(LegendaryAnimal *leg)
 {
+	CatCtor1((Cat *)leg);
 	printf("Legendary Ctor\n");
 }
 
@@ -429,8 +423,7 @@ LegendaryAnimal *CreateLegendary()
 	leg->cat.animal.num_masters = 1;
 	LegendaryStaticInitializers();
 	AnimalInstanceInitializers();
-	CatCtor1((Cat *)leg);
-	LegendaryCtor();
+	LegendaryCtor(leg);
 
 	return leg;
 }
