@@ -3,18 +3,18 @@ package il.co.ilrd.composite;
 import java.io.File;
 import java.io.FileNotFoundException;
 
-public class Tree {
-	private Branch b;
+public class FSTree {
+	private Branch currBranch;
 
-	public Tree(String path) throws FileNotFoundException {
+	public FSTree(String path) throws FileNotFoundException {
 		File file = new File(path);
 		if(!file.exists()) {
 			throw new FileNotFoundException();
 		}
-		b = new Branch(file);
+		currBranch = new Branch(file);
 	}
 	
-	public void printTree() {
-		b.print();
+	public void print() {
+		currBranch.print();
 	}
 }

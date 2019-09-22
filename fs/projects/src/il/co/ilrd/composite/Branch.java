@@ -30,7 +30,7 @@ public class Branch implements FSNode{
 	
 	public void print() {
 		System.out.println(dir.getAbsolutePath());
-		for(FSNode node : tl) {			
+		for (FSNode node : tl) {			
 			node.print();
 		}
 	}
