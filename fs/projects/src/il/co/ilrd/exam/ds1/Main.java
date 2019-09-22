@@ -1,9 +1,11 @@
 package il.co.ilrd.exam.ds1;
 
 import java.io.IOException;
-import java.util.Stack;
+import org.junit.runner.JUnitCore;
+import org.junit.runner.Result;
+import org.junit.runner.notification.Failure;
 
-import sun.font.CreatedFontTracker;
+import java.util.Stack;
 
 public class Main {
 	public static void main(String[] args) throws IOException {
@@ -34,13 +36,13 @@ public class Main {
 			System.out.print(temp.pop() + ",");
 		}*/
 		
-		BST tree = new BST();
+		/*BST tree = new BST();
 		
 		tree.insert(4);
 		tree.insert(2);
 		tree.insert(5);
 		tree.insert(1);
-		tree.insert(3);
+		tree.insert(3);*/
 		//tree.reverseLevelOrder();
 		//tree.printLevelOrder();
 	
@@ -49,9 +51,9 @@ public class Main {
 		//EX7.StringPermutations("eat");
 	
 		//Hash.listAnagramsFor("live");
-		char[] a = {'A', 'B', 'A'};
+		/*char[] a = {'A', 'B', 'A'};
 		Graph graph = Graph.CreateGraph();
-		graph.FindAllInstances(a);
+		graph.FindAllInstances(a);*/
 		
 		/*char[] nam2 = {'D','a','n','i','e','l'};
 		char[] name = {'H','e','l','l','o'};
@@ -60,7 +62,22 @@ public class Main {
 		
 		System.out.println(name);*/
 		
-		int[] arr = {10,12,11,15};
-		Hash.PrintMissingElements(arr,10,15);
+		/*int[] arr = {10,12,11,15};
+		Hash.PrintMissingElements(arr,10,15);*/
+		
+		JUnitCore core = new JUnitCore();
+		Result result = core.run(TestExam.class);
+				
+		for (Failure failure : result.getFailures()) {
+			System.out.println(failure);
+		}
+		
+		if (result.wasSuccessful()) {
+			System.out.println("Successful test!");
+		}
+		else {
+			System.out.println("Test failed!");
+		}
 	}
 }
+
