@@ -2,7 +2,6 @@ package il.co.ilrd.codereview;
 
 public class Ex2 {
 	public static void PushZerosToEnd(int[] arr) {
-		int firstZeroIndex = 0;
 		int temp = 0;
 		int runnerIndex = 0;
 		int flag = 0;
@@ -20,7 +19,6 @@ public class Ex2 {
 				temp = arr[i];
 				arr[i] = arr[runnerIndex];
 				arr[runnerIndex] = temp;
-				firstZeroIndex = i;
 			}			
 		}
 	}
