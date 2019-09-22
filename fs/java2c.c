@@ -24,11 +24,10 @@ typedef struct Class metadata;
 typedef void (*vfunc_t)(void *);
 typedef struct Object Object;
 
-int g_animal_counter = 0;
-int g_animal_flag = 0;
-int g_dog_flag = 0;
-int g_cat_flag = 0;
-int g_legenderyanimal_flag = 0;
+int g_animal_is_loaded = 0;
+int g_dog_is_loaded = 0;
+int g_cat_is_loaded = 0;
+int g_legenderyanimal_is_loaded = 0;
 int g_cat_ctor = 0;
 
 struct Class
@@ -58,7 +57,7 @@ char *DefaultToString(void *args)
 	{
 		return NULL;
 	}
-	sprintf(buffer, "il.co.ilrd.java2c.%s@6bc7c054", ((Object *)args)->class->name);
+	sprintf(buffer, "il.co.ilrd.java2c.%s%p", ((Object *)args)->class->name, ((Object *)args));
 
 	return buffer;
 }
@@ -82,10 +81,11 @@ metadata object_metadata = {"Object",
 /******* End of Class Object ******/
 
 /***** Start of Class Animal ******/
+int g_animal_counter = 0;
+
 typedef struct Animal
 {
 	Object obj;
-	int a;
 	int num_legs;
 	int num_masters;
 	int ID;
@@ -143,13 +143,13 @@ metadata Animal_metadata = {"Animal",
 
 void AnimalStaticInitializers()
 {
-	if(!g_animal_flag)
+	if(!g_animal_is_loaded)
 	{
 		printf("Static block Animal 1\n");
 		printf("Static block Animal 2\n");
 	}
 
-	g_animal_flag = 1;
+	g_animal_is_loaded = 1;
 }
 
 void AnimalInstanceInitializers()
@@ -238,12 +238,12 @@ metadata Dog_metadata = {"Dog",
 
 void DogStaticInitializers()
 {
-	if(!g_dog_flag)
+	if(!g_dog_is_loaded)
 	{
 		printf("Static block Dog\n");
 	}
 
-	g_dog_flag = 1;
+	g_dog_is_loaded = 1;
 }
 
 void DogInstanceInitializers()
@@ -314,18 +314,14 @@ metadata Cat_metadata = {"Cat",
 
 void CatCtor2(Cat *cat, char *color)
 {
-	if(!g_cat_ctor)
-	{
-		AnimalCtor1((Animal *)cat);
-	}
+	AnimalCtor1((Animal *)cat);
 	cat->colors = color;
 	printf("Cat Ctor with color: %s\n", cat->colors);
 }
 
 void CatCtor1(Cat *cat)
 {
-	g_cat_ctor = 1;
-	AnimalCtor1((Animal *)cat);
+
 	CatCtor2(cat, "black");
 	g_cat_ctor = 0;
 	printf("Cat Ctor\n");
@@ -334,12 +330,12 @@ void CatCtor1(Cat *cat)
 
 void CatStaticInitializers()
 {
-	if(!g_cat_flag)
+	if(!g_cat_is_loaded)
 	{
 		printf("Static block Cat\n");
 	}
 
-	g_cat_flag = 1;
+	g_cat_is_loaded = 1;
 }
 
 Cat *CreateCat(void *args)
@@ -409,16 +405,17 @@ metadata LegendaryAnimal_metadata = {"LegendaryAnimal",
 
 void LegendaryStaticInitializers()
 {
-	if(!g_legenderyanimal_flag)
+	if(!g_legenderyanimal_is_loaded)
 	{
 		printf("Static block Legendary Animal\n");
 	}
 
-	g_legenderyanimal_flag = 1;
+	g_legenderyanimal_is_loaded = 1;
 }
 
-void LegendaryCtor()
+void LegendaryCtor(LegendaryAnimal *leg)
 {
+	CatCtor1((Cat *)leg);
 	printf("Legendary Ctor\n");
 }
 
@@ -429,8 +426,7 @@ LegendaryAnimal *CreateLegendary()
 	leg->cat.animal.num_masters = 1;
 	LegendaryStaticInitializers();
 	AnimalInstanceInitializers();
-	CatCtor1((Cat *)leg);
-	LegendaryCtor();
+	LegendaryCtor(leg);
 
 	return leg;
 }
