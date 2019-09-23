@@ -2,9 +2,10 @@ package il.co.ilrd.exam.ds1;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 
 public class EX8 {
-	List<Long> uniquesQueue = new LinkedList<>();
+	Queue<Long> uniquesQueue = new LinkedList<>();
 	long[] g_lut = new long[10000];
 		
 	public void RecieveNum(long N) {
@@ -23,8 +24,8 @@ public class EX8 {
 		if(this.uniquesQueue.isEmpty()) {
 			return 0;
 		}
-		if(g_lut[this.uniquesQueue.get(0).intValue()] == 1) {
-			return this.uniquesQueue.get(0);
+		if(g_lut[this.uniquesQueue.peek().intValue()] == 1) {
+			return this.uniquesQueue.peek();
 		}else {
 			return 0;
 		}

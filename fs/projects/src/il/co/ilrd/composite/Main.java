@@ -4,7 +4,7 @@ import java.io.FileNotFoundException;
 
 public class Main {
 	public static void main(String[] args) throws FileNotFoundException {
-		FSTree tree = new FSTree("/home/dani98000/Desktop/");
+		FileSystemTree tree = new FileSystemTree("/home/ol69/daniel-maizel");
 		tree.print();
 	}
 }
