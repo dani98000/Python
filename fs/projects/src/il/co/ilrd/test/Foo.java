@@ -14,6 +14,18 @@ public class Foo {
 		printArray(charArray);
 		printArray(doubleArray);
 	}
+	
+	class FooReference <T>{
+	    private T t;
+		
+		public T get(){
+			return t;
+		}
+		
+		/*public set(T t) {
+			
+		}*/
+	}
 
 	
 	public static <T> void printArray(T[] arr) {
