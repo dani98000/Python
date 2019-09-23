@@ -1,21 +1,25 @@
 package il.co.ilrd.genericlinkedlist;
 
-import java.util.Iterator;
+import org.junit.runner.JUnitCore;
+import org.junit.runner.Result;
+import org.junit.runner.notification.Failure;
+
+import il.co.ilrd.exam.ds1.TestExam;
 
 public class Test {
 	public static void main(String[] args) {
-		GenericLinkedList<Integer> list = new GenericLinkedList<>();
-		list.PushFront(1);
-		list.PushFront(2);
-		list.PushFront(3);
-		list.PushFront(4);
-		list.PushFront(5);
+		JUnitCore core = new JUnitCore();
+		Result result = core.run(TestExam.class);
 		
-		//System.out.println(list.Size());
-		list.DisplayList();
-		GenericLinkedList.Reverse(list);
-		list.DisplayList();
-		Iterator a = list.Find(5);
-		System.out.println(a.next());
+		for (Failure failure : result.getFailures()) {
+			System.out.println(failure);
+		}
+		
+		if (result.wasSuccessful()) {
+			System.out.println("Successful test!");
+		}
+		else {
+			System.out.println("Test failed!");
+		}
 	}
 }

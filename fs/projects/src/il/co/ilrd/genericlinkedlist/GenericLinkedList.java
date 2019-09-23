@@ -1,47 +1,58 @@
 package il.co.ilrd.genericlinkedlist;
 
+import java.util.ConcurrentModificationException;
 import java.util.Iterator;
 
 public class GenericLinkedList <T> implements Iterable<T>{
-	private Node head;
+	private Node<T> head;
+	private ModCounter counter = new ModCounter();
 	
-	public class Node{
-		private T data;
-		private Node next;
+	public static class Node<U> {
+		private U data;
+		private Node<U> next;
 		
-		public Node(T data, Node next){
+		public Node(U data, Node<U> next){
 			this.data = data;
 			this.next = next;
+		}
+		
+		public Node<U> getNext() {
+			return next;
+		}
+		
+		public U getData() {
+			return data;
 		}
 	}
 	
 	public void PushFront(T data) {
-		head = new Node(data, head);
+		head = new Node<T>(data, head);
+		counter.Increment();
 	}
 	
 	public T PopFront() {
 		T data = head.data;
-		head = head.next;
+		head = head.getNext();
+		counter.Increment();
 		
 		return data;
 	}
 	
 	public Iterator <T> Find (T data) {
-        Iterator<T> currentIter = new IteratorImpel(head); 
-        Iterator<T> prevIter = new IteratorImpel(head);
+		Node<T> nodeRunner = head;
 		
-        while (currentIter.hasNext()) {
-        	if(data.equals(currentIter.next())) {
-        		return prevIter;
+        while (nodeRunner != null) {
+        	if(data.equals(nodeRunner.data)) {
+        		return iterator();
         	}
-        	prevIter.next();
+        	nodeRunner = nodeRunner.next;
         }
 		
         return null;
 	}
 	
 	public int Size() {
-		Node runner = head;
+		Node<T> runner = head;
 		int size = 0;
 		
 		while (runner != null) {
@@ -57,7 +68,7 @@ public class GenericLinkedList <T> implements Iterable<T>{
 	}
 	
 	public void DisplayList() {
-		Node runner = head;
+		Node<T> runner = head;
 		while(runner != null) {
 			System.out.print(runner.data+"->");
 			runner = runner.next;
@@ -65,36 +76,51 @@ public class GenericLinkedList <T> implements Iterable<T>{
 		System.out.println();
 	}
 	
-	public static <T> GenericLinkedList<T> Reverse(GenericLinkedList<T>list){
-		GenericLinkedList<T>.Node curr = list.head,prev = null,next;
-		return list2;
-		while(curr != null) {
-			next = curr.next;
-			curr.next = prev;
-			prev = curr;
-			curr = next;
+	public static <S> GenericLinkedList<S> Reverse(GenericLinkedList<S>list){
+		GenericLinkedList<S>newList = new GenericLinkedList<>();
+		
+		Node<S> firstListRunner = list.head;
+
+		while(firstListRunner != null) {
+			newList.PushFront(firstListRunner.data);
+			firstListRunner = firstListRunner.next;
 		}
-		
-		list.head = prev;
-		
-		return list;
+		return newList;
 	}
 	
-	public static <T> GenericLinkedList<T> Merge(GenericLinkedList<T>list1, GenericLinkedList<T>list2){
-		GenericLinkedList<T>.Node firstListRunner = list1.head, secondListHead = list2.head;
-		return list2;
+	public static <S> GenericLinkedList<S> Merge(GenericLinkedList<S>list1, GenericLinkedList<S>list2){
+		GenericLinkedList<S>newList = new GenericLinkedList<>();
+		Node<S> firstListRunner = list1.head, secondListRunner = list2.head;
 		
+		while(firstListRunner != null) {
+			newList.PushFront(firstListRunner.data);
+			firstListRunner = firstListRunner.next;
+		}
+		
+		while(secondListRunner != null) {
+			newList.PushFront(secondListRunner.data);
+			secondListRunner = secondListRunner.next;
+		}
+		
+		newList = GenericLinkedList.Reverse(newList);
+		
+		return newList;
 	}
 	
 	@Override
-	public Iterator<T> iterator(){
-		return null;}
+	public Iterator<T> iterator(){	
+        Iterator<T> currentIter = new IteratorImpel<T>(head, counter = new ModCounter()); 
+
+        return currentIter;
+	}
 	
-	private class IteratorImpel implements Iterator<T>{
-		Node currNode;
+	private static class IteratorImpel <V> implements Iterator<V>{
+		Node<V> currNode;
+		ModCounter counter;
 		
-		private IteratorImpel(Node currNode) {
+		private IteratorImpel(Node<V> currNode, ModCounter counter) {
 			this.currNode = currNode;
+			this.counter = counter;
 		}
 		
 		/** Returns true if the current iterator exists in the list. */
@@ -102,13 +128,27 @@ public class GenericLinkedList <T> implements Iterable<T>{
 			return (currNode != null);
 		}
 
-		/** next returns the current T in the list */
-		public T next() {
-			T retVal = currNode.data;
+		/** next returns the current V in the list */
+		public V next() {
+			if(counter.HasBeenModified()) {
+				throw new ConcurrentModificationException();
+			}
+			V retVal = currNode.data;
 			currNode = currNode.next;
 			
 			return retVal;
 		}
+	}
 	
+	private static class ModCounter{
+		private int counter = 0;
+		
+		public void Increment() {
+			++counter;
+		}
+		
+		public boolean HasBeenModified() {
+			return (counter != 0);
+		}
 	}
 }
