@@ -13,77 +13,77 @@ public class TestGLL {
 	@Test
 	public void TestReverse() {
 		GenericLinkedList<Integer> list = new GenericLinkedList<>();
-		list.PushFront(1);
-		list.PushFront(2);
-		list.PushFront(3);
-		list.PushFront(4);
-		list.PushFront(5);
+		list.pushFront(1);
+		list.pushFront(2);
+		list.pushFront(3);
+		list.pushFront(4);
+		list.pushFront(5);
 		
-		GenericLinkedList<Integer> listTest = GenericLinkedList.Reverse(list);
-		listTest.DisplayList();
+		GenericLinkedList<Integer> listTest = GenericLinkedList.newReverse(list);
+		listTest.displayList();
 	}
 	
 	@Test
 	public void TestMerge() {
 		GenericLinkedList<Integer> list = new GenericLinkedList<>();
-		list.PushFront(1);
-		list.PushFront(2);
-		list.PushFront(3);
-		list.PushFront(4);
-		list.PushFront(5);
+		list.pushFront(1);
+		list.pushFront(2);
+		list.pushFront(3);
+		list.pushFront(4);
+		list.pushFront(5);
 		
 		GenericLinkedList<Integer> list2 = new GenericLinkedList<>();
-		list2.PushFront(6);
-		list2.PushFront(7);
-		list2.PushFront(8);
-		list2.PushFront(9);
-		list2.PushFront(10);
+		list2.pushFront(6);
+		list2.pushFront(7);
+		list2.pushFront(8);
+		list2.pushFront(9);
+		list2.pushFront(10);
 		
-		GenericLinkedList<Integer> listTest = GenericLinkedList.Merge(list,list2);
-		listTest.DisplayList();
+		GenericLinkedList<Integer> listTest = GenericLinkedList.newMerge(list,list2);
+		listTest.displayList();
 	}
 	
 	@Test
 	public void TestFind() {
 		GenericLinkedList<Integer> list = new GenericLinkedList<>();
-		list.PushFront(1);
-		list.PushFront(2);
-		list.PushFront(3);
-		list.PushFront(4);
-		list.PushFront(5);
+		list.pushFront(1);
+		list.pushFront(2);
+		list.pushFront(3);
+		list.pushFront(4);
+		list.pushFront(5);
 		
-		Iterator<Integer> a = list.Find(5);
-		assertTrue(a.next() == 5);
+		Iterator<Integer> a = list.find(4);
+		assertTrue(a.next() == 4);
 	}
 	
 	@Test
 	public void TestSize() {
 		GenericLinkedList<Integer> list = new GenericLinkedList<>();
-		list.PushFront(1);
-		list.PushFront(2);
-		list.PushFront(3);
-		list.PushFront(4);
-		list.PushFront(5);
+		list.pushFront(1);
+		list.pushFront(2);
+		list.pushFront(3);
+		list.pushFront(4);
+		list.pushFront(5);
 		
-		assertTrue(list.Size() == 5);
+		assertTrue(list.size() == 5);
 		
-		list.PopFront();
+		list.popFront();
 		
-		assertTrue(list.Size() == 4);
+		assertTrue(list.size() == 4);
 	}
 	
 	@Test
 	public void FailFast() {
 		GenericLinkedList<Integer> list = new GenericLinkedList<>();
-		list.PushFront(1);
-		list.PushFront(2);
-		list.PushFront(3);
-		list.PushFront(4);
-		list.PushFront(5);
+		list.pushFront(1);
+		list.pushFront(2);
+		list.pushFront(3);
+		list.pushFront(4);
+		list.pushFront(5);
 		
-		Iterator<Integer> a = list.Find(5);
+		Iterator<Integer> a = list.find(5);
 		
-		list.PushFront(6);
+		list.pushFront(6);
 		
 	    assertThrows(ConcurrentModificationException.class, () -> {
 	        a.next();

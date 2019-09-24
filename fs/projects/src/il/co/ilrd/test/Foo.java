@@ -1,30 +1,30 @@
 package il.co.ilrd.test;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-
 public class Foo {
 	public static void main(String[] args) {
-		Integer[] intArray = {1,2,3,4,5};
-		Character[] charArray = {'D','a','n','i','e','l'};
-		Double[] doubleArray = {1.0,2.0,3.0,4.0,5.0}; 
+		Foo.FooReference<Integer> integer = new Foo.FooReference<>(5);
+		System.out.println(integer.get());
+		System.out.println(integer.getClass().getName());
 		
-		printArray(intArray);
-		printArray(charArray);
-		printArray(doubleArray);
+		Foo.FooReference<String> string = new Foo.FooReference<>("Daniel");
+		System.out.println(string.get());
+		System.out.println(string.getClass().getName());	
 	}
 	
-	class FooReference <T>{
+	public static class FooReference <T>{
 	    private T t;
+	    
+	    public FooReference(T t) {
+	    	this.t = t;
+	    }
 		
 		public T get(){
 			return t;
 		}
 		
-		/*public set(T t) {
-			
-		}*/
+		public void set(T t) {
+			this.t = t;
+		}
 	}
 
 	
