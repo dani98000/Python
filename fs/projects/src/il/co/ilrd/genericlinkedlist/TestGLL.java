@@ -52,8 +52,16 @@ public class TestGLL {
 		list.pushFront(4);
 		list.pushFront(5);
 		
-		Iterator<Integer> a = list.find(4);
+		Iterator<Integer> a = list.find(2);
+		assertTrue(a.next() == 2);
+		
+		a = list.find(4);
 		assertTrue(a.next() == 4);
+		
+		a = list.find(1);
+		assertTrue(a.next() == 1);
+		
+		assertTrue(list.find(100) == null);
 	}
 	
 	@Test

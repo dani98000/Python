@@ -1,12 +1,12 @@
 package il.co.ilrd.test;
 
-public class Foo {
+public class GenericsPractice {
 	public static void main(String[] args) {
-		Foo.FooReference<Integer> integer = new Foo.FooReference<>(5);
+		GenericsPractice.FooReference<Integer> integer = new GenericsPractice.FooReference<>(5);
 		System.out.println(integer.get());
 		System.out.println(integer.getClass().getName());
 		
-		Foo.FooReference<String> string = new Foo.FooReference<>("Daniel");
+		GenericsPractice.FooReference<String> string = new GenericsPractice.FooReference<>("Daniel");
 		System.out.println(string.get());
 		System.out.println(string.getClass().getName());	
 	}
