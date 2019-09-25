@@ -2,43 +2,43 @@ package il.co.ilrd.pair;
 
 import java.util.Comparator;
 import java.util.Map;
-import java.util.Map.Entry;
 
-public class Pair<K, V> implements Map.Entry{
+public class Pair<K,V> implements Map.Entry<K,V>{
 	K key;
 	V value;
 	
-	private Pair(){}
+	private Pair(K key, V value){
+		this.key = key;
+		this.value = value;
+	}
 	
-	public static <K, V> Pair<K, V> of(K key, V value) {
-		Pair<K, V> pair = new Pair<>();
-		pair.setKey(key);
-		pair.setValue(value);
-		
-		return pair;
+	public static <K,V> Pair<K,V> of(K key, V value) {
+		return new Pair<K,V>(key, value);
 	}
 	
 	@Override
-	public Object getKey() {
+	public K getKey() {
 		return key;
 	}
 
 	@Override
-	public Object getValue() {
+	public V getValue() {
 		return value;
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
-	public Object setValue(Object value) {
+	public V setValue(V value) {
 		V temp = this.value;
-		this.value = (V)value;
+		this.value = value;
 		
 		return temp;
 	}
 	
-	public void setKey(K key) {
+	public K setKey(K key) {
+		K temp = this.key;
 		this.key = key;
+		
+		return temp;
 	}
 	
 	@Override
@@ -46,36 +46,55 @@ public class Pair<K, V> implements Map.Entry{
 		return ("key : " + key +" with value : " + value);
 	}
 	
-	@SuppressWarnings("unchecked")
 	@Override
-	public boolean equals(Object obj) {
-		if(obj instanceof Pair) {
-			return ((Pair<K, V>)obj).getKey() == this.getKey() && 
-				   ((Pair<K, V>)obj).getValue() == this.getValue();
+	public boolean equals(Object obj) throws ClassCastException {
+		if(!(obj instanceof Pair)) {
+			throw new ClassCastException();
 		}
 		
-		return false;
+		@SuppressWarnings("unchecked")
+		Pair<K,V> pair = (Pair<K,V>)obj;
+
+		return (getKey() == null ? 
+				pair.getKey() == null : pair.getKey().equals(getKey()) &&
+			   (getValue() == null ? 
+			    pair.getValue() == null : pair.getValue() == getValue()));
 	}
 	
 	@Override
 	public int hashCode() {
-		return (int)this.getKey() * (int)this.getValue();
+		if(getKey() == null || getValue() == null) {
+			return 0;
+		}
+		
+		return getKey().hashCode() ^ getValue().hashCode();
 	}
 	
 	static <T extends Comparable<T>> Pair<T,T> minMax(T[] arr) {
-		T min = arr[0];
-		T max = arr[0];
-		
-		for(T t : arr) {
-			if(t.compareTo(max) < 0) {
-				max = t;
-			}
-		}
-		
-		return null;
+		return minMax(arr, ((T o1, T o2) -> o1.compareTo(o2)));
 	}
 	
-	static <T> Pair<T,T> minMax(T[] arr, Comparator<T> comp){
-		return null;
+	static <T> Pair<T,T> minMax(T[] arr, Comparator<T> comp) {
+		T min = arr[0];
+		T max = arr[0];
+		int limit = (arr.length % 2 == 0) ? 1 : 0;
+		
+		for(int i = arr.length-1 ; i > limit; i-= 2) {
+			if(comp.compare(arr[i], arr[i-1]) > 0){
+				if(comp.compare(max, arr[i]) < 0) {
+					max = arr[i];
+				} else if(comp.compare(min, arr[i-1]) > 0) {
+					min = arr[i];
+				}
+			}else {
+				if(comp.compare(min, arr[i]) > 0) {
+					min = arr[i];
+				} else if(comp.compare(max, arr[i-1]) < 0) {
+					max = arr[i-1];
+				}
+			}			
+		}
+
+		return Pair.of(min, max);
 	}
 }

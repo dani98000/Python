@@ -12,15 +12,15 @@ import java.util.stream.Collectors;
 
 public class Main {
 	public static void main(String[] args) {
-		//------------EX1---------------------
-		int[] arr = {14,14,2,1,124,41241,0};
+		// ------------EX1---------------------
+		/*int[] arr = { 14, 14, 2, 1, 124, 41241, 0 };
 		System.out.println(Arrays.toString(arr));
 		List<Integer> list = Arrays.stream(arr).boxed().collect(Collectors.toList());
 		Collections.sort(list);
 		System.out.println(list.toString());
-		
-		//------------EX2---------------------
-		Map<Integer ,String> daysOfWeek = new LinkedHashMap<>();
+
+		// ------------EX2---------------------
+		Map<Integer, String> daysOfWeek = new LinkedHashMap<>();
 		daysOfWeek.put(1, "Sunday");
 		daysOfWeek.put(2, "Monday");
 		daysOfWeek.put(3, "Tuesday");
@@ -49,7 +49,13 @@ public class Main {
 		
 		for(Entry<String, Integer> e : map.entrySet()) {
 			System.out.println(e.getKey()+":" + e.getValue());
-		}
+		}*/
+		List<Integer> list = new ArrayList<>();
+		list.add(5);
+		list.add(2);
+		
+		System.out.println(list.toString());
+		
 	}
 	
 	static class DataObject {
