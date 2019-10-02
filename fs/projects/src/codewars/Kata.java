@@ -1,25 +1,27 @@
 package codewars;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.stream.IntStream;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
-	public class Kata {
-	    public static String camelCase(String str) {
-	    	String ans = "";
-	    	String[] ret= str.split(" ");
-	    	for(int i = 0; i < ret.length; ++i) {
-	    		ans += ret[i].substring(0,1).toUpperCase() + ret[i].substring(1);;
-	    	}
-	    	return ans;
-	    }
+public class Kata {
+		public static int josephusSurvivor(final int n, final int k) {
+			HashMap<Integer, Integer> map = new LinkedHashMap<>();
+			for(int i = 0; i < n; ++i) {
+				map.put(i, (i + k) % n);
+			}
+			
+			while(map.size() != 1) {
+				int i = 0;
+				map.remove(i);
+				map.replace(i, (i + k) % n);
+				i = (i + 3) % k;
+			}
+			
+			return map.entrySet().iterator().next().getKey();
+		}  
+
 		public static void main(String[] args) {
-			String name = "==========h===yyyyyy===eeee=n==a========";
-			name.replace(name.charAt(1), Character.toUpperCase(name.charAt(1)));
-			System.out.println(name);
-			System.out.println(Kata.camelCase("hello world"));
+			System.out.println(Kata.josephusSurvivor(7,3));
 		}
 }

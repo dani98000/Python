@@ -9,6 +9,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Set;
 
 public class HashMap<K,V> implements Map<K,V> {
@@ -38,6 +39,8 @@ public class HashMap<K,V> implements Map<K,V> {
 	
 	@Override
 	public void clear() {
+		count.increment();
+
 		for(List<Entry<K,V>> list : map) {
 			list.clear();
 		}
@@ -70,7 +73,7 @@ public class HashMap<K,V> implements Map<K,V> {
 
 	@Override
 	public V get(Object key) {
-		List<Entry<K,V>> list = map.get(key.hashCode() % capacity);
+		List<Entry<K,V>> list = getBucket(key);
 
 		for(Entry<K, V> pair : list) {
 			if(pair.getKey().equals(key)) {
@@ -84,7 +87,7 @@ public class HashMap<K,V> implements Map<K,V> {
 	@Override
 	public boolean isEmpty() {
 		for(List<Entry<K,V>> list : map) {
-			if (list != null) {
+			if (!list.isEmpty()) {
 				return false;
 			}
 		}		
@@ -99,7 +102,7 @@ public class HashMap<K,V> implements Map<K,V> {
 
 	@Override
 	public V put(K key, V value) {
-		List<Entry<K,V>> bucket = map.get(((K)key).hashCode() % capacity);
+		List<Entry<K,V>> bucket = getBucket(key);
 		V retVal = null;
 		
 		if(this.containsKey(key)) {
@@ -118,12 +121,11 @@ public class HashMap<K,V> implements Map<K,V> {
 		for(Entry<? extends K, ? extends V> entry : from.entrySet()) {
 			this.put(entry.getKey(), entry.getValue());
 		}
-		count.increment();
 	}
 
 	@Override
 	public V remove(Object key) {
-		List<Entry<K, V>> bucket = map.get(key.hashCode() % capacity);
+		List<Entry<K, V>> bucket = getBucket(key);
 		Iterator<Entry<K, V>> listIterator = bucket.iterator();
 		
 		count.increment();
@@ -143,6 +145,10 @@ public class HashMap<K,V> implements Map<K,V> {
 	@Override
 	public int size() {
 		return values().size();
+	}
+	
+	private List<Entry<K, V>> getBucket(Object key) {
+		return map.get(Math.abs(key.hashCode() % capacity));
 	}
 
 	@Override
@@ -170,49 +176,34 @@ public class HashMap<K,V> implements Map<K,V> {
         }
 
 	    private class EntryIterator implements Iterator<Entry<K, V>> {
-	    	private int i = 0;
+	    	private int i = -1;
 	    	private Iterator<List<Entry<K, V>>> bucketIterator = map.iterator();
-	        private Iterator<Entry<K, V>> entryIterator = getNextFilledBucked().iterator();
+	        private Iterator<Entry<K, V>> entryIterator = new ArrayList<Entry<K, V>>().iterator();
 			private int currentModCount = count.getCount();
 	        
-	        private List<Entry<K, V>> getNextFilledBucked(){
-	        	for(int j = ++this.i; j < capacity; ++j,++this.i) {
-	        		if(map.get(j) != null) {
-	        			return map.get(j);
-	        		}
-	        	}
-	        	return null;
+	        private void getNextFilledBucked(){
+	        	while (bucketIterator.hasNext() && !entryIterator.hasNext()) {
+	        		entryIterator = bucketIterator.next().iterator();
+				}
 	        }
 	        
 	        @Override
 	        public boolean hasNext() {
-	        	List<Entry<K,V>>bucket;
 	        	count.verify(currentModCount);
-	            while(!entryIterator.hasNext()) {
-	            	if(bucketIterator.hasNext()) {
-	            		if((bucket = getNextFilledBucked()) == null) {
-	            			return false;
-	            		}
-	            		entryIterator = bucket.iterator();
-	            	}else {
-	            		return false;
-	            	}
+	            if(!entryIterator.hasNext()) {
+	            	getNextFilledBucked();
 	            }
 	            
-	            return true;                	
-	        }
+				return entryIterator.hasNext() || bucketIterator.hasNext();
+			}
 	        
 	        @Override
 	        public Entry<K, V> next() {
 	        	count.verify(currentModCount);
 
-	        	while(!entryIterator.hasNext()) {
-	        		if(bucketIterator.hasNext()) {
-	            		entryIterator = getNextFilledBucked().iterator();                		
-	        		}else {
-	        			return null;
-	        		}
-	        	}
+	        	if (!hasNext()) {
+					throw new NoSuchElementException();
+				}
 	        	
 	        	return entryIterator.next();
 	        }
@@ -301,6 +292,5 @@ public class HashMap<K,V> implements Map<K,V> {
 				throw new ConcurrentModificationException();
 			}
 		}
-
 	}
 }

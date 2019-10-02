@@ -33,7 +33,7 @@ public class EX8 {
 		while(i < input.length) {
 			Thread.sleep(100);
 			curr.RecieveNum(input[i++]);
-			System.out.println(curr.FirstNotDuplicateNum());
+			System.out.print(curr.FirstNotDuplicateNum()+",");
 		}
 	}
 }

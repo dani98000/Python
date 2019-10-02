@@ -7,7 +7,6 @@ import java.util.Map.Entry;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Assertions;
 
-
 class HashMapTest {
 
 	@Test
@@ -100,14 +99,25 @@ class HashMapTest {
 	}
 	
 	@Test
+	void test3() {
+		HashMap<String, Integer> map= new HashMap<>();
+		
+		Assertions.assertNotNull(map);
+		Assertions.assertEquals(0, map.size());
+		
+		map.put("Alfa Romeo", 2015);
+	
+		
+		Assertions.assertEquals(1, map.size());
+	}
+	
+	@Test
 	void testIterator() {
 		HashMap<Integer, String> map = new HashMap<>();
 
 		map.put(1, "Daniel");
 		map.put(2, "Dani");
-		map.put(3, "Dan");
-		
-		
+		map.put(3, "Dan");		
 
 		Assertions.assertThrows(ConcurrentModificationException.class, () -> {
 			Iterator<Entry<Integer, String>> itr = map.entrySet().iterator();
