@@ -10,7 +10,7 @@ import java.util.List;
 
 public class ArraysTest {
 	public static void main(String[] args) {
-		List<String> list = new LinkedList<>();
+		/*List<String> list = new LinkedList<>();
 		list.add("element 2");
 		list.add("element 1");
 		list.add("element 1");
@@ -22,6 +22,7 @@ public class ArraysTest {
 		list2.add("element 4");
 		list2.add("element 4");
 		list2.add("element 4");
-		System.out.println(Collections.disjoint(list, list2));
+		System.out.println(Collections.disjoint(list, list2));*/
+		Derived d = new Derived();
 	}
 }
