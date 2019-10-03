@@ -11,7 +11,7 @@ class HashMapTest {
 
 	@Test
 	void test1() {
-		SashMap<Integer, String> map= new SashMap<>();
+		HashMap<Integer, String> map= new HashMap<>();
 		
 		Assertions.assertNotNull(map);
 		Assertions.assertEquals(0, map.size());
@@ -70,7 +70,7 @@ class HashMapTest {
 	
 	@Test
 	void test2() {
-		SashMap<Integer, String> map= new SashMap<>();
+		HashMap<Integer, String> map= new HashMap<>();
 		
 		Assertions.assertNotNull(map);
 		Assertions.assertEquals(0, map.size());
@@ -89,7 +89,7 @@ class HashMapTest {
 		Assertions.assertEquals("Yael" ,map.get(2));
 		Assertions.assertNull(map.get(12));
 		
-		SashMap<Integer, String> map2 = new SashMap<>();
+		HashMap<Integer, String> map2 = new HashMap<>();
 
 		map2.putAll(map);
 		
@@ -100,26 +100,36 @@ class HashMapTest {
 	
 	@Test
 	void test3() {
-		SashMap<String, Integer> map= new SashMap<>();
+		HashMap<String, Integer> map= new HashMap<>();
 		
 		Assertions.assertNotNull(map);
 		Assertions.assertEquals(0, map.size());
 		
 		map.put("Alfa Romeo", 2015);
 	
-		
 		Assertions.assertEquals(1, map.size());
+	
+		Assertions.assertFalse(map.containsKey(null));
+		
+		map.put((String)null, 123);
+		
+		Assertions.assertTrue(map.containsKey(null));
+		
+		Assertions.assertFalse(map.containsValue(null));
+		
+		map.put("CheckNull", null);
+		
+		Assertions.assertTrue(map.containsValue(null));
 	}
 	
 	@Test
-	void testIterator() {
-		SashMap<Integer, String> map = new SashMap<>();
+	void testExceptions() {
+		HashMap<Integer, String> map = new HashMap<>();
 
 		map.put(1, "Daniel");
 		map.put(2, "Dani");
 		map.put(3, "Dan");		
-
-		/*Assertions.assertThrows(ConcurrentModificationException.class, () -> {
+		Assertions.assertThrows(ConcurrentModificationException.class, () -> {
 			Iterator<Entry<Integer, String>> itr = map.entrySet().iterator();
 			
 			while (itr.hasNext()) {
@@ -135,7 +145,7 @@ class HashMapTest {
 				itr.next();
 				map.remove(1); 
 			}
-		});*/
+		});
 		
 		Assertions.assertThrows(ConcurrentModificationException.class, () -> {
 			Iterator<Entry<Integer, String>> itr = map.entrySet().iterator();
@@ -146,9 +156,11 @@ class HashMapTest {
 			}
 		});
 		
-		Assertions.assertEquals(4, map.size());
+		Assertions.assertEquals(3, map.size());
 
-
+		Assertions.assertThrows(IllegalArgumentException.class, () -> {
+			HashMap<Integer, String> map2 = new HashMap<>(0);
+		});
 	}
 
 }

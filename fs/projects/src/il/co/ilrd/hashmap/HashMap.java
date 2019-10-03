@@ -19,14 +19,16 @@ public class HashMap<K,V> implements Map<K,V> {
 	private Set<Entry<K, V>> entrySet = null;
 	private Set<K> keySet = null;
 	private Collection<V> values = null;
-	ModCounter count = new ModCounter();
+	ModCounter modCount = new ModCounter();
 	
 	public HashMap() {
-		capacity = DEFAULT_CAPACITY;
-		mapInit();
+		this(DEFAULT_CAPACITY);
 	}
 	
-	public HashMap(int capacity) {
+	public HashMap(int capacity) throws IllegalArgumentException {
+		if(capacity <= 0) {
+			throw new IllegalArgumentException();
+		}
 		this.capacity = capacity;
 		mapInit();
 	}
@@ -39,7 +41,7 @@ public class HashMap<K,V> implements Map<K,V> {
 	
 	@Override
 	public void clear() {
-		count.increment();
+		modCount.increment();
 
 		for(List<Entry<K,V>> list : map) {
 			list.clear();
@@ -48,8 +50,14 @@ public class HashMap<K,V> implements Map<K,V> {
 
 	@Override
 	public boolean containsKey(Object key) {		
-		for(K currKey : keySet()) {
-			if(currKey.equals(key)) {
+		List<Entry<K,V>> list = getBucket(key);
+		for(Entry<K,V> entry : list) {
+			if(key == null) {
+				if(entry.getKey() == null) {
+					return true;
+				}
+			}
+			else if(entry.getKey().equals(key)) {
 				return true;
 			}
 		}
@@ -59,7 +67,12 @@ public class HashMap<K,V> implements Map<K,V> {
 	@Override
 	public boolean containsValue(Object value) {
 		for(V currValue : values) {
-			if(currValue.equals(value)) {
+			if(null == value) {
+				if(currValue == null) {
+					return true;
+				}
+			}
+			else if(currValue.equals(value)) {
 				return true;
 			}
 		}
@@ -76,7 +89,12 @@ public class HashMap<K,V> implements Map<K,V> {
 		List<Entry<K,V>> list = getBucket(key);
 
 		for(Entry<K, V> pair : list) {
-			if(pair.getKey().equals(key)) {
+			if(null == key) {
+				if(pair.getKey() != null) {
+					return null;
+				}
+			}
+			else if(pair.getKey().equals(key)) {
 				return pair.getValue();
 			}
 		}
@@ -110,7 +128,7 @@ public class HashMap<K,V> implements Map<K,V> {
 			this.remove(key);
 		}
 		bucket.add(Pair.of(key, value));
-		count.increment();
+		modCount.increment();
 	
 		return retVal;
 	}
@@ -128,11 +146,18 @@ public class HashMap<K,V> implements Map<K,V> {
 		List<Entry<K, V>> bucket = getBucket(key);
 		Iterator<Entry<K, V>> listIterator = bucket.iterator();
 		
-		count.increment();
+		modCount.increment();
 		
 		while(listIterator.hasNext()) {
 			Entry<K, V>pair = listIterator.next();
-			if(pair.getKey().equals(key)) {
+			if(key == null) {
+				if(pair.getKey() == null) {
+					listIterator.remove();
+					
+					return pair.getValue();
+				}
+			}
+			else if(pair.getKey().equals(key)) {
 				listIterator.remove();
 				
 				return pair.getValue();
@@ -148,6 +173,10 @@ public class HashMap<K,V> implements Map<K,V> {
 	}
 	
 	private List<Entry<K, V>> getBucket(Object key) {
+		if(key == null) {
+			return map.get(0);
+		}
+		
 		return map.get(Math.abs(key.hashCode() % capacity));
 	}
 
@@ -176,10 +205,9 @@ public class HashMap<K,V> implements Map<K,V> {
         }
 
 	    private class EntryIterator implements Iterator<Entry<K, V>> {
-	    	private int i = -1;
 	    	private Iterator<List<Entry<K, V>>> bucketIterator = map.iterator();
 	        private Iterator<Entry<K, V>> entryIterator = new ArrayList<Entry<K, V>>().iterator();
-			private int currentModCount = count.getCount();
+			private final int currentModCount = modCount.getCount();
 	        
 	        private void getNextFilledBucked(){
 	        	while (bucketIterator.hasNext() && !entryIterator.hasNext()) {
@@ -189,7 +217,7 @@ public class HashMap<K,V> implements Map<K,V> {
 	        
 	        @Override
 	        public boolean hasNext() {
-	        	count.verify(currentModCount);
+	        	modCount.verify(currentModCount);
 	            if(!entryIterator.hasNext()) {
 	            	getNextFilledBucked();
 	            }
@@ -199,7 +227,7 @@ public class HashMap<K,V> implements Map<K,V> {
 	        
 	        @Override
 	        public Entry<K, V> next() {
-	        	count.verify(currentModCount);
+	        	modCount.verify(currentModCount);
 
 	        	if (!hasNext()) {
 					throw new NoSuchElementException();
