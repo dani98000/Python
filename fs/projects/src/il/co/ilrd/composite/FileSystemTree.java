@@ -9,6 +9,7 @@ import java.util.function.Function;
 import il.co.ilrd.factory.Factory;
 
 public class FileSystemTree {
+
 	private Branch currBranch;
 	private Factory<String,String,FileSystemNode> factory = new Factory<>();
 
@@ -24,6 +25,7 @@ public class FileSystemTree {
 	}
 	
 	public void print() {
+		System.out.println(ANSI_RED + "hey" + ANSI_RESET);
 		currBranch.print();
 	}
 	
