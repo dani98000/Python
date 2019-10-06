@@ -19,11 +19,13 @@ public class FactoryTest {
 		
 		fac.add(3, Circle::draw2);
 		fac.add(4, new Circle()::draw);
+		fac.add(5, String::intern);
 		
 		System.out.println(fac.create(1,"Circle"));
 		System.out.println(fac.create(2,"Circle"));
 		System.out.println(fac.create(3,"Circle"));
 		System.out.println(fac.create(4,"Circle"));
+		System.out.println(fac.create(5,"Daniel"));
 	}
 
 }
