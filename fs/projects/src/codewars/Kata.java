@@ -7,6 +7,8 @@ import java.util.Map;
 public class Kata {
 		public static int josephusSurvivor(final int n, final int k) {
 			HashMap<Integer, Integer> map = new LinkedHashMap<>();
+            if(map.containsKey(nums[i][j])){
+
 			for(int i = 0; i < n; ++i) {
 				map.put(i, (i + k) % n);
 			}
