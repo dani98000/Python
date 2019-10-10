@@ -13,6 +13,7 @@ public class Callback<T>{
 	}
 
 	void setDispatcher(Dispatcher<? extends T> dispatcher) {
+<<<<<<< HEAD
 		this.dispatcher = dispatcher; 
 	}
 	
@@ -23,10 +24,26 @@ public class Callback<T>{
 	void stop() {
 		onStop.doWork(); 
 		dispatcher = null;
+=======
+		this.dispatcher = dispatcher;
+	}
+	
+	void update(T data) { 
+		onUpdate.accept(data); 
+	}
+	
+	void stop() { 
+		onStop.doWork();
+		setDispatcher(null);
+>>>>>>> f429e462497df75ab2e177f2357d4803bf8474e3
 	}
 	
 	void unsubscribe() { 
 		dispatcher.unsubscribe(this); 
+<<<<<<< HEAD
 		dispatcher = null;
+=======
+		setDispatcher(null);
+>>>>>>> f429e462497df75ab2e177f2357d4803bf8474e3
 	}
 }
