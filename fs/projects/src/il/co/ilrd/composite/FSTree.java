@@ -47,7 +47,7 @@ public class FSTree {
 		public void print();
 	}
 	
-	private class Branch implements FileSystemNode{
+	private static class Branch implements FileSystemNode{
 		private List<FileSystemNode> children;
 		private String name;
 		private int indentation;
@@ -74,7 +74,7 @@ public class FSTree {
 		}
 	}
 	
-	private class Leaf implements FileSystemNode {
+	private static class Leaf implements FileSystemNode {
 		String name;
 		
 		public Leaf(String fileName) {

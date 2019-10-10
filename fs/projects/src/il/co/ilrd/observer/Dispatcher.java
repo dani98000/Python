@@ -16,14 +16,10 @@ public class Dispatcher<T> {
 	}
 
 	public void notify(T data) {
-		for(Callback<? super T> callback : callbacks) {
-			callback.update(data);
-		}
+		callbacks.forEach(e->e.update(data));
 	}
 
 	public void stop() {
-		for(Callback<? super T> callback : callbacks) {
-			callback.stop();
-		}
+		callbacks.forEach(e->e.stop());
 	}
 }
