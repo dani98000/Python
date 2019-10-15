@@ -10,7 +10,7 @@ import java.util.concurrent.locks.ReentrantLock;
 public class WaitableQueueSemaphore<T> implements WaitableQueue<T> {
 	private static int DEFAULT_INITIAL_CAPACITY = 11;
 	private PriorityQueue<T> queue;
-	Semaphore inQueue = new Semaphore(0);;
+	Semaphore sem = new Semaphore(0);;
 	ReentrantLock lock = new ReentrantLock();
 	
 	public WaitableQueueSemaphore() {
@@ -26,19 +26,14 @@ public class WaitableQueueSemaphore<T> implements WaitableQueue<T> {
 		lock.lock();
 		queue.add(item);
 		lock.unlock();
-		inQueue.release();
+		sem.release();
 	}
 
 	@Override
-	public T dequeue() {
+	public T dequeue() throws InterruptedException{
 		T ret;
 		
-		try {
-			inQueue.acquire();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-		
+		sem.acquire();
 		lock.lock();
 		ret = queue.poll();		
 		lock.unlock();			
@@ -47,29 +42,39 @@ public class WaitableQueueSemaphore<T> implements WaitableQueue<T> {
 	}
 
 	@Override
-	public T dequeue(long timeout, TimeUnit timeUnit) throws TimeoutException {
+	public T dequeue(long timeout, TimeUnit timeUnit) throws TimeoutException,InterruptedException {
 		T ret;
-		
-		try {
-			if(!inQueue.tryAcquire(timeout, timeUnit)){
-				throw new TimeoutException();
-			}				
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-		
+		if(!sem.tryAcquire(timeout, timeUnit)){
+			throw new TimeoutException();
+		}				
+
 		lock.lock();
-		ret = queue.poll();
-		lock.unlock();						
+		try {
+			ret = queue.poll();			
+		}finally {
+			lock.unlock();									
+		}
 	
 		return ret;	
 	}
 
 	@Override
 	public boolean remove(T item) {
+		boolean ret;
+		
 		lock.lock();
-		boolean ret = queue.remove(item);
-		lock.unlock();
+		try {
+			if(sem.availablePermits() > 0) {
+				try {
+					sem.acquire();
+					if(!(ret = queue.remove(item)){
+						
+					}
+				}catch(InterruptedException e)
+			}
+		}finally {
+			lock.unlock();			
+		}
 		
 		return ret;
 	}

@@ -1,4 +1,4 @@
-package il.co.ilrd.waitablequeue;
+package il.co.ilrd.waitablequeue.codereview;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -7,10 +7,10 @@ import java.util.concurrent.TimeoutException;
 
 import org.junit.jupiter.api.Test;
 
-class WaitableQueueConditionVarTest {
+class WaitableQueueSemaphoreTest {
 	@Test
 	void testEnqueue() throws InterruptedException {	
-		WaitableQueue<Integer> queue = new WaitableQueueConditionVar<>();
+		WaitableQueue<Integer> queue = new WaitableQueueSemaphore<>();
 		
 		Thread t1 = new Thread(()-> {
 			try {
@@ -31,7 +31,7 @@ class WaitableQueueConditionVarTest {
 	
 	@Test
 	void testRemoveValid() throws InterruptedException {
-		WaitableQueue<Integer> queue = new WaitableQueueConditionVar<>();
+		WaitableQueue<Integer> queue = new WaitableQueueSemaphore<>();
 		
 		Thread t1 = new Thread(()-> {
 			queue.enqueue(5);
@@ -51,7 +51,7 @@ class WaitableQueueConditionVarTest {
 	
 	@Test
 	void testRemoveNotValid() throws InterruptedException {
-		WaitableQueue<Integer> queue = new WaitableQueueConditionVar<>();
+		WaitableQueue<Integer> queue = new WaitableQueueSemaphore<>();
 		Thread t1 = new Thread(()-> {
 			queue.enqueue(10);
 		});
@@ -71,7 +71,7 @@ class WaitableQueueConditionVarTest {
 	
 	@Test
 	void testTimeout() throws InterruptedException {	
-		WaitableQueue<String> queue = new WaitableQueueConditionVar<>();
+		WaitableQueue<String> queue = new WaitableQueueSemaphore<>();
 		
 		Thread t1 = new Thread(()-> {
 			String res = null;
@@ -89,7 +89,7 @@ class WaitableQueueConditionVarTest {
 	
 	@Test
 	void testTimeout2() throws InterruptedException {	
-		WaitableQueue<String> queue = new WaitableQueueConditionVar<>();
+		WaitableQueue<String> queue = new WaitableQueueSemaphore<>();
 		
 		long startTime = 0;
 		

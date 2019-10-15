@@ -13,7 +13,11 @@ class WaitableQueueSemaphoreTest {
 		WaitableQueue<Integer> queue = new WaitableQueueSemaphore<>();
 		
 		Thread t1 = new Thread(()-> {
-			assertEquals(queue.dequeue(), 5);
+			try {
+				assertEquals(queue.dequeue(), 5);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
 		});
 		
 		Thread t2 = new Thread(()-> {
@@ -34,7 +38,11 @@ class WaitableQueueSemaphoreTest {
 		});
 	
 		Thread t2 = new Thread(()-> {
-			assertEquals(true, queue.remove(5));
+			try {
+				assertEquals(true, queue.remove(5));
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
 		});
 		
 		t1.start();
@@ -49,7 +57,11 @@ class WaitableQueueSemaphoreTest {
 		});
 	
 		Thread t2 = new Thread(()-> {
-			assertEquals(false, queue.remove(5));
+			try {
+				assertEquals(false, queue.remove(5));
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
 		});
 		
 		t1.start();
@@ -66,7 +78,7 @@ class WaitableQueueSemaphoreTest {
 			try {
 				res = queue.dequeue(3000, TimeUnit.MILLISECONDS);
 				assertEquals(res, "Daniel");
-			}catch(TimeoutException e){
+			}catch(TimeoutException | InterruptedException e){
 				fail();
 			}
 		});

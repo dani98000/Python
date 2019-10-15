@@ -1,4 +1,4 @@
-package il.co.ilrd.waitablequeue;
+package il.co.ilrd.waitablequeue.codereview;
 
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;

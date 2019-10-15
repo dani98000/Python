@@ -1,4 +1,4 @@
-package il.co.ilrd.waitablequeue;
+package il.co.ilrd.waitablequeue.codereview;
 
 import static org.junit.jupiter.api.Assertions.*;
 
