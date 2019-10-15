@@ -13,26 +13,15 @@ public class Dispatcher<T> {
 
 	public void unsubscribe(Callback<? super T> subscriber) {
 		subscribers.remove(subscriber);
+		subscriber.setDispatcher(null);
 	}
 
 	public void notify(T data) {
-<<<<<<< HEAD
-		callbacks.forEach(e->e.update(data));
+		subscribers.forEach(e->e.update(data));
 	}
 
 	public void stop() {
-		callbacks.forEach(e->e.stop());
-=======
-		for(Callback<? super T> subscriber : subscribers) {
-			subscriber.update(data);
-		}
-	}
-
-	public void stop() {
-		for(Callback<? super T> subscriber : subscribers) {
-			subscriber.stop();
-		}
+		subscribers.forEach(e->e.stop());
 		subscribers.clear();
->>>>>>> f429e462497df75ab2e177f2357d4803bf8474e3
 	}
 }

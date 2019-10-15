@@ -1,4 +1,4 @@
-package concurrency;
+package il.co.ilrd.concurrency;
 
 import java.util.concurrent.atomic.AtomicInteger;
 

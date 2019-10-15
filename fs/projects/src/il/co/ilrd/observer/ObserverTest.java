@@ -1,6 +1,6 @@
 package il.co.ilrd.observer;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.Assert.assertEquals;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -8,8 +8,6 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-import il.co.ilrd.observer.Client.workouts;
-import il.co.ilrd.observer.ConsumerTest.Observer;
 import il.co.ilrd.observer.Workout.Exercise;
 
 public class ObserverTest {
@@ -35,13 +33,32 @@ public class ObserverTest {
 		Workout upperBodyWorkout = new Workout(upperBodyExercises, "upperBodyWorkout");
 		countryClubArad.addWorkouts(upperBodyWorkout);
 		for(Client client : customers) {
-			client.register(countryClubArad, workouts.upperBody);
+			client.register(countryClubArad);
+		}
+
+		countryClubArad.notify(upperBodyWorkout);
+        
+		for(Client client : customers) {
+			assertEquals(1, client.getcountOpen());
 		}
 		
+		countryClubArad.stop();
+		
 		for(Client client : customers) {
-			countryClubArad.notify("New Workout EveryBody!!!");
+			assertEquals(1, client.getcountClose());
 		}
-		              
+		
+		assertEquals(6, countryClubArad.getNumMembers());
+		
+		for(Client client : customers) {
+			client.unregister(countryClubArad);
+		}
+		
+		assertEquals(0, countryClubArad.getNumMembers());
+		
+		for(Client client : customers) {
+			assertEquals(1, client.getcountClose());
+		}
 	}
 
 }
@@ -106,20 +123,17 @@ class LowerBodyWorkout extends Workout{
 
 class Client{
 	private String name;
-	private Callback<String> callback;
-	Workout workout;
-	enum workouts{
-		upperBody (0), lowerBody (1);
-		private workouts(int index) {}
-	};
-
+	private Callback<Workout> callback;
+	private int countClose = 0;
+	private int countOpen = 0;
+	
 	public Client(String name) {
 		this.name = name;
-		this.callback = new Callback<String>(this::workout, this::gymClosed);
+		this.callback = new Callback<Workout>(this::workout, this::gymClosed);
 	}
 	
-	private void workout(String str) {
-		System.out.println(str + "\n\n");
+	private void workout(Workout workout) {
+		++countOpen;
 		System.out.println("Hello " + name + " this is your workout!");
 		for(Exercise exercise : workout.getWorkout()) {
 			System.out.print(exercise.getName() + " : ");
@@ -130,25 +144,28 @@ class Client{
 	}
 	
 	private void gymClosed() {
+		++countClose;
 		System.out.println("Sorry " + name + "Gym is closed for today, Come back tomorrow!");
 	}
 	
-	public Callback<String> getCallback(){
+	public Callback<Workout> getCallback(){
 		return callback;
 	}
 	
-	public void register(Gym gym, workouts bodyPart) {
-		gym.subscribe(callback);
-		if(bodyPart.equals(workouts.upperBody)) {
-			workout = gym.getAvailableWorkouts().get(workouts.upperBody.ordinal());			
-		}else {
-			workout = gym.getAvailableWorkouts().get(workouts.lowerBody.ordinal());			
-		}
-		
+	public void register(Gym gym) {
+		gym.subscribe(callback);		
 	}
 	
 	public void unregister(Gym gym) {
 		gym.unsubscribe(callback);
+	}
+	
+	int getcountClose() {
+		return countClose;
+	}
+	
+	int getcountOpen() {
+		return countOpen;
 	}
 }
 
@@ -156,14 +173,14 @@ class Gym {
 	private int numMembers;
 	private List<Client> clients = new ArrayList<>();
 	private List<Workout> availableWorkouts = new ArrayList<>();
-	private Dispatcher<String> dispatcher = new Dispatcher<>();
+	private Dispatcher<Workout> dispatcher = new Dispatcher<>();
 	
-	public void subscribe(Callback<String> callback) {
+	public void subscribe(Callback<Workout> callback) {
 		dispatcher.subscribe(callback);
 		++numMembers;
 	}
 	
-	public void unsubscribe(Callback<String> callback) {
+	public void unsubscribe(Callback<Workout> callback) {
 		--numMembers;
 		dispatcher.unsubscribe(callback);
 	}
@@ -172,7 +189,7 @@ class Gym {
 		dispatcher.stop();
 	}
 	
-	public void notify(String data) {
+	public void notify(Workout data) {
 		dispatcher.notify(data);		
 	}
 	
@@ -182,9 +199,5 @@ class Gym {
 	
 	public void addWorkouts(Workout workout) {
 		availableWorkouts.add(workout);
-	}
-	
-	public List<Workout> getAvailableWorkouts(){
-		return availableWorkouts;
 	}
 }

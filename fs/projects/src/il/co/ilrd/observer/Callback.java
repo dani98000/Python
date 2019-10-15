@@ -8,12 +8,15 @@ public class Callback<T>{
 	private Dispatcher<? extends T> dispatcher;
 	
 	public Callback(Consumer<T> onUpdate, Worker onStop) {
+		if (onUpdate == null) {
+			throw new IllegalArgumentException();
+		}
+
 		this.onUpdate = onUpdate;
 		this.onStop = onStop;
 	}
 
 	void setDispatcher(Dispatcher<? extends T> dispatcher) {
-<<<<<<< HEAD
 		this.dispatcher = dispatcher; 
 	}
 	
@@ -22,28 +25,14 @@ public class Callback<T>{
 	}
 	
 	void stop() {
+		if (onStop == null) {
+			return;
+		}
 		onStop.doWork(); 
-		dispatcher = null;
-=======
-		this.dispatcher = dispatcher;
-	}
-	
-	void update(T data) { 
-		onUpdate.accept(data); 
-	}
-	
-	void stop() { 
-		onStop.doWork();
-		setDispatcher(null);
->>>>>>> f429e462497df75ab2e177f2357d4803bf8474e3
 	}
 	
 	void unsubscribe() { 
 		dispatcher.unsubscribe(this); 
-<<<<<<< HEAD
-		dispatcher = null;
-=======
 		setDispatcher(null);
->>>>>>> f429e462497df75ab2e177f2357d4803bf8474e3
 	}
 }

@@ -1,24 +1,23 @@
-package concurrency;
+package il.co.ilrd.concurrency;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class EX2SyncMethod {
+public class EX2SyncBlock {
 	static int globalCounter = 0;
 	final static int INCREMENTBY = 10000000;
+	AtomicInteger atomicGlobalCounter = new AtomicInteger(0);
 	
 	static class RunnableThread implements Runnable{
-
 		@Override
 		public void run() {
-			increment();
-		}	
-	}
-	
-	public synchronized static void increment() {
-		for(int i = 0; i < INCREMENTBY; ++i) {
-			++globalCounter;
+			synchronized(EX2SyncBlock.class) {
+				for(int i = 0; i < INCREMENTBY; ++i) {
+					++globalCounter;
+				}
+			}
 		}
 	}
+
 	
 	public static void main(String[] args) throws InterruptedException {
 		Thread counterThread1 = new Thread(new RunnableThread());

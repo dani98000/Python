@@ -1,4 +1,4 @@
-package concurrency;
+package il.co.ilrd.concurrency;
 
 import java.util.LinkedList;
 import java.util.List;
