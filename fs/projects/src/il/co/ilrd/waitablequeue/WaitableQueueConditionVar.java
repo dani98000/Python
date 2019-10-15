@@ -26,9 +26,12 @@ public class WaitableQueueConditionVar<T> implements WaitableQueue<T> {
 	@Override
 	public void enqueue(T item) {
 		lock.lock();
-		queue.add(item);
-		queueNotEmpty.signalAll();			
-		lock.unlock();			
+		try {
+			queue.add(item);
+			queueNotEmpty.signalAll();						
+		}finally {
+			lock.unlock();						
+		}
 	}
 
 	@Override
@@ -68,9 +71,14 @@ public class WaitableQueueConditionVar<T> implements WaitableQueue<T> {
 
 	@Override
 	public boolean remove(T item) {
+		boolean ret = false;
+		
 		lock.lock();
-		boolean ret = queue.remove(item);
-		lock.unlock();
+		try {
+			ret = queue.remove(item);			
+		}finally {
+			lock.unlock();			
+		}
 		
 		return ret;
 	}

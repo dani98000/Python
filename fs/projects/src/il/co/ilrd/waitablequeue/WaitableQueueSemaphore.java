@@ -24,21 +24,27 @@ public class WaitableQueueSemaphore<T> implements WaitableQueue<T> {
 	@Override
 	public void enqueue(T item) {
 		lock.lock();
-		queue.add(item);
-		lock.unlock();
-		sem.release();
+		try {
+			queue.add(item);			
+			sem.release();			
+		}finally {
+			lock.unlock();
+		}
 	}
 
 	@Override
 	public T dequeue() throws InterruptedException{
-		T ret;
-		
-		sem.acquire();
+		T ret;			
+
 		lock.lock();
-		ret = queue.poll();		
-		lock.unlock();			
-		
-		return ret;
+		try {
+			sem.acquire();
+			ret = queue.poll();			
+		}finally {
+			lock.unlock();									
+		}
+	
+		return ret;	
 	}
 
 	@Override
@@ -60,17 +66,19 @@ public class WaitableQueueSemaphore<T> implements WaitableQueue<T> {
 
 	@Override
 	public boolean remove(T item) {
-		boolean ret;
+		boolean ret = false;
 		
 		lock.lock();
 		try {
 			if(sem.availablePermits() > 0) {
 				try {
 					sem.acquire();
-					if(!(ret = queue.remove(item)){
-						
+					if(!(ret = queue.remove(item))){
+						sem.release();
 					}
-				}catch(InterruptedException e)
+				}catch(InterruptedException e) {
+					e.printStackTrace();
+				}
 			}
 		}finally {
 			lock.unlock();			

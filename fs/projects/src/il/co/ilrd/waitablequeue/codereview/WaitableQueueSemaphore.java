@@ -27,8 +27,11 @@ public class WaitableQueueSemaphore<T> implements WaitableQueue<T> {
 	@Override
 	public void enqueue(T element) {
 		lock.lock();
-		queue.add(element);
-		lock.unlock();
+		try {
+			queue.add(element);			
+		}finally {
+			lock.unlock();			
+		}
 		currentElements.release();
 	}
 	
@@ -63,8 +66,20 @@ public class WaitableQueueSemaphore<T> implements WaitableQueue<T> {
 		boolean retBool = false;
 		
 		lock.lock();
-		retBool =  queue.remove(element);
-		lock.unlock();
+		try {
+			try {
+				if(currentElements.availablePermits() > 0) {
+					currentElements.acquire();
+					if(!(retBool =  queue.remove(element))) {
+						currentElements.release();
+					}
+				}
+			}catch(InterruptedException e){
+				e.printStackTrace();
+			}
+		}finally {
+			lock.unlock();			
+		}
 		
 		return retBool;
 	}
