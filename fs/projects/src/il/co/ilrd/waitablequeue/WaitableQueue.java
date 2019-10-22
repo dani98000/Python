@@ -20,5 +20,5 @@ public interface WaitableQueue<T> {
 	 */
 	public T dequeue(long timeout, TimeUnit timeUnit) throws TimeoutException, InterruptedException;
 
-	public boolean remove(T item) throws InterruptedException;
+	public boolean remove(T item);
 }
