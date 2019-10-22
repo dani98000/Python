@@ -106,7 +106,7 @@ public class ThreadPool implements Executor {
 					Task<?> task = taskQueue.dequeue();
 					task.execute();
 				} catch (InterruptedException e) {
-					// worker should keep on working while shouldStop == false
+					// worker should keep on working while shouldStop equals false
 				}
 			}
 		}
@@ -247,7 +247,6 @@ public class ThreadPool implements Executor {
 	
 	private class ShutdownHandler {
 		private boolean isShutdown = false;
-		Semaphore finishedShutdown = new Semaphore(0);
 		
 		public void shutdown() {
 			isShutdown = true;
@@ -255,14 +254,22 @@ public class ThreadPool implements Executor {
 			{
 				taskQueue.enqueue(new Task<>(LOWEST_PRIORITY,() -> {
 					((Worker)Thread.currentThread()).shouldStop = true;
-					finishedShutdown.release();
 					return null;
 				}));		
 			}		
 		}
 		
-	 	public boolean awaitTermination(long timeout, TimeUnit unit) throws InterruptedException{
-	 		return finishedShutdown.tryAcquire(numThreads, timeout, unit);
+	 	public boolean awaitTermination(long timeout, TimeUnit unit) throws InterruptedException {
+	 		for(Worker worker : getWorkers()) {
+	 			if(timeout <= 0) {
+	 				return false;
+	 			}
+		 		long startTime = System.currentTimeMillis();
+	 			worker.join(timeout);
+	 			timeout -= System.currentTimeMillis() - startTime;
+	 		}
+	 		
+	 		return true;
 	 	}
 		
 		public boolean isActivated() {
@@ -278,6 +285,10 @@ public class ThreadPool implements Executor {
 			workers.add(newWorker);
 			newWorker.start();
 		}
+	}
+	
+	private Set<Worker> getWorkers(){
+		return workers;
 	}
 	
 	public enum Priority {
