@@ -1,5 +1,4 @@
 package il.co.ilrd.waitablequeue;
-
 import java.util.Comparator;
 import java.util.PriorityQueue;
 import java.util.concurrent.Semaphore;
@@ -10,8 +9,8 @@ import java.util.concurrent.locks.ReentrantLock;
 public class WaitableQueueSemaphore<T> implements WaitableQueue<T> {
 	private static int DEFAULT_INITIAL_CAPACITY = 11;
 	private PriorityQueue<T> queue;
-	Semaphore sem = new Semaphore(0);;
-	ReentrantLock lock = new ReentrantLock();
+	private Semaphore sem = new Semaphore(0);;
+	private ReentrantLock lock = new ReentrantLock();
 	
 	public WaitableQueueSemaphore() {
 		queue = new PriorityQueue<>(DEFAULT_INITIAL_CAPACITY);
@@ -27,20 +26,20 @@ public class WaitableQueueSemaphore<T> implements WaitableQueue<T> {
 		try {
 			queue.add(item);			
 			sem.release();			
-		}finally {
+		} finally {
 			lock.unlock();
 		}
 	}
 
 	@Override
-	public T dequeue() throws InterruptedException{
+	public T dequeue() throws InterruptedException {
 		T ret;			
 
+		sem.acquire();
 		lock.lock();
 		try {
-			sem.acquire();
 			ret = queue.poll();			
-		}finally {
+		} finally {
 			lock.unlock();									
 		}
 	
@@ -50,14 +49,14 @@ public class WaitableQueueSemaphore<T> implements WaitableQueue<T> {
 	@Override
 	public T dequeue(long timeout, TimeUnit timeUnit) throws TimeoutException,InterruptedException {
 		T ret;
-		if(!sem.tryAcquire(timeout, timeUnit)){
+		
+		if(!sem.tryAcquire(timeout, timeUnit)) {
 			throw new TimeoutException();
 		}				
-
 		lock.lock();
 		try {
 			ret = queue.poll();			
-		}finally {
+		} finally {
 			lock.unlock();									
 		}
 	
@@ -70,17 +69,12 @@ public class WaitableQueueSemaphore<T> implements WaitableQueue<T> {
 		
 		lock.lock();
 		try {
-			if(sem.availablePermits() > 0) {
-				try {
-					sem.acquire();
-					if(!(ret = queue.remove(item))){
-						sem.release();
-					}
-				}catch(InterruptedException e) {
-					e.printStackTrace();
+			if (sem.tryAcquire()) {
+				if (!(ret = queue.remove(item))) {
+					sem.release();
 				}
 			}
-		}finally {
+		} finally {
 			lock.unlock();			
 		}
 		

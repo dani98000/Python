@@ -12,8 +12,8 @@ import java.util.concurrent.locks.ReentrantLock;
 public class WaitableQueueConditionVar<T> implements WaitableQueue<T> {
 	private static int DEFAULT_INITIAL_CAPACITY = 11;
 	private PriorityQueue<T> queue;
-	ReentrantLock lock = new ReentrantLock();
-	Condition queueNotEmpty = lock.newCondition();
+	private ReentrantLock lock = new ReentrantLock();
+	private Condition queueNotEmpty = lock.newCondition();
 	
 	public WaitableQueueConditionVar() {
 		queue = new PriorityQueue<>(DEFAULT_INITIAL_CAPACITY);
@@ -29,13 +29,13 @@ public class WaitableQueueConditionVar<T> implements WaitableQueue<T> {
 		try {
 			queue.add(item);
 			queueNotEmpty.signalAll();						
-		}finally {
+		} finally {
 			lock.unlock();						
 		}
 	}
 
 	@Override
-	public T dequeue() throws InterruptedException{
+	public T dequeue() throws InterruptedException {
 		T ret = null;
 		
 		lock.lock();
@@ -44,7 +44,7 @@ public class WaitableQueueConditionVar<T> implements WaitableQueue<T> {
 				queueNotEmpty.await();				
 			}
 			ret = queue.poll();
-		}finally {			
+		} finally {			
 			lock.unlock();					
 		}
 		
@@ -52,17 +52,17 @@ public class WaitableQueueConditionVar<T> implements WaitableQueue<T> {
 	}
 
 	@Override
-	public T dequeue(long timeout, TimeUnit timeUnit) throws TimeoutException, InterruptedException{
+	public T dequeue(long timeout, TimeUnit timeUnit) throws TimeoutException, InterruptedException {
 		T ret = null;
 		lock.lock();
 		try {	
 			while(queue.isEmpty()) {
-				if(!queueNotEmpty.await(timeout, timeUnit)){
+				if(!queueNotEmpty.await(timeout, timeUnit)) {
 					throw new TimeoutException();
 				}
 			}	
 			ret = queue.poll();
-		}finally {
+		} finally {
 			lock.unlock();			
 		}
 	
@@ -76,7 +76,7 @@ public class WaitableQueueConditionVar<T> implements WaitableQueue<T> {
 		lock.lock();
 		try {
 			ret = queue.remove(item);			
-		}finally {
+		} finally {
 			lock.unlock();			
 		}
 		
