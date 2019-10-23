@@ -27,6 +27,9 @@ public class ThreadPool implements Executor {
 	}
 	
 	public ThreadPool(int numThreads) {
+		if(numThreads < 0) {
+			throw new IllegalArgumentException();
+		}
 		this.numThreads = numThreads;
 		createWorkers(numThreads);
 	}
@@ -137,9 +140,7 @@ public class ThreadPool implements Executor {
 				taskFuture.failureCause = e;
 			} finally {
 				taskFuture.isDone = true;
-				taskFuture.resultLock.lock();
-				taskFuture.isResultReady.signalAll();
-				taskFuture.resultLock.unlock();
+				taskFuture.isResultReady.release();
 			}
 		}
 		
@@ -157,8 +158,7 @@ public class ThreadPool implements Executor {
 			private boolean isDone = false;
 			private boolean isCancelled = false;
 			boolean isFailed = false;
-			private Lock resultLock = new ReentrantLock();
-			private Condition isResultReady = resultLock.newCondition();
+			private Semaphore isResultReady = new Semaphore(0);
 			Exception failureCause = null;		
 
 			@Override
@@ -181,27 +181,23 @@ public class ThreadPool implements Executor {
 				try {
 					return get(Long.MAX_VALUE, TimeUnit.DAYS);
 				} catch (TimeoutException e) {
-					throw new Error("Should never happed");
+					throw new Error("An error with the system timer has occurred!");
 				}
 			}
 
 			@Override
 			public T get(long timeout, TimeUnit timeunit) throws InterruptedException, TimeoutException, ExecutionException {
-				resultLock.lock();
-				try {
-					if (!isDone) {
-						if (!isResultReady.await(timeout, timeunit)) {
-							throw new TimeoutException();
-						}
+				if (!isDone) {
+					if (!isResultReady.tryAcquire(timeout, timeunit)) {
+						throw new TimeoutException();
 					}
-					if (isFailed) {
-						throw new ExecutionException("Failure",failureCause);
-					}
-					
-					return result;
-				} finally {
-					resultLock.unlock();
+					isResultReady.release();
 				}
+				if (isFailed) {
+					throw new ExecutionException("Failure",failureCause);
+				}
+				
+				return result;
 			}
 
 			@Override
@@ -260,13 +256,14 @@ public class ThreadPool implements Executor {
 		}
 		
 	 	public boolean awaitTermination(long timeout, TimeUnit unit) throws InterruptedException {
+	 		timeout = TimeUnit.MILLISECONDS.convert(timeout, unit);
 	 		for(Worker worker : getWorkers()) {
 	 			if(timeout <= 0) {
 	 				return false;
 	 			}
-		 		long startTime = System.currentTimeMillis();
+	 			long startTime = System.currentTimeMillis();
 	 			worker.join(timeout);
-	 			timeout -= System.currentTimeMillis() - startTime;
+	 			timeout -= (System.currentTimeMillis() - startTime);
 	 		}
 	 		
 	 		return true;
