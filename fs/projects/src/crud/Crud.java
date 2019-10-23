@@ -38,4 +38,10 @@ public interface Crud <E extends Cloneable> {
 	 * Deletes the given ID
 	 */
 	public void Delete(int id);
+	
+    /*
+     * Deletes entries that fit a certain condition specified by shouldDelete.
+     * Returns a collection of deleted entries.
+     */
+    public Collection<E> delete(Predicate<E> shouldDelete);
 }
