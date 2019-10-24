@@ -20,6 +20,11 @@ public class CrudFile implements Crud<String, Integer>{
 				e.printStackTrace();
 			}
 		}
+		try {
+			raf = new RandomAccessFile(file,"rw");
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
 	}
 
 	public String getFileName() {
@@ -33,11 +38,6 @@ public class CrudFile implements Crud<String, Integer>{
 
 	@Override
 	public Integer Create(String text) {
-		try {
-			raf = new RandomAccessFile(file,"rw");
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		}
 		try {
 			raf.seek(file.length());
 			raf.writeChars(text);
