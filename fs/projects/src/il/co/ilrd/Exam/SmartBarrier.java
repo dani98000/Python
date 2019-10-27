@@ -1,36 +1,37 @@
 package il.co.ilrd.Exam;
 
-import java.util.concurrent.Semaphore;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class SmartBarrier {
 	private int numThreads;
 	private Lock lock = new ReentrantLock();
-	private Semaphore allDone;
-	private Semaphore allOut;
-	private AtomicInteger inCounter = new AtomicInteger(0);
-	private AtomicInteger outCounter = new AtomicInteger(0);
+	private Condition isAllOut = lock.newCondition();
+	int counter = 0;
+	private int version = 0;
+	private int i = 0;
 	
 	public SmartBarrier(int numThreads) {
 		this.numThreads = numThreads;
-		allOut = new Semaphore(numThreads);
-		allDone = new Semaphore(0);
 	}
 	
 	public void lock() throws InterruptedException {
-		allOut.acquire();
-		if(inCounter.incrementAndGet() == numThreads) {
-			allDone.release(numThreads);
-			inCounter.set(0);
+		lock.lock();
+		if(i == version)
+		{
+			if(++counter == numThreads) {
+				version += numThreads;
+				counter = 0;
+				isAllOut.signalAll();
+			}else {
+				while(i == version) {
+					isAllOut.await();
+					++i;
+				}
+			}
 		}
-		allDone.acquire();
-		if(outCounter.incrementAndGet() == numThreads) {
-			allOut.release(numThreads);
-			outCounter.set(0);;
-		}
-		
+		lock.unlock();
 	}
 	
 	public static void main(String[] args) {
