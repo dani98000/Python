@@ -33,6 +33,7 @@ public class TCPSelectorServer {
                 if (key.isReadable()) {
                     answerWithEcho(buffer, key);
                 }
+                
                 iter.remove();
             }
         }
