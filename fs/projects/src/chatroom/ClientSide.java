@@ -6,7 +6,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 import java.util.Scanner;
 
-public class ClientSide2 {
+public class ClientSide {
 	SocketChannel client = null;
 	ByteBuffer buffer = null;
 	Scanner scanner = new Scanner(System.in);
@@ -35,7 +35,7 @@ public class ClientSide2 {
 		t1.start();
 		
 		try {
-			client = SocketChannel.open(new InetSocketAddress("localhost", 1234));
+			client = SocketChannel.open(new InetSocketAddress("10.1.0.65", 5017));
 			buffer = ByteBuffer.allocate(256);
 		} catch (IOException e) {
 		    e.printStackTrace();
@@ -51,15 +51,10 @@ public class ClientSide2 {
 	            }
 	            response = new String(buffer.array(),0,buffer.position());
 	            buffer.flip();
-	            System.out.println("response =" + response);
+	            System.out.println(response);
 	        } catch (IOException e) {
 	            e.printStackTrace();
 	        }
 		}
-	}
-	
-	public static void main(String[] args) {		
-		ClientSide2 c = new ClientSide2();
-		c.start();
 	}
 }

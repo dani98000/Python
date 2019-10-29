@@ -36,7 +36,7 @@ public class UDPServer {
             DatagramPacket p = new DatagramPacket(
             		messageToSend.getBytes(), messageToSend.getBytes().length, packet.getAddress(), packet.getPort());
                 
-                this.udpSocket.send(p); 
+            this.udpSocket.send(p); 
 
         }
     }

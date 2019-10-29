@@ -1,9 +1,12 @@
 package chatroom;
 
+import java.io.BufferedReader;
 import java.io.Closeable;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.ServerSocket;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
@@ -17,13 +20,13 @@ public class ServerSide implements Closeable{
 	private ServerSocketChannel serverSocket;
 	private Selector selector;
     ByteBuffer buffer = ByteBuffer.allocate(256);
-	private final ByteBuffer welcomeBuf = ByteBuffer.wrap("Welcome to my chat!\n".getBytes());
+	//private final ByteBuffer welcomeBuf = ByteBuffer.wrap("Welcome to my chat! Please enter your name.\n".getBytes());
 
     public ServerSide(int port) throws IOException {
     	this.port = port;
     	selector = Selector.open();
     	serverSocket = ServerSocketChannel.open();
-    	serverSocket.bind(new InetSocketAddress(port));
+    	serverSocket.bind(new InetSocketAddress("10.1.0.65" ,port));
 		serverSocket.configureBlocking(false);
 		serverSocket.register(selector, SelectionKey.OP_ACCEPT);
     }
@@ -31,7 +34,6 @@ public class ServerSide implements Closeable{
     public void start() throws IOException {
     	 while (true) {
          	selector.select();
-         	System.out.println("An event has occured.");
          	Set<SelectionKey> selectedKeys = selector.selectedKeys();
          	Iterator<SelectionKey> iter = selectedKeys.iterator();
          	
@@ -44,7 +46,11 @@ public class ServerSide implements Closeable{
          		}
          		
          		if(key.isReadable()) {
-         			handleRead(key);
+         			if(null == key.attachment()) {
+         				registerNewUser(key);
+         			}else {
+         				handleRead(key);
+         			}
          		}
          	}
     	 }
@@ -56,6 +62,7 @@ public class ServerSide implements Closeable{
 
 		buffer.clear();
 		int read = 0;
+		
 		while( (read = client.read(buffer)) > 0 ) {
 			buffer.flip();
 			byte[] bytes = new byte[buffer.limit()];
@@ -63,6 +70,7 @@ public class ServerSide implements Closeable{
 			sb.append(new String(bytes));
 			buffer.clear();
 		}
+		
 		String msg;
 		if(read < 0) {
 			msg = key.attachment() + " left the chat.\n";
@@ -84,17 +92,35 @@ public class ServerSide implements Closeable{
 	}	
 	
 	public void handleAccept(SelectionKey key) throws IOException {
-		SocketChannel sc = ((ServerSocketChannel) key.channel()).accept();
-		String address = (new StringBuilder(sc.socket().getInetAddress().toString())).append(":").append(sc.socket().getPort()).toString();
-		sc.configureBlocking(false);
-		sc.register(selector, SelectionKey.OP_READ, address);
-		sc.write(welcomeBuf);
-		welcomeBuf.rewind();
-		System.out.println("accepted connection from: " + address);
+		SocketChannel client = ((ServerSocketChannel) key.channel()).accept();
+		String address =client.getRemoteAddress() + ":" + client.socket().getPort();
+		client.configureBlocking(false);
+		client.register(selector, SelectionKey.OP_READ);
+		client.write(ByteBuffer.wrap("Hey Please enter your name:".getBytes()));
+	}
+	
+	public void registerNewUser(SelectionKey key) throws IOException {
+		StringBuilder sb = new StringBuilder();
+		SocketChannel client = ((SocketChannel) key.channel());
+
+		buffer.clear();
+		int read = 0;
+		while((read = client.read(buffer)) > 0 ) {
+			buffer.flip();
+			byte[] bytes = new byte[buffer.limit()];
+			buffer.get(bytes);
+			sb.append(new String(bytes));
+			buffer.clear();
+		}		
+		
+		String clientName = sb.toString();
+		key.attach(clientName);
+		client.write(ByteBuffer.wrap(("Welcome to my chat," + key.attachment()).getBytes()));
+		System.out.println("accepted connection from: " + clientName);		
 	}
 	
 	public static void main(String[] args) throws IOException, InterruptedException {
-		ServerSide server = new ServerSide(1234);
+		ServerSide server = new ServerSide(8080);
 		server.start();
 	}
 
