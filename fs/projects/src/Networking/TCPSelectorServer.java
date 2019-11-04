@@ -45,7 +45,6 @@ public class TCPSelectorServer {
 		        SocketChannel client = (SocketChannel) key.channel();
 		        client.read(buffer);
 		        Thread.sleep(1000);
-		        //System.out.println(new String(buffer.array(), "ASCII"));
 		        System.out.println(new String(buffer.array()));
 		        String msg = "Pong";
 		        client.write(ByteBuffer.wrap(msg.getBytes()));

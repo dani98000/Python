@@ -26,7 +26,7 @@ public class ServerSide implements Closeable{
     	this.port = port;
     	selector = Selector.open();
     	serverSocket = ServerSocketChannel.open();
-    	serverSocket.bind(new InetSocketAddress("10.1.0.65" ,port));
+    	serverSocket.bind(new InetSocketAddress("localhost" ,port));
 		serverSocket.configureBlocking(false);
 		serverSocket.register(selector, SelectionKey.OP_ACCEPT);
     }

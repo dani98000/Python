@@ -26,6 +26,7 @@ public class CrudFile implements CRUD<String, Integer>{
 	public Integer create(String text) {
 		try {
 			writer.write(text);
+			writer.flush();
 		} catch (IOException e) {
 			return -1;
 		}

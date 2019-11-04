@@ -12,7 +12,7 @@ public class LogMonitor{
     private final List<Consumer<String>> eventHandlers = new ArrayList<>();
 	private final Path logFilePath;
 	private WatchService logWatcher;
-	private Thread monitorThread;
+	private Thread monitorThread;	
 	boolean isStarted = false;
 	
 	public LogMonitor(String logFileName) {

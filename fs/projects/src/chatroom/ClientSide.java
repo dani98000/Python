@@ -35,7 +35,7 @@ public class ClientSide {
 		t1.start();
 		
 		try {
-			client = SocketChannel.open(new InetSocketAddress("10.1.0.65", 5017));
+			client = SocketChannel.open(new InetSocketAddress("localhost", 8080));
 			buffer = ByteBuffer.allocate(256);
 		} catch (IOException e) {
 		    e.printStackTrace();
