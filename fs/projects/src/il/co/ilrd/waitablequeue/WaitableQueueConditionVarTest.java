@@ -38,11 +38,7 @@ class WaitableQueueConditionVarTest {
 		});
 	
 		Thread t2 = new Thread(()-> {
-			try {
-				assertEquals(true, queue.remove(5));
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
+			assertEquals(true, queue.remove(5));
 		});
 		
 		t1.start();
@@ -57,11 +53,7 @@ class WaitableQueueConditionVarTest {
 		});
 	
 		Thread t2 = new Thread(()-> {
-			try {
-				assertEquals(false, queue.remove(5));
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
+			assertEquals(false, queue.remove(5));
 		});
 		
 		t1.start();

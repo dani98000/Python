@@ -7,7 +7,7 @@ import java.io.IOException;
 import il.co.ilrd.crud.*;
 
 public class CrudFile implements CRUD<String, Integer>{
-    private BufferedWriter writer; 
+    private final BufferedWriter writer; 
     
 	public CrudFile(String fileName) throws IOException {
 		File file = new File(fileName);

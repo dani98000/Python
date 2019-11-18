@@ -157,9 +157,9 @@ public class ThreadPool implements Executor {
 			private T result;
 			private boolean isDone = false;
 			private boolean isCancelled = false;
-			boolean isFailed = false;
+			private boolean isFailed = false;
 			private Semaphore isResultReady = new Semaphore(0);
-			Exception failureCause = null;		
+			private Exception failureCause = null;		
 
 			@Override
 			public boolean cancel(boolean mayInterruptIfRunning) {

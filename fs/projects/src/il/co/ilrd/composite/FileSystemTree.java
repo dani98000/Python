@@ -25,7 +25,6 @@ public class FileSystemTree {
 	}
 	
 	public void print() {
-		System.out.println(ANSI_RED + "hey" + ANSI_RESET);
 		currBranch.print();
 	}
 	
