@@ -67,7 +67,7 @@ public class ThreadPool implements Executor {
 				pauseHandler.enqueuePausingTasks(newNumThreads-numThreads);
 			}
 			createWorkers(newNumThreads - numThreads);
-		}else if (newNumThreads < numThreads) {
+		} else if (newNumThreads < numThreads) {
 			for (int i = 0; i < numThreads - newNumThreads; ++i) {
 				taskQueue.enqueue(createSuicideTask());
 			}

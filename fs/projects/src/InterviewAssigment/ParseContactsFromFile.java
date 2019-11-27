@@ -12,8 +12,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.xml.bind.annotation.adapters.HexBinaryAdapter;
-
 public class ParseContactsFromFile {
 	private static final String FIRST_NAME_CODE = "86B7";
 	private static final String LAST_NAME_CODE = "9E60";
