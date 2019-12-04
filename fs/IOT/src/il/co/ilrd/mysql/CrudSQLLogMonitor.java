@@ -1,8 +1,5 @@
 package il.co.ilrd.mysql;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -13,11 +10,12 @@ public class CrudSQLLogMonitor implements CRUD<String, Integer>{
 	private AtomicInteger id;
 	private String tableName;
 	private MySQLUtility sqlUtil;
+	private static String dbAddress = "localhost:3306";
 	
 	public CrudSQLLogMonitor(String DBName, String tableName, String username, String password) throws SQLException {
 		this.tableName = tableName;
 		id = new AtomicInteger(0);
-		sqlUtil = new MySQLUtility(DBName, username, password);
+		sqlUtil = new MySQLUtility(dbAddress, DBName, username, password);
 		updateID();
 		sqlUtil.createTable(tableName, "id INT PRIMARY KEY, message TEXT");
 	}

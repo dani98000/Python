@@ -33,9 +33,8 @@ public class CrudSQLLogMonitor implements CRUD<String, Integer>{
 		int messageID = id.getAndIncrement();
 		String query = "INSERT INTO " + tableName + "(id, message) "
 					 + "VALUES (" + messageID + ",\"" + str + "\")";
-		int ret = 0;
 		try {
-			ret = sqlUtil.executeModify(query);
+			sqlUtil.executeModify(query);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
