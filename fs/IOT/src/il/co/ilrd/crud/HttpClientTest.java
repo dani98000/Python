@@ -1,4 +1,4 @@
-package il.co.ilrd.helloworld;
+package il.co.ilrd.crud;
 
 import java.io.IOException;
 import il.co.ilrd.logmonitor.LogMonitor;

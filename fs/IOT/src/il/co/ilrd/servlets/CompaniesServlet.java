@@ -16,8 +16,8 @@ import il.co.ilrd.mysql.MySQLUtility;
 /**
  * Servlet implementation class CR
  */
-@WebServlet("/CR")
-public class CR extends HttpServlet {
+@WebServlet("/companies")
+public class CompaniesServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private static String dbAddress = "localhost:3306";
 	private static String username = "daniel";
@@ -26,7 +26,7 @@ public class CR extends HttpServlet {
     /**
      * @see HttpServlet#HttpServlet()
      */
-    public CR() {
+    public CompaniesServlet() {
         super();
         // TODO Auto-generated constructor stub
     }
@@ -48,10 +48,11 @@ public class CR extends HttpServlet {
 		JsonObject json = JsonUtil.toJsonObject(new String(body));
 		String companyName = json.get("companyName").getAsString();
 		try {
-			System.out.println(companyName);
+			//System.out.println(companyName);
 			MySQLUtility sqlUtil = createDatabase(companyName);
 			createClientsTable(sqlUtil);
 			createUpdatesTable(sqlUtil);
+			createProductsTable(sqlUtil);
 		} catch (SQLException e) {
 			response.setStatus(500);
 			response.getWriter().append("Database Error!");
@@ -88,13 +89,7 @@ public class CR extends HttpServlet {
 									  + "FOREIGN KEY(productNumber) references Clients(productNumber)" + ")");
 	}
 	
-	/*public void createProductsTable(MySQLUtility sqlUtil) {
-		sqlUtil.createTable("Updates", "(deviceSN VARCHAR(50) NOT NULL,"
-									  + "updateID INT NOT NULL AUTO_INCREMENT,"
-				  					  + "productNumber VARCHAR(50) NOT NULL,"
-									  + "updateInfo TEXT NOT NULL,"
-									  + "updateTime DATETIME NOT NULL DEFAULT NOW()," 
-									  + "PRIMARY KEY(updateID),"
-									  + "FOREIGN KEY(deviceSN) references Clients(deviceSN)" + ")");
-	}*/
+	public void createProductsTable(MySQLUtility sqlUtil) {
+		sqlUtil.createTable("Products", "(deviceSN VARCHAR(50) NOT NULL PRIMARY KEY)");
+	}
 }

@@ -1,6 +1,7 @@
 package il.co.ilrd.servlets;
 
 import java.io.IOException;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import javax.servlet.ServletException;
@@ -15,10 +16,10 @@ import il.co.ilrd.gateway.JsonUtil;
 import il.co.ilrd.mysql.MySQLUtility;
 
 /**
- * Servlet implementation class PR
+ * Servlet implementation class ER
  */
-@WebServlet("/PR")
-public class PR extends HttpServlet {
+@WebServlet("/endusers")
+public class EndUsersServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private static String dbAddress = "localhost:3306";
 	private static String username = "daniel";
@@ -27,7 +28,7 @@ public class PR extends HttpServlet {
     /**
      * @see HttpServlet#HttpServlet()
      */
-    public PR() {
+    public EndUsersServlet() {
         super();
         // TODO Auto-generated constructor stub
     }
@@ -47,16 +48,23 @@ public class PR extends HttpServlet {
 		byte[] body = new byte[request.getContentLength()];
 		request.getInputStream().read(body);
 		JsonObject json = JsonUtil.toJsonObject(new String(body));
-		String deviceSN = json.get("deviceSN").getAsString();
 		String companyName = json.get("companyName").getAsString();
+		String email = json.get("email").getAsString();
+		String name = json.get("name").getAsString();
+		String deviceSN = json.get("deviceSN").getAsString();
 		String productNumber = json.get("productNumber").getAsString();
-		String updateInfo = json.get("updateInfo").getAsString();
+
 		try {
-			MySQLUtility sqlUtil = new MySQLUtility(dbAddress, companyName, username, password);
-			sqlUtil.execute("INSERT INTO Products VALUES(" + deviceSN + "," 
-														   + productNumber + "," 
-														   + updateInfo + ")");
+			MySQLUtility sqlUtil = new MySQLUtility(dbAddress, companyName, username, password, true);
+			if(!isProductValid(sqlUtil, deviceSN)) {
+				throw new SQLException("Invalid Product");
+			}
+			int numRowsEffected = insertIntoTable(sqlUtil, email, name, deviceSN, productNumber);
+			if(numRowsEffected != 1) {
+				throw new SQLException("Coudn't insert product to table");
+			}
 		} catch (SQLException e) {
+			e.printStackTrace();
 			response.setStatus(500);
 			response.getWriter().append("Database Error!");
 			
@@ -65,5 +73,21 @@ public class PR extends HttpServlet {
 
 		response.getWriter().append("Product added successfuly!");
 		response.setStatus(200);
+	}
+	
+	private int insertIntoTable(MySQLUtility sqlUtil, 
+								String email, String name, String deviceSN, String productNumber) throws SQLException {
+		String query = String.format("INSERT INTO Clients (email, name, deviceSN, productNumber) "
+				 		   + "VALUES('%s','%s','%s','%s')", email, name, deviceSN, productNumber);
+		
+		return sqlUtil.executeModify(query);	
+	}
+	
+	private boolean isProductValid(MySQLUtility sqlUtil, String deviceSN) throws SQLException {
+		String query = String.format("select deviceSN from Products where deviceSN = '%S'", deviceSN);
+		System.out.println(query);
+		ResultSet rs = sqlUtil.execute(query);	
+		
+		return rs.isBeforeFirst(); 
 	}
 }

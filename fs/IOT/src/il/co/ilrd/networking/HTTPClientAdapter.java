@@ -20,7 +20,7 @@ public class HTTPClientAdapter implements ClientAdapter{
 	@Override
 	public void send(byte[] msg) throws IOException {
 		  HttpRequest request = HttpRequest.newBuilder()
-			        .uri(URI.create("http://localhost:8080/IOT"))
+			        .uri(URI.create("http://localhost:8080/crud"))
 			        .header("Content-Type", "text/plain; charset=UTF-8")
 			        .POST(BodyPublishers.ofByteArray(msg))
 			        .build();

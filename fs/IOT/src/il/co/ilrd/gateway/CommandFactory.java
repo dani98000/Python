@@ -14,7 +14,10 @@ public class CommandFactory {
 	private static HashMap<String, Command> actions = new HashMap<>();
 	private static final Command CR = new CR();
 	private static final Command ER = new ER();
+	private static final Command PR = new PR();
 	private static final Command Updates = new Updates();
+	
+	private static final String URL = "http://localhost:8080";
 	
 	private CommandFactory() {}
 	
@@ -28,7 +31,7 @@ public class CommandFactory {
 			HttpClient client = HttpClient.newHttpClient();
 			
 			HttpRequest req = HttpRequest.newBuilder()
-					.uri(URI.create("http://localhost:8080/IOT/CR"))
+					.uri(URI.create(URL + "/iot/companies"))
 					.header("Content-Type", "application/json")
 					.POST(BodyPublishers.ofByteArray(data))
 					.build();
@@ -47,7 +50,7 @@ public class CommandFactory {
 			HttpClient client = HttpClient.newHttpClient();
 			
 			HttpRequest req = HttpRequest.newBuilder()
-					.uri(URI.create("http://localhost:8080/IOT/ER"))
+					.uri(URI.create(URL + "/iot/endusers"))
 					.header("Content-Type", "application/json")
 					.POST(BodyPublishers.ofByteArray(data))
 					.build();
@@ -66,7 +69,26 @@ public class CommandFactory {
 			HttpClient client = HttpClient.newHttpClient();
 			
 			HttpRequest req = HttpRequest.newBuilder()
-					.uri(URI.create("http://localhost:8080/IOT/Updates"))
+					.uri(URI.create(URL + "/iot/updates"))
+					.header("Content-Type", "application/json")
+					.POST(BodyPublishers.ofByteArray(data))
+					.build();
+			
+			return client.sendAsync(req, BodyHandlers.ofByteArray());
+		}
+	} 
+	
+	private static class PR implements Command {
+		public PR() {
+			actions.put("PR", this);
+		}
+
+		@Override
+		public CompletableFuture<HttpResponse<byte[]>> execute(byte[] data) throws IOException {
+			HttpClient client = HttpClient.newHttpClient();
+			
+			HttpRequest req = HttpRequest.newBuilder()
+					.uri(URI.create(URL + "/iot/products"))
 					.header("Content-Type", "application/json")
 					.POST(BodyPublishers.ofByteArray(data))
 					.build();
