@@ -56,7 +56,7 @@ public class EndUsersServlet extends HttpServlet {
 
 		try {
 			MySQLUtility sqlUtil = new MySQLUtility(dbAddress, companyName, username, password, true);
-			if(!isProductValid(sqlUtil, deviceSN)) {
+			if(!isProductValid(sqlUtil, productNumber)) {
 				throw new SQLException("Invalid Product");
 			}
 			int numRowsEffected = insertIntoTable(sqlUtil, email, name, deviceSN, productNumber);
@@ -83,11 +83,7 @@ public class EndUsersServlet extends HttpServlet {
 		return sqlUtil.executeModify(query);	
 	}
 	
-	private boolean isProductValid(MySQLUtility sqlUtil, String deviceSN) throws SQLException {
-		String query = String.format("select deviceSN from Products where deviceSN = '%S'", deviceSN);
-		System.out.println(query);
-		ResultSet rs = sqlUtil.execute(query);	
-		
-		return rs.isBeforeFirst(); 
+	private boolean isProductValid(MySQLUtility sqlUtil, String productNumber) throws SQLException {
+		return sqlUtil.checkIfTableExists(productNumber);
 	}
 }

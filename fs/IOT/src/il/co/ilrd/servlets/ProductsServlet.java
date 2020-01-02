@@ -47,11 +47,14 @@ public class ProductsServlet extends HttpServlet {
 		byte[] body = new byte[request.getContentLength()];
 		request.getInputStream().read(body);
 		JsonObject json = JsonUtil.toJsonObject(new String(body));
-		String deviceSN = json.get("deviceSN").getAsString();
+		String productNumber = json.get("catalogNumber").getAsString();
 		String companyName = json.get("companyName").getAsString();
+		if(!validatePRData(companyName, productNumber)) {
+			throw new IllegalArgumentException("Company Name of Product Number is not correct");
+		}
 		try {
 			MySQLUtility sqlUtil = new MySQLUtility(dbAddress, companyName, username, password);
-			sqlUtil.executeModify("INSERT INTO Products VALUES(\"" + deviceSN + "\")"); 
+			createUpdatesTable(sqlUtil, productNumber);
 		} catch (SQLException e) {
 			response.setStatus(500);
 			response.getWriter().append("Database Error!");
@@ -61,5 +64,18 @@ public class ProductsServlet extends HttpServlet {
 
 		response.getWriter().append("Product added successfuly!");
 		response.setStatus(200);
+	}
+	
+	private boolean validatePRData(String companyName, String productNumber) {
+		return (companyName != null && productNumber != null);
+	}
+	
+	public void createUpdatesTable(MySQLUtility sqlUtil, String productNumber) {
+		sqlUtil.createTable(productNumber, "(deviceSN VARCHAR(50) NOT NULL,"
+								  + "updateInfo TEXT NOT NULL,"
+								  + "updateID INT NOT NULL AUTO_INCREMENT,"
+								  + "updateTime DATETIME NOT NULL DEFAULT NOW()," 
+								  + "PRIMARY KEY(updateID),"
+								  + "FOREIGN KEY(deviceSN) references Clients(deviceSN)" + ")");
 	}
 }

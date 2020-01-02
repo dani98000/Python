@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.concurrent.CompletableFuture;
 
 public class CommandFactory {
+	private static final CommandFactory instance = new CommandFactory();
 	private static HashMap<String, Command> actions = new HashMap<>();
 	private static final Command CR = new CR();
 	private static final Command ER = new ER();
@@ -21,22 +22,26 @@ public class CommandFactory {
 	
 	private CommandFactory() {}
 	
+	public static CommandFactory getInstance() {
+		return instance;
+	}
+	
 	private static class CR implements Command {
 		public CR() {
 			actions.put("CR", this);
 		}
 
 		@Override
-		public CompletableFuture<HttpResponse<byte[]>> execute(byte[] data) throws IOException {
+		public CompletableFuture<HttpResponse<String>> execute(String data) throws IOException {
 			HttpClient client = HttpClient.newHttpClient();
 			
 			HttpRequest req = HttpRequest.newBuilder()
-					.uri(URI.create(URL + "/iot/companies"))
+					.uri(URI.create(URL + "/companies"))
 					.header("Content-Type", "application/json")
-					.POST(BodyPublishers.ofByteArray(data))
+					.POST(BodyPublishers.ofString(data))
 					.build();
 			
-			return client.sendAsync(req, BodyHandlers.ofByteArray());
+			return client.sendAsync(req, BodyHandlers.ofString());
 		}
 	} 
 	
@@ -46,16 +51,16 @@ public class CommandFactory {
 		}
 
 		@Override
-		public CompletableFuture<HttpResponse<byte[]>> execute(byte[] data) throws IOException {
+		public CompletableFuture<HttpResponse<String>> execute(String data) throws IOException {
 			HttpClient client = HttpClient.newHttpClient();
 			
 			HttpRequest req = HttpRequest.newBuilder()
 					.uri(URI.create(URL + "/iot/endusers"))
 					.header("Content-Type", "application/json")
-					.POST(BodyPublishers.ofByteArray(data))
+					.POST(BodyPublishers.ofString(data))
 					.build();
 			
-			return client.sendAsync(req, BodyHandlers.ofByteArray());
+			return client.sendAsync(req, BodyHandlers.ofString());
 		}
 	} 
 
@@ -65,16 +70,16 @@ public class CommandFactory {
 		}
 
 		@Override
-		public CompletableFuture<HttpResponse<byte[]>> execute(byte[] data) throws IOException {
+		public CompletableFuture<HttpResponse<String>> execute(String data) throws IOException {
 			HttpClient client = HttpClient.newHttpClient();
 			
 			HttpRequest req = HttpRequest.newBuilder()
 					.uri(URI.create(URL + "/iot/updates"))
 					.header("Content-Type", "application/json")
-					.POST(BodyPublishers.ofByteArray(data))
+					.POST(BodyPublishers.ofString(data))
 					.build();
 			
-			return client.sendAsync(req, BodyHandlers.ofByteArray());
+			return client.sendAsync(req, BodyHandlers.ofString());
 		}
 	} 
 	
@@ -84,20 +89,24 @@ public class CommandFactory {
 		}
 
 		@Override
-		public CompletableFuture<HttpResponse<byte[]>> execute(byte[] data) throws IOException {
+		public CompletableFuture<HttpResponse<String>> execute(String data) throws IOException {
 			HttpClient client = HttpClient.newHttpClient();
 			
 			HttpRequest req = HttpRequest.newBuilder()
-					.uri(URI.create(URL + "/iot/products"))
+					.uri(URI.create(URL + "/products"))
 					.header("Content-Type", "application/json")
-					.POST(BodyPublishers.ofByteArray(data))
+					.POST(BodyPublishers.ofString(data))
 					.build();
 			
-			return client.sendAsync(req, BodyHandlers.ofByteArray());
+			return client.sendAsync(req, BodyHandlers.ofString());
 		}
 	} 
 
-	public static Command getCommand(String commandName) {
+	public Command getCommand(String commandName) {
 		return actions.get(commandName);
+	}
+	
+	public boolean isSupported(String commandName) {
+		return actions.containsKey(commandName);
 	}
 }

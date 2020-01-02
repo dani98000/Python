@@ -9,6 +9,6 @@ public class GatewayServer {
 	public static void main(String[] args) throws IOException {
 		HttpServer server = HttpServer.create(new InetSocketAddress("localhost", 5555), 0);
 		HttpRequestHandler handler = new HttpRequestHandler(server);
-		server.start();
+		handler.start();
 	}
 }

@@ -72,8 +72,8 @@ public class UpdatesServlet extends HttpServlet implements Servlet {
 	
 	private int insertIntoTable(MySQLUtility sqlUtil, String deviceSN, String updateInfo, String productNumber)
 	throws SQLException {
-		String query = String.format("INSERT INTO Updates (deviceSN, updateInfo, productNumber) "
-				 		   + "VALUES('%s','%s','%s')", deviceSN, updateInfo, productNumber);
+		String query = String.format("INSERT INTO " + productNumber + "(deviceSN, updateInfo) "
+				 		   + "VALUES('%s','%s')", deviceSN, updateInfo);
 		
 		return sqlUtil.executeModify(query);	
 	}

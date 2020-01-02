@@ -47,13 +47,17 @@ public class CompaniesServlet extends HttpServlet {
 		request.getInputStream().read(body);
 		JsonObject json = JsonUtil.toJsonObject(new String(body));
 		String companyName = json.get("companyName").getAsString();
+		if(companyName == null) {
+			throw new IllegalArgumentException();
+		}
 		try {
-			//System.out.println(companyName);
+			System.out.println("reached0");
 			MySQLUtility sqlUtil = createDatabase(companyName);
+			System.out.println("reached1");
 			createClientsTable(sqlUtil);
-			createUpdatesTable(sqlUtil);
-			createProductsTable(sqlUtil);
+			System.out.println("reached2");
 		} catch (SQLException e) {
+			System.out.println("sql error");
 			response.setStatus(500);
 			response.getWriter().append("Database Error!");
 			
@@ -66,8 +70,10 @@ public class CompaniesServlet extends HttpServlet {
 	private MySQLUtility createDatabase(String companyName) throws SQLException {
 		MySQLUtility sqlUtil = new MySQLUtility(dbAddress, username, password);
 		if(sqlUtil.databaseExists(companyName)) {
+			System.out.println("fail");
 			throw new SQLException("Database " + companyName + " Already exists!!");
 		}else {
+			System.out.println("success");
 			return new MySQLUtility(dbAddress, companyName, username, password, false);
 		}
 	}
@@ -75,21 +81,7 @@ public class CompaniesServlet extends HttpServlet {
 	public void createClientsTable(MySQLUtility sqlUtil) {
 		sqlUtil.createTable("Clients", "(email VARCHAR(320) NOT NULL,"
 									  + "name VARCHAR(50) NOT NULL," 
-									  + "deviceSN VARCHAR(50) NOT NULL,"
-									  + "productNumber VARCHAR(50) NOT NULL PRIMARY KEY" + ")");
-	}
-	
-	public void createUpdatesTable(MySQLUtility sqlUtil) {
-		sqlUtil.createTable("Updates", "(deviceSN VARCHAR(50) NOT NULL,"
-									  + "updateID INT NOT NULL AUTO_INCREMENT,"
-				  					  + "productNumber VARCHAR(50) NOT NULL,"
-									  + "updateInfo TEXT NOT NULL,"
-									  + "updateTime DATETIME NOT NULL DEFAULT NOW()," 
-									  + "PRIMARY KEY(updateID),"
-									  + "FOREIGN KEY(productNumber) references Clients(productNumber)" + ")");
-	}
-	
-	public void createProductsTable(MySQLUtility sqlUtil) {
-		sqlUtil.createTable("Products", "(deviceSN VARCHAR(50) NOT NULL PRIMARY KEY)");
+									  + "productNumber VARCHAR(50) NOT NULL,"
+									  + "deviceSN VARCHAR(50) NOT NULL PRIMARY KEY" + ")");
 	}
 }
