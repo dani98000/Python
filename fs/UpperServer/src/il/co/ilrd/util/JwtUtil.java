@@ -1,11 +1,9 @@
 package il.co.ilrd.util;
-import java.security.Key;
 import java.util.Date;
 
 import javax.servlet.http.HttpServletRequest;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.security.Keys;
 
 public class JwtUtil {
     private static final String REDIS_SET_ACTIVE_SUBJECTS = "active-subjects";

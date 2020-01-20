@@ -68,14 +68,15 @@ public class Registration extends HttpServlet {
 		request.getInputStream().read(body);
 		int resStatus = 0;
 		
+		Company company = new Company(new String(body));
 		try {
 			DatabaseUtil dbUtil = DatabaseUtil.getInstance();
-			Company company = new Company(new String(body));
 			company.save();
 			String json = prepareCRJson(company);
 			int status = sendPost(json);
 			if(status == 200) {
 				dbUtil.generateToken(response, company);
+				resStatus = 201;
 			} else {
 				try {
 					company.delete();
@@ -86,7 +87,11 @@ public class Registration extends HttpServlet {
 				resStatus = 403;
 			}
 		} catch (SQLException | InterruptedException e) {
-			e.printStackTrace();
+			try {
+				company.delete();
+			} catch (SQLException e1) {
+				e1.printStackTrace();
+			}
 			resStatus = 500;
 		}
 		

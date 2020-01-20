@@ -51,13 +51,9 @@ public class CompaniesServlet extends HttpServlet {
 			throw new IllegalArgumentException();
 		}
 		try {
-			System.out.println("reached0");
 			MySQLUtility sqlUtil = createDatabase(companyName);
-			System.out.println("reached1");
 			createClientsTable(sqlUtil);
-			System.out.println("reached2");
 		} catch (SQLException e) {
-			System.out.println("sql error");
 			response.setStatus(500);
 			response.getWriter().append("Database Error!");
 			
@@ -70,10 +66,8 @@ public class CompaniesServlet extends HttpServlet {
 	private MySQLUtility createDatabase(String companyName) throws SQLException {
 		MySQLUtility sqlUtil = new MySQLUtility(dbAddress, username, password);
 		if(sqlUtil.databaseExists(companyName)) {
-			System.out.println("fail");
 			throw new SQLException("Database " + companyName + " Already exists!!");
 		}else {
-			System.out.println("success");
 			return new MySQLUtility(dbAddress, companyName, username, password, false);
 		}
 	}

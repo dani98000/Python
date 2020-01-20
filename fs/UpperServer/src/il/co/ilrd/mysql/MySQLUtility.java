@@ -40,7 +40,6 @@ public class MySQLUtility implements AutoCloseable{
 		}
 		String url = String.format("jdbc:mysql://%s/%s?user=%s&password=%s",
 							dbAddress, dbName, user, password);
-		System.out.println("url: " + url);
 		connect(url);
 		statement = connection.createStatement();
 	}
@@ -69,7 +68,6 @@ public class MySQLUtility implements AutoCloseable{
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		System.out.println(query);
 	}
 	
 	public boolean databaseExists(String dbName) throws SQLException {

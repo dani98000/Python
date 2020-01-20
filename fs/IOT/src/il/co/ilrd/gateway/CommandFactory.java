@@ -55,7 +55,7 @@ public class CommandFactory {
 			HttpClient client = HttpClient.newHttpClient();
 			
 			HttpRequest req = HttpRequest.newBuilder()
-					.uri(URI.create(URL + "/iot/endusers"))
+					.uri(URI.create(URL + "/endusers"))
 					.header("Content-Type", "application/json")
 					.POST(BodyPublishers.ofString(data))
 					.build();
@@ -74,7 +74,7 @@ public class CommandFactory {
 			HttpClient client = HttpClient.newHttpClient();
 			
 			HttpRequest req = HttpRequest.newBuilder()
-					.uri(URI.create(URL + "/iot/updates"))
+					.uri(URI.create(URL + "/updates"))
 					.header("Content-Type", "application/json")
 					.POST(BodyPublishers.ofString(data))
 					.build();
