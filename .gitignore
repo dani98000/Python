@@ -8,3 +8,8 @@
 !*.java
 !*.class
 !*.jar
+!*.py
+!*.db
+!*.js
+!*.json
+!*.xml
